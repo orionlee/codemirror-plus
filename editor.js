@@ -36,7 +36,7 @@ var fileIOErrorHandler = (function() {
 
 function handleDocumentChange(filePath) {
   var mode = "";
-  var modeName = "Fundamental";
+  var modeName = "";
   if (filePath) {
     var fileName = filePath.match(/[^/\\]+$/)[0];
     document.title = fileName;

@@ -170,7 +170,7 @@ CodeMirror.showHint4Dialog = function(cm, getHints, options) {
     });
     CodeMirror.on(hints, "click", function(e) {
       var t = e.target || e.srcElement;
-      if (t.hintId != null) changeActivez(t.hintId);
+      if (t.hintId != null) changeActive(t.hintId);
       setTimeout(function(){cm.focus();}, 20);
     });
 

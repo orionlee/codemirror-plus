@@ -15,7 +15,7 @@ function createToggleJsHint(callback){
   }
   
   function updateHints() {
-    function getSelectionHandleIfAny(_cm) {
+    function getSelectionHandleIfAny() {
       var sel = _cm.getDoc().sel;
       if (sel.from == sel.to) {
         return null; // nothing is really selected
@@ -27,7 +27,7 @@ function createToggleJsHint(callback){
     _cm.operation(function(){
       clearWidgets();
       var lineOffset;
-      var selHandle = getSelectionHandleIfAny(_cm);
+      var selHandle = getSelectionHandleIfAny();
       if (!selHandle) {
         // case jshint entie buffer;
         JSHINT(_cm.getValue());

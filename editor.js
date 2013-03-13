@@ -34,23 +34,25 @@ var fileIOErrorHandler = (function() {
   return fileIOErrorHandler;
 })();
 
-function handleDocumentChange(title) {
+function handleDocumentChange(filePath) {
   var mode = "";
   var modeName = "Fundamental";
-  if (title) {
-    title = title.match(/[^/]+$/)[0];
-    titleElt.innerHTML = title;
-    document.title = title;
-    if (title.match(/.js$/)) {
+  if (filePath) {
+    var fileName = filePath.match(/[^/\\]+$/)[0];
+    document.title = fileName;
+
+    titleElt.innerHTML = fileName;
+    titleElt.title = filePath; // for tooltip
+    if (fileName.match(/.js$/)) {
 	  	mode = "javascript";
   		modeName = "JavaScript";    
-    } else if (title.match(/.json$/)) {
+    } else if (fileName.match(/.json$/)) {
       mode = {name: "javascript", json: true};
       modeName = "JavaScript (JSON)";
-    } else if (title.match(/.html?$/)) {
+    } else if (fileName.match(/.html?$/)) {
       mode = "htmlmixed";
       modeName = "HTML";
-    } else if (title.match(/.css$/)) {
+    } else if (fileName.match(/.css$/)) {
       mode = "css";
       modeName = "CSS";
     } // else use deafult (Unknown)
@@ -64,7 +66,24 @@ function handleDocumentChange(title) {
     initCodeMirror4Mode(editor, mode);
   } // else mode not changed. no-op
     
+  customThemeIfApplicable(filePath); 
 }
+
+/**
+ * @param filePath full file system path, 
+ * or the logic might not work.
+ * In particular, fileEntry.fullPath is only
+ * an abstraction and should not be passed here.
+ */
+function customThemeIfApplicable(filePath) {
+  if (filePath && filePath.match(/pweb-dev/)) { // make them look different
+    editor.setOption('theme', 'rubyblue');
+  } else {
+    // default, need to be set explicitly in case mutilple files have been opened.
+    editor.setOption('theme', 'blackboard');
+  }
+} // function customThemeByFile(..)
+
 
 function newFile() {
   fileEntry = null;
@@ -83,7 +102,10 @@ function readFileIntoEditor(theFileEntry) {
       var fileReader = new FileReader();
 
       fileReader.onload = function(e) {
-        handleDocumentChange(theFileEntry.fullPath);
+        // note: theFileEntry.fullPath does not give 
+        // native file system path, which is needed 
+        chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
+          handleDocumentChange(displayPath);
         editor.setValue(e.target.result); // actual changes
         
         if (CodeMirror.commands.clearSearch) {
@@ -93,7 +115,8 @@ function readFileIntoEditor(theFileEntry) {
         // but really it's just started
         editor.markClean();
         updateUIOnChange(editor);
-      };
+        }); // getDisplayPath(..)        
+      }; // fileReader.onload = ..
 
       fileReader.onerror = function(e) {
         fileIOErrorHandler(e, "Open File failed: ");
@@ -127,9 +150,13 @@ function writeEditorToFile(theFileEntry) {
 		      fileIOErrorHandler(this.error, "Save File failed:");      
         } else {
           editor.markClean();
-          handleDocumentChange(theFileEntry.fullPath);
-          updateUIOnChange(editor);
-          console.debug("Write completed.");          
+          // note: theFileEntry.fullPath does not give 
+          // native file system path, which is needed 
+          chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
+            handleDocumentChange(displayPath);
+            updateUIOnChange(editor);
+            console.debug("Write completed.");              
+          });
         }
       };
 

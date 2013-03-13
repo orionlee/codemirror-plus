@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="cm/lib/codemirror.css" />
+    <script src="cm/lib/codemirror.js"></script>
+
+    <script src="cm/mode/javascript/javascript.js"></script>
+
+    <script src="cm/addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="cm/addon/hint/show-hint.css">
+    <script src="cm/addon/hint/javascript-hint.js"></script>
+
+    <script src="cm/addon/edit/matchbrackets.js"></script>
+
+    <script src="cm/addon/edit/closebrackets.js"></script>
+
+    <script src="cm-local/cm-patchautoclosebracketsbycurlywithwewline.js"></script>
+
+    <script src="cm/addon/edit/continuecomment.js"></script>
+
+    <script src="cm/addon/fold/foldcode.js"></script>
+
+    <script src="cm/addon/dialog/dialog.js"></script>
+    <link rel="stylesheet" href="cm/addon/dialog/dialog.css">
+    <script src="cm/addon/search/searchcursor.js"></script>
+    <script src="cm/addon/search/search.js"></script>
+
+    <script src="cm/addon/search/match-highlighter.js"></script>
+
+    <script src="cm/addon/format/formatting.js"></script>
+
+    <script src="cm/mode/css/css.js"></script>
+
+    <script src="cm-local/css-hint.js"></script>
+
+    <script src="cm/mode/xml/xml.js"></script>
+    <script src="cm/mode/htmlmixed/htmlmixed.js"></script>
+
+    <script src="cm-local/javascript-mixedmode-hint.js"></script>
+
+    <script src="cm/addon/edit/closetag.js"></script>
+
+    <script src="jshint/jshint.js"></script>
+    <script src="cm-local/cm-jshint.js"></script>
+
+    <script src="cm-local/colnummode.js"></script>
+    <script src="cm-local/execcommand.js"></script>
+    <script src="cm-local/cm-eval.js"></script>
+    
+    <script src="cm-local/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
+    <script src="cm-local/dialog-hack.js"></script>  <!-- dialog.js hack/improvement needed for execCommandInteractive's autocomplete feature -->
+  
+    <!-- hack patch, MUST be loaded after original codes (above) are loaded -->
+    <script type="text/javascript" src="cm-local/codemirror-hack.js"></script>
+    <script type="text/javascript" src="cm-local/functionchain.js"></script>
+
+    <link rel="stylesheet" href="cm/theme/eclipse.css" />
+    <link rel="stylesheet" href="cm/theme/blackboard.css" />
+
+    <link rel="stylesheet" href="cm-customization.css"> <!-- optional customization, overriding CM defaults  -->
+    <link rel="stylesheet" href="style.css"> <!-- added last to override any CM styles -->
+  
+    <script src="editor.js"></script>
+    <script src="editor-help.js"></script>
+    <script src="cm-editor-init.js"></script>
+    <script src="winmove-util.js"></script>
+    <script src="dnd-util.js"></script>
+
+</head>
+
+<body>
+<div id="win"> <!-- -->
+  
+  <div class="buttons"> 
+    <button title="New file in new window" id="new"> <img src="img/16x16/file_add.png"/><span class="accessKey">N</span>ew  </button>
+    <button title="Open file..." id="open"><img src="img/16x16/file.png"/>  <span class="accessKey">O</span>pen </button>
+    <button title="Save file" id="save" disabled><img src="img/16x16/diskette.png" /><span class="accessKey">S</span>ave </button>
+    <button title="Save As another file... - disabled due to chrome app bug that new file saved is locked until entire chrome (not just the app) is closed." id="saveAs" disabled><img src="img/16x16/diskette.png"/>Save As</button>
+    <button title="Help" id="help" accessKey="h">Help</button>
+    <button title="Exit editor" id="exit">X</button>
+  </div>
+
+  <div id="editor"></div>
+
+
+  <div id="info" class="CodeMirror"> <!-- add CodeMirror class to have consistent fonts, etc. -->  
+    <label>Filename: </label><span id="title"></span>
+    <label>Mode: </label><span id="mode"></span>
+    <span id="_codeModeModifier"></span>
+  </div>
+  
+   <div id="error" style="z-index: 10; width: 90%; height: auto; position: fixed; left: 30px; top: 30px; 
+              border: 1px solid #666666; border-radius: 12px; background-color: rgba(255, 255, 0, 0.95); padding: 6px; 
+              box-shadow: 6px 8px 8px #999999; display: none;">
+    <!-- a text based alert icon (exclamation -->
+    <div style="float: left; height: 100%; font-size: 36px; font-weight: bold; margin-right: 6px; 
+position: relative;top: -3px; color: white; background-color: red; border: 1px solid red; border-radius: 36px;  font-family: Verdana, sans-serif;">&nbsp;!!&nbsp;</div>
+    <div id="errormsg"></div>
+    <div>
+      <button id="error_btn"> Ok </button>
+    </div>
+  </div> <!-- id="error" -->
+
+    <!-- Help pop-in; -->
+  <div id="_helpDiv" style="font-size: small; padding: 24px; z-index: 99; position: absolute; top: 50px; left: 30px; 
+border: 2px solid gray; border-radius: 10px; color: white; background-color: rgba(51, 51, 51, 0.95); 
+overflow-y: auto; height: 380px; width: 780px; display: none;" >
+  <style type="text/css">
+    #_helpDiv dt { color: gold; }
+  </style>
+  <h3 style="border-bottom: 1px solid; margin: 0px; ">Shortcuts:</h3>
+  <dl>
+    <dt>
+      Ctrl-F / Cmd-F
+    </dt>
+    <dd>Start searching</dd>
+    <dt>
+      Ctrl-G / Cmd-G
+    </dt>
+    <dd>Find next</dd>
+    <dt>
+      Shift-Ctrl-G / Shift-Cmd-G
+    </dt>
+    <dd>Find previous</dd>
+    <dt>
+      Shift-Ctrl-F / Cmd-Option-F
+    </dt>
+    <dd>Replace</dd>
+    <dt>
+      Shift-Ctrl-R / Shift-Cmd-Option-F
+    </dt>
+    <dd>Replace all</dd>
+    <dt>
+      Ctrl-Q / Cmd-Q
+    </dt>
+    <dd>Fold / Unfold a block</dd>
+    <dt>
+      F12
+    </dt>
+    <dd>Autoformat Selection</dd>
+  </dl>
+  
+  <a id="_ctl_keybindings" style="color: white;" href="javascript:void();">More key bindings >></a>
+  
+  <div id="_keybindings"></div> <!-- to be filled-in programmatically if needed -->
+  
+  <a id="_ctl_commands" style="color: white; margin-top: 12px; display: block;" href="javascript:void();">List commands >></a>
+  
+  <div id="_commands"></div> <!-- to be filled-in programmatically if needed -->
+  
+  </div> <!-- id="_helpDiv" -->
+
+</div> <!-- id="win" -->
+</body>
+</html>

@@ -1,0 +1,123 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+
+.buttons {  
+  padding: 2px;
+  height: 25px;
+  background: #eee; /* fallback */
+  background: -webkit-linear-gradient(#F6F6F6 40%, #E3E3E3 70%); 
+}
+
+button {
+  margin: 0;
+  background-color: #F0F0F0;
+  cursor: pointer;
+  height: 25px;
+}
+
+button[disabled] {
+  color: lightgray;
+}
+
+button#help { /* not having an icon on help screws up alignment, here to compensate */
+  position: relative;
+  top: -2px;
+}
+
+button:not([disabled]):hover {
+  background-color: gray;  
+  background: -webkit-radial-gradient(ellipse farthest-corner, rgb(175, 175, 175), rgb(225, 225, 225) );
+  color: white;
+}
+
+button#exit {
+  position: absolute; 
+  right: 6px; 
+  color: white; 
+  font-weight: bold; 
+  font-family: 'Arial Black', Verdana, Geneva, sans-serif;
+}
+
+button#exit:hover {
+  background-color: rgb(225, 25, 25);
+  background: -webkit-radial-gradient(circle, rgb(200, 25, 25), rgb(255, 225, 225));
+}
+
+#win { /* provide a frame around the editor, height/width needs to be set programmatically  */
+  position: absolute;
+	top: 0px;
+	left: 0px;
+  border: 5px solid rgba(0,0,255, 0.15);
+  border-radius: 8px;
+  width: 890px;
+  height: 590px;
+}
+
+#editor {
+  position: absolute;
+  top: 29px;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  background: transparent;
+}
+
+#info {
+  white-space: nowrap;
+  position: absolute;
+  bottom: 0;
+  background: #eee; /* fallback */
+  background: -webkit-linear-gradient(#E3E3E3 40%, #F6F6F6 70%);
+  padding: 6px;
+  left: 0;
+  right: 0;
+} 
+
+.fileDirty {
+  background-color: red;
+  color: white;
+}
+
+#info label {
+  font-weight: bold;
+}
+
+
+.accessKey {
+  text-decoration: underline;
+}
+
+#_codeModeModifier {
+  font-size: smaller;
+}
+
+#_codeModeModifier span {
+  margin: 0px 3px;
+}
+
+.dropping { /* used by the patched dnd DnDController (rather than built-in dnd)*/ 
+  background: #9999CC !important;
+}
+
+/* BEGIN Necessary CM override to make UI function properly */
+
+.CodeMirror {
+  margin: 0;
+  padding: 0;
+  height: auto; /* to support resizing */
+}
+
+/* END Necessary CM override to make UI function properly */
+
+/* webkit-specific custom scrollbar */
+* ::-webkit-scrollbar{width:12px;height:12px;}
+* ::-webkit-scrollbar-button:start:decrement{display:none;height:0;background-color:transparent;}
+* ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}
+* ::-webkit-scrollbar-track-piece{background-color:#FAFAFA; border: 1px solid #CCC; -webkit-border-radius:10px;}
+* ::-webkit-scrollbar-thumb {height:50px; background-color:#eee; background: -webkit-linear-gradient(right bottom, #ccf 20%, #ddd 60%); -webkit-border-radius:10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
+* ::-webkit-scrollbar-thumb:hover {background: #ccc;}

@@ -1,0 +1,51 @@
+{
+  "name": "CodeMirror",
+  "version": "0.30",
+  "manifest_version": 2,
+  "minimum_chrome_version": "23",
+  "description": "A local code editor based on CodeMirror, configured to support HTML/CSS/Javascript development, though it can be used for other purposes.",
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  
+  // try to access chrome.devtools.inspectedWindow.eval(stringExpr, cb) api
+  // but to no avail, it does not seem to work for chrome app 
+  // "devtools_page": "main.html", 
+  
+  // to run eval, it must be put in to sandbox
+  // but then it cannot access local files, etc.
+  // one could possibly create a separate sandbox
+  // instance and use messaging to send scripts
+  // to sandbox to run, but it'll be quite troublesome
+  // and the behavior is not  intiuitive
+  //   http://developer.chrome.com/trunk/apps/app_external.html#sandboxing
+  // Sample codes for communicating with sandbox as a hidden iframe
+  //   https://github.com/GoogleChrome/chrome-app-samples/tree/master/sandbox
+  ///"sandbox": {"pages": ["main.html"] }, 
+  
+  "intents": {
+    "http://webintents.org/view": {
+      "type": [
+        "text/*", 
+        "application/x-javascript", "application/javascript",
+        "application/json", "application/x-json" 
+      ],
+      "title": "CodeMirror (Packaged app)"
+    } // to support drag-n-drop file on the app icon
+  },
+  
+  "permissions": [
+    {"fileSystem": ["write"]},
+    "unlimitedStorage" 
+  ],
+  
+  
+  "icons": {
+    "16":  "img/16x16/file_edit.png",
+    "32":  "img/32x32/file_edit.png",
+    "64":  "img/64x64/file_edit.png",
+    "128": "img/128x128/file_edit.png"
+  }
+}

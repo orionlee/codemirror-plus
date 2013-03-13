@@ -1,0 +1,95 @@
+/**
+ * UI customization that are optional (to user's individual taste)
+ * It might also include styles for some of the add-on
+ **/
+
+.CodeMirror-matchingbracket {
+  background-color: yellow !important;
+  border: none !important;
+}
+
+.CodeMirror-nonmatchingbracket {
+  background-color: red !important;
+  color: white  !important;
+}
+
+.CodeMirror-dialog {
+  background-color: rgba(255, 255, 0, 0.95);
+  color: #333;
+  padding: .3em .8em;
+  font-family: Verdana, Geneva, sans-serif;
+  font-weight:  bold;
+}
+
+/* With Verdana font the button needs to be a bit larger */
+.CodeMirror-dialog button {
+  font-size: 85%;
+}
+
+.CodeMirror-dialog input {
+  background-color: white;
+  color: black;
+  font-family: Consolas, monospace; /* "Lucida Console", Monaco, monospace; */
+  padding: 2px;
+}
+
+  
+/* for code folding addon */
+.CodeMirror-foldmarker {
+  color: blue;
+  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
+  font-family: arial;
+  line-height: .3;
+  cursor: pointer;
+}
+
+/* make cursor more obvious */
+.CodeMirror div.CodeMirror-cursor {
+  border-left: 3px solid !important; 
+  border-left-color:  black;
+  z-index: 2; /* override background in ".CodeMirror pre" */
+}
+.CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {
+  border-left: 8px solid !important; 
+  border-left-color:  black;
+  z-index: 2; /* override background in ".CodeMirror pre" */
+}
+
+.CodeMirror-focused, .cm-matchhighlight {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+  background-position: bottom;
+  background-repeat: repeat-x;
+}
+
+
+.lint-error { font-family: arial; font-size: 70%; background: #ffa; color: #a00; padding: 2px 5px 3px; }
+.lint-error-icon {color: white; background-color: red; font-weight: bold; border-radius: 50%; padding: 0 3px; margin-right: 7px;}
+.lint-error .lint-help { position: absolute; right: 30px; }
+
+
+/* override default font, Consolas / Lucida is easier to read (slightly heavier) in small fonts  */
+.CodeMirror {
+  font-family: Consolas, monospace; /* "Lucida Console", Monaco, monospace; */
+  font-size: 14px; /* 13px; */
+}
+
+.CodeMirror {
+  background-color: rgba(247,247,247, 0.7);
+}
+
+.CodeMirror-hints {
+  font-family: inherit; /* make hints font consistent with the editor) */
+}
+
+/* make matches easier to catch than default */
+.cm-searching {
+  background-color: rgba(255, 255, 0, 0.8);
+}
+
+.CodeMirror-selected {
+  background-color: rgba(70, 90, 130, 0.6);'  
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  background-color: rgba(121, 140, 180, 0.6);'  
+}

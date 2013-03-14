@@ -69,13 +69,19 @@
 
 /* override default font, Consolas / Lucida is easier to read (slightly heavier) in small fonts  */
 
-.CodeMirror, .cm-s-rubyblue {
+.CodeMirror {
   font-family: Consolas, monospace; /* "Lucida Console", Monaco, monospace; */
   font-size: 14px; /* 13px; */
 }
-.cm-s-rubyblue { /* still prefer my font here for rubyblue theme */
+
+span.cm-comment { /* default make comment italic, easier to identify */
+  font-style:italic; 
+}
+
+.cm-s-rubyblue { /* still prefer my font and line-spacing here for rubyblue theme */
   font-family: Consolas, monospace !important;
   font-size: 14px !important; 
+  line-height: 1 !important;
 }
 
 .CodeMirror {

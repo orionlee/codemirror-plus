@@ -25,10 +25,13 @@ function createEditorUICtrl(doc) {
   var _errorButton, _exitButton;
 
   var _editorFocusFunc;
+
+  var _exitCallback = null;  
   
   function createTitleCtrl() {
     var titleCtrl = {};
 
+    // @interface
     titleCtrl.set = function(title, tooltip) {
       tooltip = tooltip || title;
       doc.title = title; // the top-level DOM document object's title'
@@ -46,6 +49,7 @@ function createEditorUICtrl(doc) {
   function createCodeModeModifierCtrl(codeModeModifierDiv) {
     var codeModeModifier = {};
         
+    // @interface
     codeModeModifier.update = function(modType, text) {
       var modTypeElt = codeModeModifier.get(modType)
       if (!modTypeElt) {
@@ -58,6 +62,7 @@ function createEditorUICtrl(doc) {
       modTypeElt.innerText = text;  
     }; // function update(..)
   
+    // @interface
     codeModeModifier.remove = function(modType) {
       var modTypeElt = codeModeModifier.get(modType);
       if (modTypeElt) {
@@ -65,6 +70,7 @@ function createEditorUICtrl(doc) {
       }
     };
     
+    // @interface
     codeModeModifier.get = function(modType) {
       return _codeModeModifierDiv.querySelector('#' + modType);
     } ;
@@ -90,14 +96,19 @@ function createEditorUICtrl(doc) {
   _errorButton = $id('error_btn');
   
   var uiCtrl = {};
+
+  // @interface
   uiCtrl.title = createTitleCtrl();
   
+  // @interface
   uiCtrl.setMode = function(modeName) {
     _modeElt.innerText = modeName; 
   }; // uiCtrl.setMode = function(..)
   
+  // @interface
   uiCtrl.codeModeModifier = createCodeModeModifierCtrl();
 
+  // @interface
   uiCtrl.setDirty = function(isDirty) {
     if (isDirty) {
       _saveButton.disabled = false; 
@@ -108,8 +119,10 @@ function createEditorUICtrl(doc) {
     }    
   }; // setDirty = function(..)
   
+  // @interface
   uiCtrl.io = {};
   
+  // @interface
   uiCtrl.io.registerListeners = function(newCallback, openCallback, saveCallback, saveAsCallback) {
     _newButton.addEventListener("click", newCallback);
     _openButton.addEventListener("click", openCallback);
@@ -118,7 +131,7 @@ function createEditorUICtrl(doc) {
   }; // uiCtrl.io.registerListeners = function()
 
 
-  var _exitCallback = null;
+  // @interface  
   uiCtrl.safeExitWindow = function() {
     if (_exitCallback) {
       _exitCallback(function() {
@@ -133,13 +146,15 @@ function createEditorUICtrl(doc) {
   }; // uiCtrl.safeExitWindow = function()
 
   _exitButton.addEventListener("click", uiCtrl.safeExitWindow);
-  
+    
+  // @interface  
   uiCtrl.registerOnExitListener = function(exitCallback) {
     _exitCallback = exitCallback;
   }; // uiCtrl.registerOnExitListener = function(..)
  
 
   /**
+   * @interface  
    * 
    * uiCtrl generally does not need codemirror editor,
    * but there are special cases, namely, needs to refocus 
@@ -153,8 +168,10 @@ function createEditorUICtrl(doc) {
     _editorFocusFunc = editorFocusFunc;
   }; // uiCtrl.setEditorFocusFunction = function(..)
   
+  // @interface  
   uiCtrl.error = {};
 
+  // @interface  
   uiCtrl.error.showMsg = function(msg, errObj) {
     var errorDiv = $id('error');
     var errorMsgDiv = $id('errormsg');
@@ -179,6 +196,7 @@ function createEditorUICtrl(doc) {
     }
   }; // uiCtrl.error.showMsg = function(..)
   
+  // @interface  
   uiCtrl.error.clearMsg = function() {
     $id('error').style.display = 'none';
     _editorFocusFunc(); 
@@ -186,6 +204,10 @@ function createEditorUICtrl(doc) {
 
   _errorButton.addEventListener("click", uiCtrl.error.clearMsg);
                                                          
+  // support move by dragging toolbar
+  var btns = doc.querySelector('.buttons');
+  btns.addEventListener('mousedown', moveStart);  
+  
   return uiCtrl;
   
 } // function createEditorUICtrl(..)
@@ -512,12 +534,13 @@ window.onload = function() {
 
   newFile();
   onresize();
+
+  // this should be moved to uiCtrl 
+  // but since it relies on global editor instance 
+  // to dynamically generate doc, it is left 
+  // alone for now. it has no bearing on other features anyway
   
   initHelpUI();
-  
-  // move by dragging toolbar
-  var btns = document.querySelector('.buttons');
-  btns.addEventListener('mousedown', moveStart);  
   
   // drag-n-drop file support over app icon
   if (window.launchData) {

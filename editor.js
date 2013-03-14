@@ -3,21 +3,27 @@ var fileEntry;
 var hasWriteAccess;
 
 // BEGIN UI construct
-var newButton, openButton, saveButton, saveAsButton, errorButton, exitButton;
-// used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
+//
 
 var _uiCtrl; // abstraction over ui constructs and methods;
 
 /**
- * The UI control is passive in the sense that it does not know the underlying model
- *  (the codemirror editor object). It provides the methods to allow the caller 
- * to update UI based on changes in the model.
+ * The UI control provides the methods to allow the caller to update UI 
+ * based on changes in the model (editor), encapsulating UI update (aka all DOM access),
+ * with the exception of accessing main editor itself.
+ * 
+ * It is passive in the sense that it does not know the underlying model
+ *  (the codemirror editor object). 
  * 
  * TODO: fill in other controls 
  */
 function createEditorUICtrl(doc) {
 
-  var _titleElt, _modeElt, _codeModeModifierDiv;
+  var _titleElt, _modeElt;
+  // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
+  var _codeModeModifierDiv; 
+  var _newButton, _openButton, _saveButton, _saveAsButton;
+  var _errorButton, _exitButton;
   
   function createTitleCtrl() {
     var titleCtrl = {};
@@ -68,35 +74,91 @@ function createEditorUICtrl(doc) {
   //
   // main logic
   //
-  var $id = doc.getElementById.bind(doc);  
+  var $id = doc.getElementById.bind(doc); 
+  
   _titleElt = $id("title");
   _modeElt = $id('mode');
   _codeModeModifierDiv = $id('_codeModeModifier');
+  
+  _newButton = $id("new");
+  _openButton = $id("open");
+  _saveButton = $id("save");
+  _saveAsButton = $id("saveAs");
+  
+  _exitButton = $id("exit");
+  _errorButton = $id('error_btn');
   
   var uiCtrl = {};
   uiCtrl.title = createTitleCtrl();
   
   uiCtrl.setMode = function(modeName) {
-    _modeElt.innerText = modeName; // TODO: avoid hardcode mode element here
+    _modeElt.innerText = modeName; 
   }; // uiCtrl.setMode = function(..)
   
   uiCtrl.codeModeModifier = createCodeModeModifierCtrl();
 
   uiCtrl.setDirty = function(isDirty) {
     if (isDirty) {
-      saveButton.disabled = false; // TODO: move saveButton to uiCtrl
+      _saveButton.disabled = false; 
       _titleElt.classList.add("fileDirty");    
     } else {
-      saveButton.disabled = true;
+      _saveButton.disabled = true;
       _titleElt.classList.remove("fileDirty");    
     }    
   }; // setDirty = function(..)
   
+  uiCtrl.io = {};
   
+  uiCtrl.io.registerListeners = function(newCallback, openCallback, saveCallback, saveAsCallback) {
+    _newButton.addEventListener("click", newCallback);
+    _openButton.addEventListener("click", openCallback);
+    _saveButton.addEventListener("click", saveCallback);
+    _saveAsButton.addEventListener("click", saveAsCallback);    
+  }; // uiCtrl.io.registerListeners = function()
+
+  
+  uiCtrl.registerOnExitListener = function(exitCallback) {
+    _exitButton.addEventListener("click", exitCallback);  
+  }; // uiCtrl.registerOnExitListener = function(..)
+ 
+  uiCtrl.error = {};
+
+  uiCtrl.error.showMsg = function(msg, errObj) {
+    var errorDiv = $id('error');
+    var errorMsgDiv = $id('errormsg');
+    
+    if (errorDiv.style.display != 'none') {
+      console.warn("uiCtrl.error.showMsg() - an existing message is still displayed: %s", 
+                   errorMsgDiv.innerText);
+    }
+    
+    errorMsgDiv.innerText = msg;
+    errorDiv.style.display = 'block';
+    _errorButton.focus();
+  
+    ///if (errObj) { errHist.push(errObj); }
+    
+    if (errObj && errObj.stack) {
+      console.error("%s . %s", msg, errObj.stack);
+    } else if(errObj) {
+      console.error("%s . %O", msg, errObj);    
+    } else {
+      console.error(msg);      
+    }
+  }; // uiCtrl.error.showMsg = function(..)
+  
+  uiCtrl.error.clearMsg = function() {
+    $id('error').style.display = 'none';
+    editor.focus(); // TODO: it relies on global codemirror instance, circular dependency.
+  };
+
+  _errorButton.addEventListener("click", uiCtrl.error.clearMsg);
+                                                         
   return uiCtrl;
   
 } // function createEditorUICtrl(..)
 
+//
 // END UI constructs
 
 var fileIOErrorHandler = (function() {
@@ -117,7 +179,7 @@ var fileIOErrorHandler = (function() {
     }
     
     msgPrefix = msgPrefix || 'Error:';
-    showErrorMsgBox(msgPrefix + " " + msg, e);
+    _uiCtrl.error.showMsg(msgPrefix + " " + msg, e);
   }; // var fileIOErrorHandler = function( ...)
   
   return fileIOErrorHandler;
@@ -297,11 +359,11 @@ function handleSaveButton() {
   } else if (fileEntry) {
     chrome.fileSystem.getWritableEntry(fileEntry, function(entry) {
       if (chrome.runtime.lastError) {
-        showErrorMsgBox(chrome.runtime.lastError.message, chrome.runtime.lastError);
+        _uiCtrl.error.showMsg(chrome.runtime.lastError.message, chrome.runtime.lastError);
         return;
       }
       if (!entry) {
-        showErrorMsgBox("Save file failed - the writable handle is null.");
+        _uiCtrl.error.showMsg("Save file failed - the writable handle is null.");
         return;
       }
       // re-obtain the cur file as writable
@@ -385,25 +447,15 @@ window.onload = function() {
   
   _uiCtrl = createEditorUICtrl(document);
   
-  newButton = document.getElementById("new");
-  openButton = document.getElementById("open");
-  saveButton = document.getElementById("save");
-  saveAsButton = document.getElementById("saveAs");
-  exitButton = document.getElementById("exit");
-  errorButton = document.getElementById('error_btn');
+  _uiCtrl.io.registerListeners(handleNewButton,                            
+                               handleOpenButton, 
+                               handleSaveButton, 
+                               handleSaveAsButton);
 
-  newButton.addEventListener("click", handleNewButton);
-  openButton.addEventListener("click", handleOpenButton);
-  saveButton.addEventListener("click", handleSaveButton);
-  saveAsButton.addEventListener("click", handleSaveAsButton);
-
-  exitButton.addEventListener("click", function(evt) {
-    console.debug('scw evt lstr wrapper');
+  _uiCtrl.registerOnExitListener(function(evt) {
     safeCloseWindow(editor);
   });
 
-  errorButton.addEventListener("click", clearErrorMsgBox);
-  
   editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
 
   // chrome app-specific features binding
@@ -463,36 +515,6 @@ window.onresize = function() {
   editor.refresh();
   editor.focus();
 };
-
-///var errHist = [];
-function showErrorMsgBox(msg, errObj) {
-  var errorDiv = document.getElementById('error');
-  var errorMsgDiv = document.getElementById('errormsg');
-  
-  if (errorDiv.style.display != 'none') {
-    console.warn("showErrorMsgBox() - an existing message is still displayed: %s", 
-                 errorMsgDiv.innerText);
-  }
-  
-  errorMsgDiv.innerText = msg;
-  errorDiv.style.display = 'block';
-  errorButton.focus();
-
-  ///if (errObj) { errHist.push(errObj); }
-  
-  if (errObj && errObj.stack) {
-    console.error("%s . %s", msg, errObj.stack);
-  } else if(errObj) {
-    console.error("%s . %O", msg, errObj);    
-  } else {
-  	console.error(msg);      
-  }
-}
-
-function clearErrorMsgBox() {
-  document.getElementById('error').style.display = 'none';
-  editor.focus();
-}
 
 // drag-n-drop support over the window itself
 function patchDnDOverOnWinIfNeeded(editor) {

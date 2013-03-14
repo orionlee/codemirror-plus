@@ -1,3 +1,12 @@
+/**
+ * This file encapsulates functions that creates and initalizes CodeMirror instances
+ * with mode-appropriate feature.
+ * 
+ * It is agnostic to the parent UI, hence there is no DOM access here 
+ * (no document, window, etc.) . The necessary parent UI access is provided via uiCtrl object.
+ * 
+ */
+
 // main entry point: for initial creation
 function createCodeMirror(cmElt, uiCtrl) {
   

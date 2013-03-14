@@ -540,7 +540,7 @@ window.onload = function() {
   // to dynamically generate doc, it is left 
   // alone for now. it has no bearing on other features anyway
   
-  initHelpUI();
+  initHelpUI(document, editor);
   
   // drag-n-drop file support over app icon
   if (window.launchData) {

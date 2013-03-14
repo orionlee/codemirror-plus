@@ -1,6 +1,6 @@
-function initHelpUI() {
-document.getElementById('help').onclick = function() {  
-    var help = document.getElementById('_helpDiv');
+function initHelpUI(doc, cm) {
+  doc.getElementById('help').onclick = function() {  
+    var help = doc.getElementById('_helpDiv');
     if ('none' == help.style.display) {
       help.style.display = 'block';
     } else {
@@ -40,13 +40,13 @@ document.getElementById('help').onclick = function() {
   }
   
   function renderKeyBindingsDocs(divId) {
-    var div = document.getElementById(divId);
+    var div = doc.getElementById(divId);
     if (div && !div.innerHTML) {
-      div.innerHTML = genKeyBindingsDocs(editor);
+      div.innerHTML = genKeyBindingsDocs(cm);
     }
   }
   
-  document.getElementById("_ctl_keybindings").onclick = function(event) {
+  doc.getElementById("_ctl_keybindings").onclick = function(event) {
     renderKeyBindingsDocs('_keybindings'); 
     this.style.display='none';
   };
@@ -69,13 +69,13 @@ document.getElementById('help').onclick = function() {
   
   
   function renderCommandsDocs(divId) {
-    var div = document.getElementById(divId);
+    var div = doc.getElementById(divId);
     if (div && !div.innerHTML) {
-      div.innerHTML = genCommandsDocs(editor);
+      div.innerHTML = genCommandsDocs(cm);
     }
   }
   
-  document.getElementById("_ctl_commands").onclick = function(event) {
+  doc.getElementById("_ctl_commands").onclick = function(event) {
     renderCommandsDocs('_commands'); 
     this.style.display='none';
   };

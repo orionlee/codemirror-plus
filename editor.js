@@ -15,7 +15,6 @@ var _uiCtrl; // abstraction over ui constructs and methods;
  * It is passive in the sense that it does not know the underlying model
  *  (the codemirror editor object). 
  * 
- * TODO: fill in other controls 
  */
 function createEditorUICtrl(doc) {
 
@@ -118,9 +117,25 @@ function createEditorUICtrl(doc) {
     _saveAsButton.addEventListener("click", saveAsCallback);    
   }; // uiCtrl.io.registerListeners = function()
 
+
+  var _exitCallback = null;
+  uiCtrl.safeExitWindow = function() {
+    if (_exitCallback) {
+      _exitCallback(function() {
+        // this wil be invoked if exitCallback determines it is 
+        // safe to exit;
+        window.close();
+      });      
+    } else {
+      // no callback to veto exit, so exit right away
+      window.close();
+    }
+  }; // uiCtrl.safeExitWindow = function()
+
+  _exitButton.addEventListener("click", uiCtrl.safeExitWindow);
   
   uiCtrl.registerOnExitListener = function(exitCallback) {
-    _exitButton.addEventListener("click", exitCallback);  
+    _exitCallback = exitCallback;
   }; // uiCtrl.registerOnExitListener = function(..)
  
 
@@ -427,13 +442,6 @@ function proceedIfFileIsCleanOrOkToDropChanges(cm, proceedCallback) {
 } // function proceedIfFileIsCleanOrOkToDropChanges(..)
 
 
-function safeCloseWindow(cm) {
-  proceedIfFileIsCleanOrOkToDropChanges(cm, function() {
-    window.close();
-  });
-} // function safeCloseWindow(..)
-
-
 
 /*** disable snippets 
 function initContextMenu() {
@@ -469,14 +477,18 @@ window.onload = function() {
                                handleSaveButton, 
                                handleSaveAsButton);
 
-  _uiCtrl.registerOnExitListener(function(evt) {
-    safeCloseWindow(editor);
-  });
-
   editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
   
   _uiCtrl.setEditorFocusFunction(editor.focus.bind(editor));
 
+  var safeToExitCallback = proceedIfFileIsCleanOrOkToDropChanges.bind(undefined, editor);
+  _uiCtrl.registerOnExitListener(safeToExitCallback);
+
+  // finally exwant to bind Ctrl-W, but Ctrl-W is also used in emacs for 
+  // very different reasons. So aovid it to reduce chances of accidental exit
+  bindCommand(editor, 'safeExitWindow', {keyName: ["Alt-F4", "Ctrl-F4"] }, 
+              _uiCtrl.safeExitWindow);
+  
   
   // chrome app-specific features binding
   var extraKeys = editor.getOption('extraKeys') || {};

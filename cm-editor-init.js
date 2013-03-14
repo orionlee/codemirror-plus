@@ -34,11 +34,7 @@ function createCodeMirror(cmElt, uiCtrl) {
   /// initEval(cm); 
   
   initGotoLine(cm);
-  // want to bind Ctrl-W, but Ctrl-W is also used in emacs for 
-  // very different reasons. So aovid it to reduce chances of accidental exit
-  bindCommand(cm, 'safeCloseWindow', {keyName: ["Alt-F4", "Ctrl-F4"] }, 
-              safeCloseWindow);
-  
+
   initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 

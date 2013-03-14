@@ -1,5 +1,5 @@
 // main entry point: for initial creation
-function createCodeMirror(cmElt) {
+function createCodeMirror(cmElt, uiCtrl) {
   
   var cm = CodeMirror(cmElt, {
     mode: {name: "javascript", json: true },
@@ -39,7 +39,7 @@ function createCodeMirror(cmElt) {
   bindCommand(cm, 'safeCloseWindow', {keyName: ["Alt-F4", "Ctrl-F4"] }, 
               safeCloseWindow);
   
-  initColumNumberMode(cm);
+  initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 
   return cm;
@@ -104,14 +104,14 @@ function initGotoLine(cm) {
   
 }
 
-function initColumNumberMode(cm) {
+function initColumNumberMode(cm, uiCtrl) {
   var toggleColumNumberMode = createToggleColumNumberMode(function(enabled, pos) {
   	var modType = "colNumMode";
     if (enabled) {
     	var text = 'Ch:' + (1 + pos.ch); // pos is 0-based while people prefer 1-based
-    	updateCodeModeModifier(modType, text);
+    	uiCtrl.codeModeModifier.update(modType, text);
     } else {
-    	removeCodeModeModifier(modType);       
+    	uiCtrl.codeModeModifier.remove(modType);       
     }
   });
   bindCommand(cm, 'toggleColumNumberMode', {}, toggleColumNumberMode);   
@@ -125,7 +125,13 @@ function initColumNumberMode(cm) {
 
 // main entry point: after loading a file
 // i.e, (turn to specific mode)
-function initCodeMirror4Mode(cm, mode) {
+/**
+ * @param cm the codemirror editor instance to be set
+ * @param mode the mode to be set
+ * @param uiCtrl  main ui control, which contains some helpers/callback to be invoked.
+ *  This function should not modify the control.
+ */
+function initCodeMirror4Mode(cm, mode, uiCtrl) {
 
   var initFunc4Mode = (function() {
 
@@ -155,9 +161,9 @@ function initCodeMirror4Mode(cm, mode) {
       var toggleJsHint = createToggleJsHint(function(jsHintEnabled) {
         var modType = 'jsHint';
         if (jsHintEnabled) {
-          updateCodeModeModifier(modType, '[JSHint]');
+          uiCtrl.codeModeModifier.update(modType, '[JSHint]');
         } else {
-          removeCodeModeModifier(modType);
+          uiCtrl.codeModeModifier.remove(modType);
         }
       });
 

@@ -6,7 +6,50 @@ var hasWriteAccess;
 var newButton, openButton, saveButton, saveAsButton, errorButton, exitButton;
 var titleElt;
 // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
-var codeModeModifierDiv; 
+
+var _uiCtrl; // abstraction over ui constructs and methods;
+
+// TODO: fill in other controls 
+function createEditorUICtrl(codeModeModifierDiv) {
+  // codeModeModifier UI helpers
+  //  the div contains possibly many smaller spans identified by modType
+  //  (lint, col num mode, etc.)
+  function createCodeModeModifier(codeModeModifierDiv) {
+    var codeModeModifier = {};
+    
+    codeModeModifier._divElt = codeModeModifierDiv; 
+    
+    codeModeModifier.update = function(modType, text) {
+      var modTypeElt = codeModeModifier.get(modType)
+      if (!modTypeElt) {
+        codeModeModifier._divElt.insertAdjacentHTML(
+          'beforeend', '<span id="' + modType  +'"></span>');
+        
+        modTypeElt = codeModeModifier.get(modType);
+      }
+      // now the modType span is sure setup. Set the content;  
+      modTypeElt.innerText = text;  
+    }; // function update(..)
+  
+    codeModeModifier.remove = function(modType) {
+      var modTypeElt = codeModeModifier.get(modType);
+      if (modTypeElt) {
+        modTypeElt.remove();
+      }
+    };
+    
+    codeModeModifier.get = function(modType) {
+      return codeModeModifier._divElt.querySelector('#' + modType);
+    } ;
+    
+    return codeModeModifier;
+  } // function createCodeModeModifier(..)
+  
+  var uiCtrl = {};
+  uiCtrl.codeModeModifier = createCodeModeModifier(codeModeModifierDiv);
+  return uiCtrl;
+  
+} // function createEditorUICtrl(..)
 
 // END UI constructs
 
@@ -63,7 +106,7 @@ function handleDocumentChange(filePath) {
   if (editor.getMode() != mode) {
     document.getElementById("mode").innerHTML = modeName;
     editor.setOption("mode", mode);
-    initCodeMirror4Mode(editor, mode);
+    initCodeMirror4Mode(editor, mode, _uiCtrl);
   } // else mode not changed. no-op
     
   customThemeIfApplicable(filePath); 
@@ -276,35 +319,6 @@ function safeCloseWindow(cm) {
 } // function safeCloseWindow(..)
 
 
-// BEGIN codeModeModifier UI helpers
-//  the div contains possibly many smaller spans identified by modType
-//  (lint, col num mode, etc.)
-//
-function updateCodeModeModifier(modType, text) {
-  var modTypeElt = getCodeModeModifier(modType)
-  if (!modTypeElt) {
-    codeModeModifierDiv.insertAdjacentHTML(
-      'beforeend', '<span id="' + modType  +'"></span>');
-    
-    modTypeElt = getCodeModeModifier(modType);
-  }
-  // now the modType span is sure setup. Set the content;  
-  modTypeElt.innerText = text;  
-} // function updateModeModifier(..)
-
-function removeCodeModeModifier(modType) {
-  var modTypeElt = getCodeModeModifier(modType);
-  if (modTypeElt) {
-    modTypeElt.remove();
-  }
-}
-
-function getCodeModeModifier(modType) {
-  return codeModeModifierDiv.querySelector('#' + modType);
-} 
-
-//
-// END codeModeModifier UI helpers
 
 /*** disable snippets 
 function initContextMenu() {
@@ -334,7 +348,7 @@ window.onload = function() {
   /// initContextMenu(); disable snippets for now
   
   titleElt = document.getElementById("title");
-  codeModeModifierDiv = document.querySelector('#_codeModeModifier');
+  _uiCtrl = createEditorUICtrl(document.querySelector('#_codeModeModifier'));
   
   newButton = document.getElementById("new");
   openButton = document.getElementById("open");
@@ -355,7 +369,7 @@ window.onload = function() {
 
   errorButton.addEventListener("click", clearErrorMsgBox);
   
-  editor = createCodeMirror(document.getElementById("editor"));
+  editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
 
   // chrome app-specific features binding
   var extraKeys = editor.getOption('extraKeys') || {};

@@ -4,17 +4,39 @@ var hasWriteAccess;
 
 // BEGIN UI construct
 var newButton, openButton, saveButton, saveAsButton, errorButton, exitButton;
-var titleElt;
 // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
 
 var _uiCtrl; // abstraction over ui constructs and methods;
 
-// TODO: fill in other controls 
-function createEditorUICtrl(codeModeModifierDiv) {
+/**
+ * The UI control is passive in the sense that it does not know the underlying model
+ *  (the codemirror editor object). It provides the methods to allow the caller 
+ * to update UI based on changes in the model.
+ * 
+ * TODO: fill in other controls 
+ */
+function createEditorUICtrl(titleElt, codeModeModifierDiv) {
+  
+  function createTitleCtrl(titleElt) {
+    var titleCtrl = {};
+
+    titleCtrl._divElt = titleElt;
+    
+    titleCtrl.set = function(title, tooltip) {
+      tooltip = tooltip || title;
+      document.title = title; // the global document
+      titleCtrl._divElt.innerText = title;
+      titleCtrl._divElt.title = tooltip; // for tooltip      
+    };
+
+    return titleCtrl;
+  } // function createTitleCtrl(..)
+
+  
   // codeModeModifier UI helpers
   //  the div contains possibly many smaller spans identified by modType
   //  (lint, col num mode, etc.)
-  function createCodeModeModifier(codeModeModifierDiv) {
+  function createCodeModeModifierCtrl(codeModeModifierDiv) {
     var codeModeModifier = {};
     
     codeModeModifier._divElt = codeModeModifierDiv; 
@@ -43,10 +65,28 @@ function createEditorUICtrl(codeModeModifierDiv) {
     } ;
     
     return codeModeModifier;
-  } // function createCodeModeModifier(..)
+  } // function createCodeModeModifierCtrl(..)
   
   var uiCtrl = {};
-  uiCtrl.codeModeModifier = createCodeModeModifier(codeModeModifierDiv);
+  uiCtrl.title = createTitleCtrl(titleElt);
+  
+  uiCtrl.setMode = function(modeName) {
+    document.getElementById("mode").innerText = modeName; // TODO: avoid hardcode mode element here
+  }; // uiCtrl.setMode = function(..)
+  
+  uiCtrl.codeModeModifier = createCodeModeModifierCtrl(codeModeModifierDiv);
+
+  uiCtrl.setDirty = function(isDirty) {
+    if (isDirty) {
+      saveButton.disabled = false; // TODO: move saveButton to uiCtrl
+      uiCtrl.title._divElt.classList.add("fileDirty");    
+    } else {
+      saveButton.disabled = true;
+      uiCtrl.title._divElt.classList.remove("fileDirty");    
+    }    
+  }; // setDirty = function(..)
+  
+  
   return uiCtrl;
   
 } // function createEditorUICtrl(..)
@@ -82,10 +122,8 @@ function handleDocumentChange(filePath) {
   var modeName = "";
   if (filePath) {
     var fileName = filePath.match(/[^/\\]+$/)[0];
-    document.title = fileName;
-
-    titleElt.innerHTML = fileName;
-    titleElt.title = filePath; // for tooltip
+    _uiCtrl.title.set(fileName, filePath);
+        
     if (fileName.match(/.js$/)) {
 	  	mode = "javascript";
   		modeName = "JavaScript";    
@@ -100,11 +138,11 @@ function handleDocumentChange(filePath) {
       modeName = "CSS";
     } // else use deafult (Unknown)
   } else {
-    titleElt.innerHTML = "[no document loaded]";
+    _uiCtrl.title.set("[no document loaded]");
   }
   
   if (editor.getMode() != mode) {
-    document.getElementById("mode").innerHTML = modeName;
+    _uiCtrl.setMode(modeName);
     editor.setOption("mode", mode);
     initCodeMirror4Mode(editor, mode, _uiCtrl);
   } // else mode not changed. no-op
@@ -280,16 +318,8 @@ function handleSaveAsButton() {
 
 
 var updateUIOnChange = function(cm) { 
-  if (!cm.isClean()) {
-    saveButton.disabled = false;
-    titleElt.classList.add("fileDirty");    
-  } else {
-    saveButton.disabled = true;
-    titleElt.classList.remove("fileDirty");    
-  }
-  
-  // once enable the button, this handler is no longer useful: so deregister itself
-  /// cm.off('change', arguments.callee);     
+  var isDirty = !cm.isClean();
+  _uiCtrl.setDirty(isDirty);  
 };
 
 
@@ -346,9 +376,10 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 
 window.onload = function() {
   /// initContextMenu(); disable snippets for now
+  var $id = document.getElementById.bind(document);  
   
-  titleElt = document.getElementById("title");
-  _uiCtrl = createEditorUICtrl(document.querySelector('#_codeModeModifier'));
+  _uiCtrl = createEditorUICtrl($id("title"), 
+                               $id('_codeModeModifier'));
   
   newButton = document.getElementById("new");
   openButton = document.getElementById("open");

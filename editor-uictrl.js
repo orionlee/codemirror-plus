@@ -40,7 +40,7 @@ function createEditorUICtrl(doc) {
   // codeModeModifier UI helpers
   //  the div contains possibly many smaller spans identified by modType
   //  (lint, col num mode, etc.)
-  function createCodeModeModifierCtrl(codeModeModifierDiv) {
+  function createCodeModeModifierCtrl() {
     var codeModeModifier = {};
         
     // @interface

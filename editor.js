@@ -99,15 +99,14 @@ function readFileIntoEditor(theFileEntry) {
         // native file system path, which is needed 
         chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
           handleDocumentChange(displayPath);
-        editor.setValue(e.target.result); // actual changes
-        
-        if (CodeMirror.commands.clearSearch) {
-          CodeMirror.commands.clearSearch(editor);
-        }
-        // the editor is just chnaged as if the file is dirty
-        // but really it's just started
-        editor.markClean();
-        updateUIOnChange(editor);
+          editor.setValue(e.target.result); // actual file content
+          editor.markClean(); // starting point of edit and history
+          editor.clearHistory();
+            
+          if (CodeMirror.commands.clearSearch) {
+            CodeMirror.commands.clearSearch(editor);
+          }
+          updateUIOnChange(editor);
         }); // getDisplayPath(..)        
       }; // fileReader.onload = ..
 

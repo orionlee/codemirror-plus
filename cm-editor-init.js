@@ -11,7 +11,6 @@
 function createCodeMirror(cmElt, uiCtrl) {
   
   var cm = CodeMirror(cmElt, {
-    mode: {name: "javascript", json: true },
     lineNumbers: true,
     tabSize: 2, 
     lineWrapping: true, 
@@ -34,6 +33,9 @@ function createCodeMirror(cmElt, uiCtrl) {
       cm.autoFormatRange(range.from, range.to);
   });
 
+
+  // useful in cases where some command is defined but not exposed in UI
+  // (This is done in a style similar to emacs)
   initExecCommand(cm);
   
   /// Note: eval() only works in sandbox, disable for now

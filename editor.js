@@ -24,6 +24,8 @@ function createEditorUICtrl(doc) {
   var _codeModeModifierDiv; 
   var _newButton, _openButton, _saveButton, _saveAsButton;
   var _errorButton, _exitButton;
+
+  var _editorFocusFunc;
   
   function createTitleCtrl() {
     var titleCtrl = {};
@@ -121,6 +123,21 @@ function createEditorUICtrl(doc) {
     _exitButton.addEventListener("click", exitCallback);  
   }; // uiCtrl.registerOnExitListener = function(..)
  
+
+  /**
+   * 
+   * uiCtrl generally does not need codemirror editor,
+   * but there are special cases, namely, needs to refocus 
+   * on the editor.
+   * this hook provides a mechanism for uiCtrl to focus
+   * without fully aware of the editor.
+   * @param editorFocusFunc a function that will focus the editor, 
+   *   e.g.,  editor.focus.bind(editor) .
+   */
+  uiCtrl.setEditorFocusFunction = function(editorFocusFunc) {
+    _editorFocusFunc = editorFocusFunc;
+  }; // uiCtrl.setEditorFocusFunction = function(..)
+  
   uiCtrl.error = {};
 
   uiCtrl.error.showMsg = function(msg, errObj) {
@@ -149,7 +166,7 @@ function createEditorUICtrl(doc) {
   
   uiCtrl.error.clearMsg = function() {
     $id('error').style.display = 'none';
-    editor.focus(); // TODO: it relies on global codemirror instance, circular dependency.
+    _editorFocusFunc(); 
   };
 
   _errorButton.addEventListener("click", uiCtrl.error.clearMsg);
@@ -457,7 +474,10 @@ window.onload = function() {
   });
 
   editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
+  
+  _uiCtrl.setEditorFocusFunction(editor.focus.bind(editor));
 
+  
   // chrome app-specific features binding
   var extraKeys = editor.getOption('extraKeys') || {};
   var extraKeysForApp = {  

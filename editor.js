@@ -15,18 +15,18 @@ var _uiCtrl; // abstraction over ui constructs and methods;
  * 
  * TODO: fill in other controls 
  */
-function createEditorUICtrl(titleElt, codeModeModifierDiv) {
+function createEditorUICtrl(doc) {
+
+  var _titleElt, _modeElt, _codeModeModifierDiv;
   
-  function createTitleCtrl(titleElt) {
+  function createTitleCtrl() {
     var titleCtrl = {};
 
-    titleCtrl._divElt = titleElt;
-    
     titleCtrl.set = function(title, tooltip) {
       tooltip = tooltip || title;
-      document.title = title; // the global document
-      titleCtrl._divElt.innerText = title;
-      titleCtrl._divElt.title = tooltip; // for tooltip      
+      doc.title = title; // the top-level DOM document object's title'
+      _titleElt.innerText = title;
+      _titleElt.title = tooltip; // for tooltip      
     };
 
     return titleCtrl;
@@ -38,13 +38,11 @@ function createEditorUICtrl(titleElt, codeModeModifierDiv) {
   //  (lint, col num mode, etc.)
   function createCodeModeModifierCtrl(codeModeModifierDiv) {
     var codeModeModifier = {};
-    
-    codeModeModifier._divElt = codeModeModifierDiv; 
-    
+        
     codeModeModifier.update = function(modType, text) {
       var modTypeElt = codeModeModifier.get(modType)
       if (!modTypeElt) {
-        codeModeModifier._divElt.insertAdjacentHTML(
+        _codeModeModifierDiv.insertAdjacentHTML(
           'beforeend', '<span id="' + modType  +'"></span>');
         
         modTypeElt = codeModeModifier.get(modType);
@@ -61,28 +59,36 @@ function createEditorUICtrl(titleElt, codeModeModifierDiv) {
     };
     
     codeModeModifier.get = function(modType) {
-      return codeModeModifier._divElt.querySelector('#' + modType);
+      return _codeModeModifierDiv.querySelector('#' + modType);
     } ;
     
     return codeModeModifier;
   } // function createCodeModeModifierCtrl(..)
   
+  //
+  // main logic
+  //
+  var $id = doc.getElementById.bind(doc);  
+  _titleElt = $id("title");
+  _modeElt = $id('mode');
+  _codeModeModifierDiv = $id('_codeModeModifier');
+  
   var uiCtrl = {};
-  uiCtrl.title = createTitleCtrl(titleElt);
+  uiCtrl.title = createTitleCtrl();
   
   uiCtrl.setMode = function(modeName) {
-    document.getElementById("mode").innerText = modeName; // TODO: avoid hardcode mode element here
+    _modeElt.innerText = modeName; // TODO: avoid hardcode mode element here
   }; // uiCtrl.setMode = function(..)
   
-  uiCtrl.codeModeModifier = createCodeModeModifierCtrl(codeModeModifierDiv);
+  uiCtrl.codeModeModifier = createCodeModeModifierCtrl();
 
   uiCtrl.setDirty = function(isDirty) {
     if (isDirty) {
       saveButton.disabled = false; // TODO: move saveButton to uiCtrl
-      uiCtrl.title._divElt.classList.add("fileDirty");    
+      _titleElt.classList.add("fileDirty");    
     } else {
       saveButton.disabled = true;
-      uiCtrl.title._divElt.classList.remove("fileDirty");    
+      _titleElt.classList.remove("fileDirty");    
     }    
   }; // setDirty = function(..)
   
@@ -376,10 +382,8 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 
 window.onload = function() {
   /// initContextMenu(); disable snippets for now
-  var $id = document.getElementById.bind(document);  
   
-  _uiCtrl = createEditorUICtrl($id("title"), 
-                               $id('_codeModeModifier'));
+  _uiCtrl = createEditorUICtrl(document);
   
   newButton = document.getElementById("new");
   openButton = document.getElementById("open");

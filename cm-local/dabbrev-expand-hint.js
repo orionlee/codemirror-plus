@@ -71,8 +71,8 @@
    */
   CodeMirror.dabbrevExpandHint = function(cm, givenOptions) {
     // 1. Find the token at the cursor
-    var cur = editor.getCursor();
-    var token = editor.getTokenAt(cur); 
+    var cur = cm.getCursor();
+    var token = cm.getTokenAt(cur); 
 
     // invoke actual logic
     var completions = dabbrevExpand(cm, cur); 

@@ -1,0 +1,32 @@
+/**
+ * Captures styles encapsulated by various features configured in cm-init.js
+ * 
+ **/
+
+
+/* BEGIN match-highlighter addon */
+.CodeMirror-focused, .cm-matchhighlight {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+  background-position: bottom;
+  background-repeat: repeat-x;
+}
+/* END match-highlighter addon */
+
+
+/* BEGIN code folding addon */
+.CodeMirror-foldmarker {
+  color: blue;
+  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
+  font-family: arial;
+  line-height: .3;
+  cursor: pointer;
+}
+/* END code folding addon */
+
+
+/* BEGIN cm-jshint.js */
+.lint-error { font-family: arial; font-size: 70%; background: #ffa; color: #a00; padding: 2px 5px 3px; }
+.lint-error-icon {color: white; background-color: red; font-weight: bold; border-radius: 50%; padding: 0 3px; margin-right: 7px;}
+.lint-error .lint-help { position: absolute; right: 30px; }
+/* END cm-jshint.js */
+

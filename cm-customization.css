@@ -3,6 +3,20 @@
  * It might also include styles for some of the add-on
  **/
 
+/* make cursor more obvious */
+.CodeMirror div.CodeMirror-cursor {
+  border-left: 3px solid !important; 
+  border-left-color:  black;
+  z-index: 2; /* override background in ".CodeMirror pre" */
+}
+.CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {
+  border-left: 8px solid !important; 
+  border-left-color:  black;
+  z-index: 2; /* override background in ".CodeMirror pre" */
+}
+
+
+/* BEGIN match bracket addon customization */
 .CodeMirror-matchingbracket {
   background-color: yellow !important;
   border: none !important;
@@ -12,7 +26,10 @@
   background-color: red !important;
   color: white  !important;
 }
+/* END match bracket addon customization */
 
+
+/* BEGIN dialog addon customization */
 .CodeMirror-dialog {
   background-color: rgba(255, 255, 0, 0.95);
   color: #333;
@@ -29,42 +46,10 @@
 .CodeMirror-dialog input {
   background-color: white;
   color: black;
-  font-family: Consolas, monospace; /* "Lucida Console", Monaco, monospace; */
+  font-family: Consolas, monospace;
   padding: 2px;
 }
-
-  
-/* for code folding addon */
-.CodeMirror-foldmarker {
-  color: blue;
-  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
-  font-family: arial;
-  line-height: .3;
-  cursor: pointer;
-}
-
-/* make cursor more obvious */
-.CodeMirror div.CodeMirror-cursor {
-  border-left: 3px solid !important; 
-  border-left-color:  black;
-  z-index: 2; /* override background in ".CodeMirror pre" */
-}
-.CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {
-  border-left: 8px solid !important; 
-  border-left-color:  black;
-  z-index: 2; /* override background in ".CodeMirror pre" */
-}
-
-.CodeMirror-focused, .cm-matchhighlight {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
-  background-position: bottom;
-  background-repeat: repeat-x;
-}
-
-
-.lint-error { font-family: arial; font-size: 70%; background: #ffa; color: #a00; padding: 2px 5px 3px; }
-.lint-error-icon {color: white; background-color: red; font-weight: bold; border-radius: 50%; padding: 0 3px; margin-right: 7px;}
-.lint-error .lint-help { position: absolute; right: 30px; }
+/* END dialog addon customization  */
 
 
 /* override default font, Consolas / Lucida is easier to read (slightly heavier) in small fonts  */

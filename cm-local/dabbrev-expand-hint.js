@@ -90,7 +90,7 @@
   CodeMirror.createHintWithDabbrevExpandFallback = function(hint) {
   	var hintWithFallback = function(cm , givenOptions) {
       var res = hint(cm, givenOptions);
-      if (!res || !res.completions || res.list.length < 1) {
+      if (!res || !res.list || res.list.length < 1) {
         res = CodeMirror.dabbrevExpandHint(cm, givenOptions);
       }
       return res;

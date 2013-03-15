@@ -21,8 +21,7 @@ function createCodeMirror(cmElt, uiCtrl) {
     extraKeys: { 
       "Enter": "newlineAndIndentContinueComment" ,
       "Ctrl-I": "indentAuto"
-    },    
-    theme: "blackboard" // eclipse 
+    }
   });
 
   // main cm basics is done, now we do additional feature enhancement

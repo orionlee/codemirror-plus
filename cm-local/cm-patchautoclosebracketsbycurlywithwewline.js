@@ -1,3 +1,4 @@
+
 (function() {
 
   CodeMirror.defineOption("patchAutoCloseBracketsByCurlyWithNewline", false, function(cm, val, old) {
@@ -20,7 +21,9 @@
    *     function foo() {
    *     var foo = function(bar) {
    *     window.foo = function(bar) {
+   *     foo = function(bar) {
    *     var foo = (function(bar) {
+   *     (function(bar) {
    * Neg cases (no end comment):
 	 *     callFun(bar, function() {
 	 *     var res = callFun(bar, function() {
@@ -37,18 +40,24 @@
     var reFuncNamed = /^\s*function\s+([^(\s]+)\s*\(([^)]*)\)/ ;
   
     // form  var bar = function(maybeVar) { .. expected closing line ;
+    // or form  bar = function(maybeVar) { .. expected closing line ;
     // or form  window.bar = function(maybeVar) { .. expected closing line ;
-    var reFuncAnonyWithVar = /^\s*(var\s+|[^.]+[.])([^=\s]+)\s*=\s*function\s*\(([^)]*)\)/ ;
+    var reFuncAnonyWithVar = /^\s*([^=,\s]+)\s*=\s*function\s*\(([^)]*)\)/ ;
 
     // form  var bar = (function(maybeVar) { ... expected closing line: }();
     var reFuncAnonyApplyWithVar = /^\s*var\s+([^=\s]+)\s*=\s*\(function\s*\(([^)]*)\)/ ;
         
+    // form  (function(maybeVar) { ... expected closing line: }();
+    var reFuncAnonyApplyNoVar = /^\s*\(function\s*\(([^)]*)\)/ ;
+
     if (matched = line.match(reFuncNamed)) {
       comment = " // function " + matched[1] + "(" + (!matched[2] ? "" : "..") + ")";
     } else if (matched = line.match(reFuncAnonyWithVar)) {
-      comment = "; // " + matched[1] + matched[2] + " = function(" + (!matched[3] ? "" : "..") + ")";
+      comment = "; // " + matched[1] + " = function(" + (!matched[2] ? "" : "..") + ")";
     } else if (matched = line.match(reFuncAnonyApplyWithVar)) {
       comment = ")(); // var " + matched[1] + " = (function(" + (!matched[2] ? "" : "..") + ")";
+    } else if (matched = line.match(reFuncAnonyApplyNoVar)) {
+      comment = ")(); // (function(" + (!matched[1] ? "" : "..") + ")";
     } else {
       comment = "";
     }
@@ -69,7 +78,6 @@
       outStr += endComment;
       ahead = CodeMirror.Pos(ahead.line, endComment.length + 1 - 1); // needed to include } but zero-based
     } 
-    
     cm.replaceSelection(outStr, { head: ahead, anchor: anchor });
     cm.setCursor(ahead);
     cm.execCommand('indentAuto');

@@ -49,6 +49,10 @@ function createCodeMirror(cmElt, uiCtrl) {
   initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 
+  // a fallback autocomplete that is not mode-specific
+  // behavior similar to emacs dabbrev-expand M-/
+  initDabbrevExpandAutoComplete(cm);
+  
   return cm;
 } // function createCodeMirror
 
@@ -84,6 +88,13 @@ function initColumNumberMode(cm, uiCtrl) {
   bindCommand(cm, 'toggleColumNumberMode', {}, toggleColumNumberMode);   
 } 
 
+function initDabbrevExpandAutoComplete(cm)  {
+  bindCommand(cm, 'dabbrevExpand', 
+    {keyName: "Ctrl-/"}, 
+    function(cm) {
+      CodeMirror.showHint(cm, CodeMirror.dabbrevExpandHint);
+  });
+}
 
 //
 // Below are features that are mode-specific
@@ -116,10 +127,12 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
     function initAutoComplete4Js(cm, isChain)  {
       var conflictsOnKey = isChain ? 'chain' : 'replace';
       // javascriptMixedModeHint can be used for both mixedmode and pure js mode
+      var jsMixedModeWithDabbrevFallbackHint = 
+          CodeMirror.createHintWithDabbrevExpandFallback(CodeMirror.javascriptMixedModeHint);
       bindCommand(cm, 'autocomplete4Js', 
         {keyName: "Ctrl-Space", conflictsOnKey: conflictsOnKey, chainName: 'autocompleteMixedMode'}, 
         function(cm) {
-          CodeMirror.showHint(cm, CodeMirror.javascriptMixedModeHint); 
+          CodeMirror.showHint(cm, jsMixedModeWithDabbrevFallbackHint); 
       });
     }
 
@@ -151,10 +164,12 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
 
     function initAutoComplete4Css(cm, isChain)  {
       var conflictsOnKey = isChain ? 'chain' : 'replace';
+      var cssWithDabbrevFallbackHint = 
+          CodeMirror.createHintWithDabbrevExpandFallback(CodeMirror.cssHint);      
       bindCommand(cm, 'autocomplete4Css', 
         {keyName: "Ctrl-Space", conflictsOnKey: conflictsOnKey, chainName: 'autocompleteMixedMode'}, 
         function(cm) {
-          CodeMirror.showHint(cm, CodeMirror.cssHint);
+          CodeMirror.showHint(cm, cssWithDabbrevFallbackHint);
       });
     }
   
@@ -189,10 +204,9 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
         // MUST use setOption(), or the option's associated action won't take effect
         cm.setOption("autoCloseTags", true);
 
-
         // no need to add codefolding for css, as it's the same as js
         initAutoComplete4Css(cm, chain);
-
+        
       }  // htmlmixed: ...
     }; // var res;
     return res;

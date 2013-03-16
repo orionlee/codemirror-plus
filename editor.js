@@ -1,33 +1,8 @@
 var editor;
-var fileEntry;
-var hasWriteAccess;
 
 // abstraction over (non-CodeMirror aka ediotr) UI  constructs and methods;
 var _uiCtrl; 
-
-var fileIOErrorHandler = (function() {
-  var codeToMsg = {};
-  for (var codeName in FileError) { 
-    if (/_ERR$/.test(codeName)) {
-      // the prop is an error code
-      var code = FileError[codeName];
-      codeToMsg[code] = codeName;
-    }
-  }
-  
-  var fileIOErrorHandler = function(e, msgPrefix) {
-    var msg = codeToMsg[e.code];
-    
-    if (!msg) {
-        msg = "Unknown Error [" + e.message + "]";      
-    }
-    
-    msgPrefix = msgPrefix || 'Error:';
-    _uiCtrl.error.showMsg(msgPrefix + " " + msg, e);
-  }; // var fileIOErrorHandler = function( ...)
-  
-  return fileIOErrorHandler;
-})();
+var _ioCtrl;
 
 /**
  * Invoked after new file has been loaded to the editor,
@@ -85,17 +60,6 @@ function customThemeIfApplicable(filePath) {
 } // function customThemeByFile(..)
 
 
-function newFile() {
-  fileEntry = null;
-  hasWriteAccess = false;
-  handleDocumentChange(null);
-}
-
-function setFile(theFileEntry, isWritable) {
-  fileEntry = theFileEntry;
-  hasWriteAccess = isWritable;
-}
-
 /**
  * Reset any lingering states / processes before reading a new file to the editor.
  */
@@ -109,94 +73,39 @@ function resetEditorStates(cm) {
   }
 } // function resetEditorStates(..)
 
-function readFileIntoEditor(theFileEntry) {
-  if (theFileEntry) {
-    theFileEntry.file(function(file) {
-      var fileReader = new FileReader();
+// BEGIN IO callbacks
+function readSuccessCallback(fileFullPath, fileContent) {
+  // clean-up old states before reading in new file
+  resetEditorStates(editor);
+  
+  editor.setValue(fileContent); // actual file content
+  editor.markClean(); // starting point of edit and history
+  editor.clearHistory();
 
-      fileReader.onload = function(e) {
-        // note: theFileEntry.fullPath does not give 
-        // native file system path, which is needed 
-        chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
-          // clean-up old states before reading in new file
-          resetEditorStates(editor);
-          
-          editor.setValue(e.target.result); // actual file content
-          editor.markClean(); // starting point of edit and history
-          editor.clearHistory();
+  // new content ready, update UI accordingly
+  handleDocumentChange(fileFullPath);
+  
+} // function readSuccessCallback(..)
 
-          // new content ready, update UI accordingly
-          handleDocumentChange(displayPath);
-          
-        }); // getDisplayPath(..)        
-      }; // fileReader.onload = ..
+function saveSuccessCallback(fileFullPath) {
+  editor.markClean();
+  handleDocumentChange(fileFullPath); // in case of save as a file with different name
+} // function saveSuccessCallback()
 
-      fileReader.onerror = function(e) {
-        fileIOErrorHandler(e, "Open File failed: ");
-      };
 
-      fileReader.readAsText(file);
-    }, fileIOErrorHandler);
-  }
-}
+function newSuccessCallback() {
+  editor.setValue("");
+  editor.markClean();
+  handleDocumentChange(null);
+  
+} // function newSuccessCallback()
 
-function writeEditorToFile(theFileEntry) {
-  theFileEntry.createWriter(function(fileWriter) {
-    fileWriter.onerror = function(e) {
-      // this one seems to be unnecessary, 
-      // as any error will still 
-      // be propagated to onwriteend callback
-      // e is a ProgressEvent (not an error)
-      if (e && e.target && e.target.error) {
-        fileIOErrorHandler(e.target.error, "Saving File failed: ");
-      } else {
-        console.error('onerror: unknown event %O', e);
-      }
-    };
+// END IO callbacks
 
-    var blob = new Blob([editor.getValue()]);
-    fileWriter.truncate(blob.size);
-    fileWriter.onwriteend = function() {
-      fileWriter.onwriteend = function(e) {
-        if (this.error) {
-          // "this"" is fileWriter instance
-          fileIOErrorHandler(this.error, "Save File failed:");      
-        } else {
-          editor.markClean();
-          // note: theFileEntry.fullPath does not give 
-          // native file system path, which is needed 
-          chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
-            handleDocumentChange(displayPath); // in case of save as a file with different name
-            updateUIOnChange(editor); // inform UI editor is clean again, etc.
-            console.debug("Write completed.");              
-          });
-        }
-      };
-
-      fileWriter.write(blob);
-    };
-  }, fileIOErrorHandler);
-} // function writeEditorToFile()
-
-var onChosenFileToOpen = function(theFileEntry) {
-  setFile(theFileEntry, false);
-  readFileIntoEditor(theFileEntry);
-};
-
-var onWritableFileToOpen = function(theFileEntry) {
-  setFile(theFileEntry, true);
-  readFileIntoEditor(theFileEntry);
-};
-
-var onChosenFileToSave = function(theFileEntry) {
-  setFile(theFileEntry, true);
-  writeEditorToFile(theFileEntry);
-};
-
+// BEGIN UI event hooks to connect to IO logic
 function handleNewButton() {
   if (false) {
-    newFile();
-    editor.setValue("");
+    _ioCtrl.newFile();    
   } else {
     chrome.app.window.create('main.html', {
       frame: 'none', width: window.outerWidth, height: window.outerHeight 
@@ -206,48 +115,18 @@ function handleNewButton() {
 
 function handleOpenButton() {
   proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
-    chrome.fileSystem.chooseEntry({ type: 'openFile' }, function(entry) {
-      if (entry) {
-        onChosenFileToOpen(entry);
-      } else {
-        console.debug('File Open: canceled by user. No-op.');
-      }
-    }); // chrome.fileSystem.chooseEntry()
-  });
-  
+    _ioCtrl.chooseAndOpen();      
+  });    
 }
 
 function handleSaveButton() {
-  if (fileEntry && hasWriteAccess) {
-    writeEditorToFile(fileEntry);
-  } else if (fileEntry) {
-    chrome.fileSystem.getWritableEntry(fileEntry, function(entry) {
-      if (chrome.runtime.lastError) {
-        _uiCtrl.error.showMsg(chrome.runtime.lastError.message, chrome.runtime.lastError);
-        return;
-      }
-      if (!entry) {
-        _uiCtrl.error.showMsg("Save file failed - the writable handle is null.");
-        return;
-      }
-      // re-obtain the cur file as writable
-      onChosenFileToSave(entry); 
-    }); 
-  } else {
-    handleSaveAsButton();
-  }
+  _ioCtrl.save(editor.getValue());
 }
 
 function handleSaveAsButton() {
-  chrome.fileSystem.chooseEntry({ type: 'saveFile' }, function(entry) {
-    if (entry) {
-      onChosenFileToSave(entry);
-    } else {
-      console.debug('Save As canceled by user. Do nothing.');
-    }
-  });
+  _ioCtrl.chooseAndSave(editor.getValue());
 }
-
+// END UI event hooks to connect to IO logic
 
 var updateUIOnChange = function(cm) { 
   var isDirty = !cm.isClean();
@@ -303,7 +182,13 @@ window.onload = function() {
   /// initContextMenu(); disable snippets for now
   
   _uiCtrl = createEditorUICtrl(document);
-  
+
+   var errorCallback = _uiCtrl.error.showMsg;
+  _ioCtrl = createIOCtrl(readSuccessCallback, 
+                         saveSuccessCallback, 
+                         newSuccessCallback, 
+                         errorCallback);
+    
   _uiCtrl.io.registerListeners(handleNewButton,                            
                                handleOpenButton, 
                                handleSaveButton, 
@@ -342,7 +227,8 @@ window.onload = function() {
 
   editor.on('change',  updateUIOnChange);
 
-  newFile();
+  _ioCtrl.newFile();    
+
   onresize();
 
   // this should be moved to uiCtrl 

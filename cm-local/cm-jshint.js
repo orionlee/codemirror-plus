@@ -80,7 +80,7 @@ function createJsHintCommands(callback){
     try {
       clearTimeout(timeoutId);
       clearWidgets();
-      _cm.off("change", updateHintsOnChange);
+      if (_cm) {_cm.off("change", updateHintsOnChange); }
     } finally {
       // being paranoid.
       _cm = null;

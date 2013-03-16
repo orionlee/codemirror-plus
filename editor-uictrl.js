@@ -45,7 +45,7 @@ function createEditorUICtrl(doc) {
         
     // @interface
     codeModeModifier.update = function(modType, text) {
-      var modTypeElt = codeModeModifier.get(modType)
+      var modTypeElt = codeModeModifier.get(modType);
       if (!modTypeElt) {
         _codeModeModifierDiv.insertAdjacentHTML(
           'beforeend', '<span id="' + modType  +'"></span>');

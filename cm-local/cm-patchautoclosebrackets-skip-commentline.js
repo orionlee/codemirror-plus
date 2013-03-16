@@ -16,7 +16,7 @@
   
 
   function decorateCloseBracketWithSkipCommentLine(closeBracketFunc) {
-  	function closeBracketWithSkipCommentLine(cm) {
+    function closeBracketWithSkipCommentLine(cm) {
       if (cm.getTokenAt(cm.getCursor()).type == 'comment') {
         // current line is a comment, do nothing extra
         return CodeMirror.Pass;

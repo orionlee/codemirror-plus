@@ -1,7 +1,7 @@
 // @param callback, optional
 // @return a function(cm) that acts as a 
 //  CodeMirror command to toggleJsHint
-function createToggleJsHint(callback){
+function createJsHintCommands(callback){
   // set by the entry point function below,
   // also serve to indicate if jshint is enabled.
   var _cm = null; 
@@ -23,7 +23,7 @@ function createToggleJsHint(callback){
         return sel;
       }
     }
-    
+
     _cm.operation(function(){
       clearWidgets();
       var lineOffset;
@@ -56,6 +56,10 @@ function createToggleJsHint(callback){
     var after = _cm.charCoords({line: _cm.getCursor().line + 1, ch: 0}, "local").top;
     if (info.top + info.clientHeight < after)
       _cm.scrollTo(null, after - info.clientHeight + 3);
+    
+    if (callback) {
+      callback(true, JSHINT.errors.length);
+    }
   }
 
   var timeoutId;
@@ -69,6 +73,7 @@ function createToggleJsHint(callback){
     _cm.on("change", updateHintsOnChange);
     /// updateHints(); for ease of debug
     setTimeout(updateHints, 100);      
+    if (callback) { callback(true); }
   }
 
   function disableJsHint() {
@@ -79,20 +84,23 @@ function createToggleJsHint(callback){
     } finally {
       // being paranoid.
       _cm = null;
+      if (callback) { callback(false); }
     }
   }
   
   function toggleJsHint(cm) {
     if (_cm) {
       disableJsHint();
-      if (callback) { callback(false); }
     } else {
       enableJsHint(cm);
-      if (callback) { callback(true); }
     }
   }
   
   // now return the entry point function
-  return toggleJsHint;
+  return {
+    enableJsHint: enableJsHint,
+    disableJsHint: disableJsHint, 
+    toggleJsHint: toggleJsHint 
+  };
   
-} // function createToggleJsHint
+} // function createJsHintCommands

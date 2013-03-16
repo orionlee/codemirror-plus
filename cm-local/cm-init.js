@@ -138,17 +138,20 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
 
     function initJsHint(cm)  {
       // toggleJsHint is a command in the form of function(cm) {}
-      var toggleJsHint = createToggleJsHint(function(jsHintEnabled) {
+      var cmds = createJsHintCommands(function(jsHintEnabled, numIssues) {
         var modType = 'jsHint';
         if (jsHintEnabled) {
-          uiCtrl.codeModeModifier.update(modType, '[JSHint]');
+          var msg = numIssues ? '[JSHint:' + numIssues + ']' : '[JSHint]' ;
+          uiCtrl.codeModeModifier.update(modType, msg);
         } else {
           uiCtrl.codeModeModifier.remove(modType);
         }
       });
 
       bindCommand(cm, 'toggleJsHint',  {keyName: "F10" }, 
-        toggleJsHint); 
+        cmds.toggleJsHint); 
+      bindCommand(cm, 'enableJsHint',  {}, cmds.enableJsHint); 
+      bindCommand(cm, 'disableJsHint',  {}, cmds.disableJsHint); 
     }
 
     function initFold4Html(cm, isChain) {

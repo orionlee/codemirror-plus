@@ -7,7 +7,7 @@ var _uiCtrl;
 
 var fileIOErrorHandler = (function() {
   var codeToMsg = {};
-  for (codeName in FileError) { 
+  for (var codeName in FileError) { 
     if (/_ERR$/.test(codeName)) {
       // the prop is an error code
       var code = FileError[codeName];
@@ -29,16 +29,20 @@ var fileIOErrorHandler = (function() {
   return fileIOErrorHandler;
 })();
 
+/**
+ * Invoked after new file has been loaded to the editor,
+ * to update UI, and possibly editor setup accordingly.
+ */
 function handleDocumentChange(filePath) {
   var mode = "";
   var modeName = "";
   if (filePath) {
-    var fileName = filePath.match(/[^/\\]+$/)[0];
+    var fileName = filePath.match(/[^\/\\]+$/)[0];
     _uiCtrl.title.set(fileName, filePath);
         
     if (fileName.match(/.js$/)) {
-	  	mode = "javascript";
-  		modeName = "JavaScript";    
+      mode = "javascript";
+      modeName = "JavaScript";    
     } else if (fileName.match(/.json$/)) {
       mode = {name: "javascript", json: true};
       modeName = "JavaScript (JSON)";
@@ -58,7 +62,10 @@ function handleDocumentChange(filePath) {
     editor.setOption("mode", mode);
     initCodeMirror4Mode(editor, mode, _uiCtrl);
   } // else mode not changed. no-op
-    
+  
+  // manually fire the change event as document just loaded
+  updateUIOnChange(editor);  
+  
   customThemeIfApplicable(filePath); 
 }
 
@@ -89,6 +96,19 @@ function setFile(theFileEntry, isWritable) {
   hasWriteAccess = isWritable;
 }
 
+/**
+ * Reset any lingering states / processes before reading a new file to the editor.
+ */
+function resetEditorStates(cm) {
+  if (CodeMirror.commands.clearSearch) {
+    CodeMirror.commands.clearSearch(cm);
+  }
+  
+  if (CodeMirror.commands.disableJsHint) {
+    CodeMirror.commands.disableJsHint(cm);
+  }
+} // function resetEditorStates(..)
+
 function readFileIntoEditor(theFileEntry) {
   if (theFileEntry) {
     theFileEntry.file(function(file) {
@@ -98,15 +118,16 @@ function readFileIntoEditor(theFileEntry) {
         // note: theFileEntry.fullPath does not give 
         // native file system path, which is needed 
         chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
-          handleDocumentChange(displayPath);
+          // clean-up old states before reading in new file
+          resetEditorStates(editor);
+          
           editor.setValue(e.target.result); // actual file content
           editor.markClean(); // starting point of edit and history
           editor.clearHistory();
-            
-          if (CodeMirror.commands.clearSearch) {
-            CodeMirror.commands.clearSearch(editor);
-          }
-          updateUIOnChange(editor);
+
+          // new content ready, update UI accordingly
+          handleDocumentChange(displayPath);
+          
         }); // getDisplayPath(..)        
       }; // fileReader.onload = ..
 
@@ -127,7 +148,7 @@ function writeEditorToFile(theFileEntry) {
       // be propagated to onwriteend callback
       // e is a ProgressEvent (not an error)
       if (e && e.target && e.target.error) {
-	      fileIOErrorHandler(e.target.error, "Saving File failed: ");
+        fileIOErrorHandler(e.target.error, "Saving File failed: ");
       } else {
         console.error('onerror: unknown event %O', e);
       }
@@ -139,14 +160,14 @@ function writeEditorToFile(theFileEntry) {
       fileWriter.onwriteend = function(e) {
         if (this.error) {
           // "this"" is fileWriter instance
-		      fileIOErrorHandler(this.error, "Save File failed:");      
+          fileIOErrorHandler(this.error, "Save File failed:");      
         } else {
           editor.markClean();
           // note: theFileEntry.fullPath does not give 
           // native file system path, which is needed 
           chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
-            handleDocumentChange(displayPath);
-            updateUIOnChange(editor);
+            handleDocumentChange(displayPath); // in case of save as a file with different name
+            updateUIOnChange(editor); // inform UI editor is clean again, etc.
             console.debug("Write completed.");              
           });
         }

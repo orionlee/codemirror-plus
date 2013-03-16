@@ -223,9 +223,10 @@ CodeMirror.showHint4Dialog = function(cm, getHints, options) {
       // dialog case do not replace text in editor
       data.inpElt.value = completions[selectedHint];
       close();
-      // consider make this optional and done by a caller's callback
-      var DOM_VK_ENTER = 13;
-      keyDown(data.inpElt, DOM_VK_ENTER);
+      if (options.pressEnterOnPick === undefined || options.pressEnterOnPick) {
+        var DOM_VK_ENTER = 13;
+        keyDown(data.inpElt, DOM_VK_ENTER);        
+      }
     }
     
     /// dialog case cursorActivity seems to be irrelevant 

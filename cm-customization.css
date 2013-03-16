@@ -13,12 +13,13 @@
   border-left: 8px solid !important; 
   border-left-color:  black;
   z-index: 2; /* override background in ".CodeMirror pre" */
-}
+} 
 
 
 /* BEGIN match bracket addon customization */
 .CodeMirror-matchingbracket {
-  background-color: yellow !important;
+  /* semi-transparent aqua color easier to identify white / black cursors on top of it */
+  background-color: rgba(0, 255, 255, 0.6) !important; 
   border: none !important;
 }
 

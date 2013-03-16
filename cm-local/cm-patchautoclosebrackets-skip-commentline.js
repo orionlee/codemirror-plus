@@ -21,7 +21,7 @@
         // current line is a comment, do nothing extra
         return CodeMirror.Pass;
       } 
-      closeBracketFunc(cm);
+      return closeBracketFunc(cm);
     } // function closeBracketWithSkipCommentLine(..)
     
     return closeBracketWithSkipCommentLine;

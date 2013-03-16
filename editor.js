@@ -241,11 +241,11 @@ window.onload = function() {
   // drag-n-drop file support over app icon
   if (window.launchData) {
     var fileEntryToOpen = window.launchData.intent.data;
-    onChosenFileToOpen(fileEntryToOpen);
+    _ioCtrl.openFileEntry(fileEntryToOpen);
   }
 
   // drag-n-drop support over the window itself
-	patchDnDOverOnWinIfNeeded(editor); 
+  patchDnDOverOnWinIfNeeded(editor); 
   
 };
 
@@ -294,7 +294,7 @@ function patchDnDOverOnWinIfNeeded(editor) {
     chosenFileEntry = item.webkitGetAsEntry();
     
     proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
-      onChosenFileToOpen(chosenFileEntry);
+      _ioCtrl.openFileEntry(chosenFileEntry);
     });
     
   });

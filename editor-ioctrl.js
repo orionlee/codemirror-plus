@@ -1,5 +1,5 @@
 var createIOCtrl = (function() {
-    
+
   var _fileEntry;
   var _hasWriteAccess;
   
@@ -145,7 +145,7 @@ var createIOCtrl = (function() {
         onChosenFileToSave(entry, fileContent); 
       }); 
     } else {
-      chooseAndSave(fileContent)
+      chooseAndSave(fileContent);
     }
     
   } // function saveFile(..)
@@ -179,12 +179,13 @@ var createIOCtrl = (function() {
     var res = {
       newFile: newFile, 
       chooseAndOpen: chooseAndOpen,
+      openFileEntry: onChosenFileToOpen, 
       chooseAndSave: chooseAndSave,
-      save: save, 
-      debug: function() {
-        console.log('IOCtrl - hook to internal states');
-        debugger;
-      }
+      save: save 
+      ///debug: function() {
+      ///  console.log('IOCtrl - hook to internal states');
+      ///  debugger;
+      ///}
     };
     
     return res;

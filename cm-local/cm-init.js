@@ -17,6 +17,7 @@ function createCodeMirror(cmElt, uiCtrl) {
     matchBrackets: true,
     autoCloseBrackets: true, 
     patchAutoCloseBracketsByCurlyWithNewline: true,  // MUST be defined after autoCloseBrackets
+    patchAutoCloseBracketsSkipCommentline: true, // MUST be defined after all closeBrackets option
     highlightSelectionMatches: false, // possibly troublesome when I select large amount of text 
     extraKeys: { 
       "Enter": "newlineAndIndentContinueComment" ,

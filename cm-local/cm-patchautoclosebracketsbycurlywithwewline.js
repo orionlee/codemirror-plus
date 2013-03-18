@@ -16,25 +16,36 @@
   
 
   /**
-	 * Pos cases;
-	 *     function foo(bar) {
+   * Pos cases (end comment, with newline):
+   *     function foo(bar) {
    *     function foo() {
    *     var foo = function(bar) {
    *     window.foo = function(bar) {
    *     foo = function(bar) {
    *     var foo = (function(bar) {
    *     (function(bar) {
-   * Pos cases (end comma, no newline)
+   * Pos cases (end comma, no newline):
    *     bar = {}; 
    *     var bar = {}; 
    *     window.bar = {}; 
-   * Neg cases (no end comment):
-	 *     callFun(bar, function() {
-	 *     var res = callFun(bar, function() {
-	 *     for (i = 0; i < foo; i++ ) {
+   * Neg cases (no end comment, wth newline):
+   *     callFun(bar, function() {
+   *     callFun(bar, function() {) <-- end bracket of callFun has been inserted
+   *     var res = callFun(bar, function() {
+   *     for (i = 0; i < foo; i++ ) {
    *     if (foo < bar) {
+   *     if foo < bar {
+   *     } else if (boo>bar) {
+   *     while (foo<bar) {
+   *     do { 
+   * Neg cases (no end comment or comma, no newline):
+   *     foo(arg1, {}...)
    * 
    * Cases where current line is a comment is handled out of scope
+   * 
+   * @param line the line of the text where the open curly is about to be inserted
+   *  (but not yet inserted). While typically the open curly is to be inserted 
+   *  at the end of the line, the insertion point could also be anywhere else.
    */  
   function genJsCloseCurlyPosAndComment(line) {
     var isCloseCurlyNewline = true; // default
@@ -54,8 +65,18 @@
     // form  (function(maybeVar) { ... expected closing line: }();
     var reFuncAnonyApplyNoVar = /^\s*\(function\s*\(([^)]*)\)/ ;
 
+    // form  foo(arg1, function(maybeVar) { ... expected closing line: }();
+    // the pattern is more generic than other patterns for function,
+    // so it should be tested last 
+    var reFuncAnonyOthers = /function\s*\(([^)]*)\)\s*[)]?$/ ;
+
     var reObjCreation = /^\s*(?:var\s+)?([^=,\s]+)\s*=\s*$/; // about to type { at the end of line
 
+    // intent to cover cases such as if (expr) {  ; for(expr) {, while(expr) {, do {
+    // the expression is more generic so it should be tested at the end,
+    // while the more specific ones are tested first
+    var reLoopAndCondExpr = /^\s*([}]\s*)?(if|else|switch|while|do).*[^{]$/; // about to type { at the end of line
+    
     var matched;
     if (matched = line.match(reFuncNamed)) {
       comment = " // function " + matched[1] + "(" + (!matched[2] ? "" : "..") + ")";
@@ -65,10 +86,16 @@
       comment = ")(); // " + matched[1] + " = (function(" + (!matched[2] ? "" : "..") + ")";
     } else if (matched = line.match(reFuncAnonyApplyNoVar)) {
       comment = ")(); // (function(" + (!matched[1] ? "" : "..") + ")";
+    } else if (matched = line.match(reFuncAnonyOthers)) {
+      comment = "";
     } else if (matched = line.match(reObjCreation)) {
       isCloseCurlyNewline = false;
       comment = ";";  // not exactly comment but the comma is helpful for the end user.
-    } else {
+    } else if (matched = line.match(reLoopAndCondExpr)) {
+      isCloseCurlyNewline = true;
+      comment = "";
+    } else { // others, covering cases suc as func1(arg1, {})
+      isCloseCurlyNewline = false;
       comment = "";
     }
     

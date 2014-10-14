@@ -53,6 +53,9 @@ function createCodeMirror(cmElt, uiCtrl) {
   // behavior similar to emacs dabbrev-expand M-/
   initDabbrevExpandAutoComplete(cm);
   
+  initSelectFold(cm);
+  initSelectToLine(cm);
+  
   return cm;
 } // function createCodeMirror
 
@@ -94,6 +97,44 @@ function initDabbrevExpandAutoComplete(cm)  {
     function(cm) {
       CodeMirror.showHint(cm, CodeMirror.dabbrevExpandHint);
   });
+}
+
+function initSelectFold(cm) {
+  function selectFold(cm) {
+    // TODO: use a rangeFinder sensitive to current mode(e.g. tag for html, brace for css, etc.)
+    var foldRange = CodeMirror.braceRangeFinder(cm, CodeMirror.Pos(cm.getCursor().line, 0));
+    if (foldRange) {
+      cm.setSelection(CodeMirror.Pos(foldRange.from.line, 0), CodeMirror.Pos(foldRange.to.line));    
+    }
+  }  
+  
+  bindCommand(cm, 'selectFold', {keyName: "Ctrl-Alt-Q" }, selectFold);
+  
+}
+
+function initSelectToLine(cm) {
+  function selectToLineInteractive(cm) {
+    var curLine = cm.getCursor().line;
+    cm.openDialog('<span>Select to Line (cur: ' + (curLine+1) + '): <input type="number" size="6" style="width: 6em;" /></span>', function(lineNumStr) { 
+      try {
+        var lineNum = parseInt(lineNumStr, 10) - 1;
+        var stLine, endLine;
+        if (curLine < lineNum) {
+          stLine = curLine; endLine = lineNum;
+        } else {
+          stLine = lineNum; endLine = curLine;
+        }
+        cm.setSelection(CodeMirror.Pos(stLine, 0), CodeMirror.Pos(endLine));    
+      } catch (e) {
+        cm.openDialog('<div style="background-color: yellow; width: 100%">&nbsp;' + 
+                          '<button type="button">Ok</button><span style="color: red;">' + 
+                          '. Error: ' + e.message + '</span></div>');
+      }
+    });
+  }  
+  
+  bindCommand(cm, 'selectToLineInteractive', {keyName: "Ctrl-Alt-G" }, selectToLineInteractive);
+  
 }
 
 //

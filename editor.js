@@ -266,6 +266,17 @@ window.onload = function() {
   bindCommand(editor, 'safeExitWindow', {keyName: ["Alt-F4", "Ctrl-F4"] }, 
               _uiCtrl.safeExitWindow);
   
+  // Prevent OS exit window key (Alt-F4, etc.) from propagating to the OS,
+  // so that they can be handled by the editor binding above
+  function preventOSExitWindow(evt) { 
+    /// console.debug(evt); 
+    if ( (evt.ctrlKey && evt.keyIdentifier == "U+0057") || // Ctrl-W
+         (evt.ctrlKey && evt.keyIdentifier == "F4") || 
+         (evt.altKey && evt.keyIdentifier == "F4") ) { 
+      evt.preventDefault(); 
+    } 
+  }  
+  window.addEventListener('keydown', preventOSExitWindow);
   
   // chrome app-specific features binding
   var extraKeys = editor.getOption('extraKeys') || {};

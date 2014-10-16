@@ -55,10 +55,9 @@ button#openRecent .dropdown {
   font-weight: normal;
   font-size: smaller;
   padding: 3px 4px;
-  list-style: decimal;
+  list-style: none;
   min-width: 150px;
   text-align: left;
-  list-style-position: inside;
   background: none;
   background-color: #F0F0F0;
   color: black;

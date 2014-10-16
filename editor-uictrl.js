@@ -148,7 +148,7 @@ function createEditorUICtrl(doc) {
     console.assert(dropDownEl, 'Recent File dropdown <ul> should still exist');
     
     if (dropDownEl) dropDownEl.remove();
-    _openRecentBtn.onkeypress = null; // no need to listen to it as the list gets destroyed.  
+    _openRecentBtn.onkeydown = null; // no need to listen to it as the list gets destroyed.  
     _editorFocusFunc(); // in case the btn gets focused with keyboard shortcut
   } // function destroyRecentListDropDownUI(..)
 
@@ -163,10 +163,20 @@ function createEditorUICtrl(doc) {
     }
     dropDownEl = doc.createElement('ul');
     dropDownEl.className = 'CodeMirror-hints dropdown'; // TODO: remove CodeMirror-hints dependency
-    infoList.forEach(function(info) {
+    infoList.forEach(function(info, i) {
       var li = doc.createElement('li');
       li.dataset.id = info[1];
-      li.textContent = info[0].replace(/^(.*?)([^\\\/]+)$/, '$2');
+      var fileName = info[0].replace(/^(.*?)([^\\\/]+)$/, '$2');
+      var numHtml = (function() {
+        if (i < 9) {
+          return '<span class="accessKey">' + (i+1) + '</span>. ';  
+        } if (i == 9) {
+          return '1<span class="accessKey">' + 0 + '</span>. ';  
+        } else {
+          return '<span>' + (i+1) + '</span>. ';  
+        }       
+      })(); // numHtml = (function())
+      li.innerHTML = numHtml + fileName;
       li.title = info[0].replace(/\\\\/, '\\'); // replace \\ with easier to read \ 
       dropDownEl.appendChild(li);
     });
@@ -176,7 +186,7 @@ function createEditorUICtrl(doc) {
     dropDownEl = _openRecentBtn.querySelector('ul');
     
     // helper to do the actual open and necessary UI cleanup
-    //  used by both mouse click and keypress listeners
+    //  used by both mouse click and keydown listeners
     function doOpenRecentSpecifiedAtLi(el) {
       console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
       var fileId = el.dataset.id;
@@ -194,12 +204,24 @@ function createEditorUICtrl(doc) {
     
     // setup select file to open by pressing 0-9
     // ( 0 means 10th file)
-    _openRecentBtn.onkeypress = function(evt) {
-      var charCode = evt.charCode;
+    _openRecentBtn.onkeydown = function(evt) {
+      // Must use keydown rather than keypress, to capture Esc key
+      // Semantically, using keydown olso makes sense too.
       
-      var numPressed = (function() { // charCode to number (0-9)
-        if (charCode >= 48 && charCode <= 57) {
-          return charCode - 48;
+      if (evt.keyIdentifier == "U+001B") { // hit Esc key to hide the dropdown
+        destroyRecentListDropDownUI();
+        evt.preventDefault();
+        return;
+      }
+      
+      //
+      // captuer number keys and open files accordingly
+      //
+      var keyCode = evt.keyCode; // keydown has only keyCode, no charCode
+      
+      var numPressed = (function() { // keyCode to number (0-9)
+        if (keyCode >= 48 && keyCode <= 57) {
+          return keyCode - 48;
         } else {
           return undefined;
         }
@@ -225,9 +247,11 @@ function createEditorUICtrl(doc) {
       })(idx); // liEl = (function(..))
       
       if (liEl) {
+        // the key is to be handled by this function, no need to go further.
+        evt.preventDefault();
         doOpenRecentSpecifiedAtLi(liEl);
       }
-    }; // _openRecentBtn.onkeypress = function(..)
+    }; // _openRecentBtn.onkeydown = function(..)
   } // function createRecentListDropDownUI(..)
 
   

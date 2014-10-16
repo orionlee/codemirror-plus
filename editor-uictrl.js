@@ -72,6 +72,7 @@ function createEditorUICtrl(doc) {
     return codeModeModifier;
   } // function createCodeModeModifierCtrl(..)
   
+  
   //
   // main logic
   //
@@ -126,9 +127,8 @@ function createEditorUICtrl(doc) {
       if (el.isSameNode(_openRecentBtn)) {
         var dropDownEl = _openRecentBtn.querySelector('ul');
         if (dropDownEl) { // case a dropdown is there, so remove it.
-          dropDownEl.remove();
+          destroyRecentListDropDwonUI(dropDownEl);
         } else {
-          _openRecentBtn.blur(); // in case the btn gets focused with shortcut
           openRecentCallback(evt);
           evt.stopPropagation(); // no need to propagate the event to children's onclick
         }
@@ -140,6 +140,14 @@ function createEditorUICtrl(doc) {
     _saveAsButton.addEventListener("click", saveAsCallback);    
   }; // uiCtrl.io.registerListeners = function()
 
+  
+  // helper to clean up the UI element's created by 
+  // createRecentListDropDwonUI
+  function destroyRecentListDropDwonUI(dropDownEl) {
+    dropDownEl.remove();
+    _openRecentBtn.blur(); // in case the btn gets focused with keyboard shortcut
+    _openRecentBtn.onkeypress = null; // no need to listen to it as the list gets destroyed.          
+  } // function destroyRecentListDropDwonUI(..)
 
   // @interface
   // @param infoList see ioCtrl.getRecentOpenList
@@ -160,20 +168,66 @@ function createEditorUICtrl(doc) {
       dropDownEl.appendChild(li);
     });
     _openRecentBtn.appendChild(dropDownEl); 
-    
+        
     // ensure we get a handle of the <ul> attached to DOM
     dropDownEl = _openRecentBtn.querySelector('ul');
     
+    // helper to do the actual open and necessary UI cleanup
+    //  used by both mouse click and keypress listeners
+    function doOpenRecentSpecifiedAtLi(el) {
+      console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
+      var fileId = el.dataset.id;
+      doOpenRecentById(fileId); 
+      destroyRecentListDropDwonUI(dropDownEl);
+    } // function doOpenRecentSpecifiedAtLi(..)
+    
+    // setup select file to open by mouse click
     dropDownEl.onclick = function(evt) {
       var el = evt.srcElement;
       if (el.tagName == 'LI') {
-        var fileId = el.dataset.id;
-        dropDownEl.remove();
-        doOpenRecentById(fileId); 
+        doOpenRecentSpecifiedAtLi(el);
       } // else the unlikely event on clicking the <ul> without touching any <li>s, do nothing
     }; // dropDownEl.onclick = function(..)
+    
+    // setup select file to open by pressing 0-9
+    // ( 0 means 10th file)
+    _openRecentBtn.onkeypress = function(evt) {
+      var charCode = evt.charCode;
+      
+      var numPressed = (function() { // charCode to number (0-9)
+        if (charCode >= 48 && charCode <= 57) {
+          return charCode - 48;
+        } else {
+          return undefined;
+        }
+      })(); // numPressed = (function())
+      
+      var idx = (function(num) {
+        if (typeof num === 'number') {
+          // here 0 means 10th file, i.e., idx 9
+          return (num == 0 ? (10 - 1) : (num - 1));
+        } else {
+          return undefined;
+        }
+      })(numPressed); // idx = (function())
+      
+      var liEl = (function(idx) {
+        if (typeof idx === 'number') {
+          var liList = dropDownEl.querySelectorAll('li');
+          if (idx < liList.length) {
+            return liList[idx];
+          } // else number not within the range, no-op
+        }
+        return undefined;
+      })(idx); // liEl = (function(..))
+      
+      if (liEl) {
+        doOpenRecentSpecifiedAtLi(liEl);
+      }
+    }; // _openRecentBtn.onkeypress = function(..)
   } // function createRecentListDropDwonUI(..)
 
+  
   // @interface  
   uiCtrl.safeExitWindow = function() {
     if (_exitCallback) {

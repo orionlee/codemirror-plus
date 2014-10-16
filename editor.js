@@ -41,6 +41,9 @@ function handleDocumentChange(filePath) {
   // manually fire the change event as document just loaded
   updateUIOnChange(editor);  
   
+  // needed in case the editor is loaded via keyboard shortcut, e.g., open recent file.
+  editor.focus();
+  
   // the followings are highly-specific to my own workflow
   customThemeIfApplicable(filePath); 
   autoFoldForFlagFicSkeleton(fileName);
@@ -328,7 +331,9 @@ function patchDnDOverOnWinIfNeeded(editor) {
     // mimetype on item.type . however, some files
     // such as .md, .json , may not have type registered
 
-    chosenFileEntry = item.webkitGetAsEntry();
+    // the standard item.getFile() does not provide ways to save the file back
+    // We are using Chrome's FileEntry construct anyway
+    var chosenFileEntry = item.webkitGetAsEntry();
     
     proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
       _ioCtrl.openFileEntry(chosenFileEntry);

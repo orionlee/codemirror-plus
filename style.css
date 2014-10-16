@@ -74,6 +74,10 @@ button#openRecent .dropdown li:hover {
   color: white;
 }
 
+/* highlight dropdown when using keyboard nav to be more visible */
+button#openRecent:focus .dropdown {
+  border: 2px solid orange;
+}
 
 button#exit {
   position: absolute; 

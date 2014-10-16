@@ -163,10 +163,10 @@ function handleSaveAsButton() {
 function handleOpenRecentButton(ev) {
   _ioCtrl.getRecentList(function(infoList) {
     // call uiCtrl to populate recent button with the list        
-    _uiCtrl.io.createRecentListDropDwonUI(infoList, function(fileId) {
+    _uiCtrl.io.createRecentListDropDwonUI(infoList, function(fileId, destroyUICallback) {
       proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
         _ioCtrl.openRecentById(fileId);      
-      });          
+      }, destroyUICallback);          
     });
   });  
 } // function handleOpenRecentButton()
@@ -179,21 +179,33 @@ var updateUIOnChange = function(cm) {
 };
 
 
-function proceedIfFileIsCleanOrOkToDropChanges(cm, proceedCallback) {
+// @param cleanUpCallback if specified, it will be invoked irrespective of proceed or not
+//   the effect is equivalent to finally {} block of normal sychrnous flow
+function proceedIfFileIsCleanOrOkToDropChanges(cm, proceedCallback, cleanUpCallback) {
 
-  function proceedIfOkToDropChanges(cm, proceedCallback) {
-    var noop = function () {};
+  function proceedAndCleanUp(cm) {
+    try { 
+      proceedCallback(cm);
+    } finally {
+      if (cleanUpCallback) {
+        cleanUpCallback(cm);
+      }
+    }
+  } // function proceedAndCleanUp(..)
   
-		cm.openConfirm('Are you sure to discard the changes? ' + 
+  function proceedIfOkToDropChanges(cm, okCallback, cancelCallback) {
+    cancelCallback = cancelCallback || (function noop() {});
+  
+    cm.openConfirm('Are you sure to discard the changes? ' + 
                    '<button>Cancel</button> <button>Ok</button>', 
-                   [ noop, proceedCallback]);
-	} 
+                   [ cancelCallback, okCallback]);
+  } 
 
   
-	if (cm.isClean()) {
-    proceedCallback(cm);
+  if (cm.isClean()) {
+    proceedAndCleanUp(cm);
   } else {
-    proceedIfOkToDropChanges(cm, proceedCallback);
+    proceedIfOkToDropChanges(cm, proceedAndCleanUp, cleanUpCallback);
   } 
 } // function proceedIfFileIsCleanOrOkToDropChanges(..)
 

@@ -177,8 +177,10 @@ function createEditorUICtrl(doc) {
     function doOpenRecentSpecifiedAtLi(el) {
       console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
       var fileId = el.dataset.id;
-      doOpenRecentById(fileId); 
-      destroyRecentListDropDwonUI(dropDownEl);
+      // the destroy function will be invoked by doOpenRecent, regardless if open succeeds or not
+      doOpenRecentById(fileId, function() {
+        destroyRecentListDropDwonUI(dropDownEl);  
+      });      
     } // function doOpenRecentSpecifiedAtLi(..)
     
     // setup select file to open by mouse click

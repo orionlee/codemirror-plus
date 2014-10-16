@@ -299,6 +299,9 @@ window.onload = function() {
   // drag-n-drop support over the window itself
   patchDnDOverOnWinIfNeeded(editor); 
   
+  // upon minimize, maximize, etc., we will adjust by calling correspond resize
+  chrome.app.window.current().onBoundsChanged.addListener(window.onresize);
+  
 };
 
 // codemirror specific changes upon window resize

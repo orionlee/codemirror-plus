@@ -304,10 +304,6 @@ function createEditorUICtrl(doc) {
 
   _errorButton.addEventListener("click", uiCtrl.error.clearMsg);
                                                          
-  // support move by dragging toolbar
-  var btns = doc.querySelector('.buttons');
-  btns.addEventListener('mousedown', moveStart);  
-  
   return uiCtrl;
   
 } // function createEditorUICtrl(..)

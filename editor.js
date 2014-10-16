@@ -41,7 +41,9 @@ function handleDocumentChange(filePath) {
   // manually fire the change event as document just loaded
   updateUIOnChange(editor);  
   
+  // the followings are highly-specific to my own workflow
   customThemeIfApplicable(filePath); 
+  autoFoldForFlagFicSkeleton(fileName);
 }
 
 /**
@@ -58,6 +60,34 @@ function customThemeIfApplicable(filePath) {
     editor.setOption('theme', 'blackboard');
   }
 } // function customThemeByFile(..)
+
+function autoFoldForFlagFicSkeleton(fileName) {
+  function foldHtmlAtString(str, returnRange) {
+    CodeMirror.commands.clearSearch(editor); // hack to ensure ._searchState is created.
+    editor._searchState.query = str;
+    CodeMirror.commands.findNext(editor);
+    var pos = editor._searchState.posFrom;
+    console.debug('%s: %o', str, pos);
+    CodeMirror.commands.codeFold4Html(editor);
+    
+    CodeMirror.commands.clearSearch(editor);
+    editor.setSelection(pos); // clear selection from search
+    if (returnRange) {
+      return CodeMirror.tagRangeFinder(editor, pos);
+    } else {
+      return;
+    }
+  } // function foldHtmlAtString(..)
+  
+  if (fileName == 'flagfic_skeleton.html') {    
+    foldHtmlAtString('<head');     
+    var bookR = foldHtmlAtString('<div id="book"', true);  
+    foldHtmlAtString('<script type="text/javascript"');
+    
+    // select div#id, as the typical use case is to remove them (to be replaced by copy-pasted one)
+    editor.setSelection(CodeMirror.Pos(bookR.from.line, 0), CodeMirror.Pos(bookR.to.line+1, 0));
+  }
+} // function autoFoldForFlagFicSkeleton(..)
 
 
 /**
@@ -126,6 +156,18 @@ function handleSaveButton() {
 function handleSaveAsButton() {
   _ioCtrl.chooseAndSave(editor.getValue());
 }
+
+function handleOpenRecentButton(ev) {
+  _ioCtrl.getRecentList(function(infoList) {
+    // call uiCtrl to populate recent button with the list        
+    _uiCtrl.io.createRecentListDropDwonUI(infoList, function(fileId) {
+      proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
+        _ioCtrl.openRecentById(fileId);      
+      });          
+    });
+  });  
+} // function handleOpenRecentButton()
+
 // END UI event hooks to connect to IO logic
 
 var updateUIOnChange = function(cm) { 
@@ -191,6 +233,7 @@ window.onload = function() {
     
   _uiCtrl.io.registerListeners(handleNewButton,                            
                                handleOpenButton, 
+                               handleOpenRecentButton, 
                                handleSaveButton, 
                                handleSaveAsButton);
 

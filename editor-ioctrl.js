@@ -3,6 +3,8 @@ var createIOCtrl = (function() {
   var _fileEntry;
   var _hasWriteAccess;
   
+  var _recentFilesManager;
+  
   // TODO: consider to be parametrized
   var  _readSuccessCallback, _saveSuccessCallback, _newSuccessCallback, _errorCallback;
   
@@ -45,7 +47,8 @@ var createIOCtrl = (function() {
           // note: theFileEntry.fullPath does not give 
           // native file system path, which is needed 
           chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {          
-            _readSuccessCallback(displayPath, e.target.result);
+            _readSuccessCallback(displayPath, e.target.result);            
+            _recentFilesManager.addInfo(theFileEntry, displayPath);            
           }); // getDisplayPath(..)        
         }; // fileReader.onload = ..
   
@@ -85,6 +88,7 @@ var createIOCtrl = (function() {
             chrome.fileSystem.getDisplayPath(theFileEntry, function(displayPath) {
               //TODO: @depends _saveSuccessCallback(fileFullPath);
               _saveSuccessCallback(displayPath);
+              _recentFilesManager.addInfo(theFileEntry, displayPath);
               console.debug("Write completed.");              
             });
           }
@@ -110,10 +114,139 @@ var createIOCtrl = (function() {
     setFile(theFileEntry, true);
     writeEditorToFile(theFileEntry, fileContent);
   };
+
+  // encapsulate the management of recent list of files
+  _recentFilesManager = (function() {
+    var KEY = 'recentFiles';
+    
+    // BEGIN helpers to manipulate in-memory infoList object
+    //
+    
+    var IL_MAX_LENGTH = 10;
+    var IL_IDX_PATH = 0;
+    var IL_IDX_ID = 1;
+    function ilGetById(infoList, id) {
+      for(var i = 0; i < infoList.length; i++) {
+        var info = infoList[i];
+        if (id == info[IL_IDX_ID]) {
+          return info;
+        }
+      }
+      return null;
+    }
+    
+    function ilGetOffsetByFilePath(infoList, filePath) {
+      for(var i = 0; i < infoList.length; i++) {
+        var info = infoList[i];
+        if (filePath == info[IL_IDX_PATH]) {
+          return i;
+        }
+      }
+      return -1;      
+    } // function ilGetOffsetByFilePath(..)
+    
+    function ilAdd(infoList, filePath, fileId) {
+      // remove existing one (by matching filepath), if any;
+      var info = [filePath, fileId];
+      var curOffset = ilGetOffsetByFilePath(infoList, filePath);
+      if (curOffset >= 0) {
+        infoList.splice(curOffset, 1); 
+      }
+      
+      // add to the top of the list
+      infoList.unshift(info);
+      
+      // truncate to avoid the list gets too large
+      if (infoList.length > IL_MAX_LENGTH) {
+        infoList.length = IL_MAX_LENGTH;
+      }
+
+       return infoList;      
+    } // function ilAdd(..)
+    
+    //
+    // END helpers to manipulate in-memory infoList object
+    
+    
+    // Debug helper snippets for chrome.stroage:
+    //   chrome.storage.local.get('recentFiles', function(items) { console.debug(items.recentFiles); _dbg = items.recentFiles; })
+    //   chrome.storage.local.get(null, function(items) { console.debug(items); _dbg = items; })
+    //   chrome.storage.local.remove('recentFiles', function() {});
+    
+    
+    /**
+     * @return an Array of [filePath, fileId] pair, 
+     *    fileId can be used to reopen with #openRecentById 
+     */
+    var getInfoList = function(cb) {
+      chrome.storage.local.get(KEY, function(items) {
+        if (chrome.runtime.lastError) {
+          _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
+          return;
+        }
+        
+        var infoList = items[KEY] || [];        
+        cb(infoList);
+      });
+    };
+
+      
+    var openRecentById = function(id, cb) {
+      // optional callback is useful only in a isolation test of _recentFilesMgr, without
+      // the supporting ioCtrl methods
+      cb = cb || onChosenFileToOpen;
+      getInfoList(function(infoList) {
+        var recentFileInfo = ilGetById(infoList, id);
+        if (!recentFileInfo) {          
+          _errorCallback('Internal error: File with id ' + id + ' not found in recent file list.');
+        }
+        /// console.debug(recentFileInfo);
+        chrome.fileSystem.restoreEntry(recentFileInfo[IL_IDX_ID], function(entry) {
+          if (chrome.runtime.lastError) {
+            _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
+            return;
+          }
+
+          if (entry) {
+            cb(entry);
+          } else {
+            console.warn('Load recent file fails.');
+          }
+        });        
+      });
+    };  
+      
+    var addInfo = function(entry, filePath) {
+      var fileEntryId = chrome.fileSystem.retainEntry(entry);
+      getInfoList(function(infoList) {
+        ilAdd(infoList, filePath, fileEntryId);
+        var items = {};
+        items[KEY] = infoList;
+        chrome.storage.local.set(items, function() {
+          if (chrome.runtime.lastError) {
+            _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
+            return;
+          }
+        });
+      });
+    };
+    
+    return {
+      getInfoList: getInfoList,
+      openRecentById: openRecentById,
+      addInfo: addInfo
+    };
+  })(); // _recentFilesManager = (function()
   
   //
   // top-level exposed methods
   //
+  
+  // @interface
+  function openRecentById(id) {
+    _recentFilesManager.openRecentById(id);
+  } // function openRecentById(..)
+  
   
   // @interface
   function chooseAndOpen() {
@@ -181,7 +314,9 @@ var createIOCtrl = (function() {
       chooseAndOpen: chooseAndOpen,
       openFileEntry: onChosenFileToOpen, 
       chooseAndSave: chooseAndSave,
-      save: save 
+      save: save, 
+      openRecentById: openRecentById,
+      getRecentList: _recentFilesManager.getInfoList 
       ///debug: function() {
       ///  console.log('IOCtrl - hook to internal states');
       ///  debugger;

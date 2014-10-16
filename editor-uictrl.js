@@ -15,7 +15,7 @@ function createEditorUICtrl(doc) {
   var _titleElt, _modeElt;
   // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
   var _codeModeModifierDiv; 
-  var _newButton, _openButton, _saveButton, _saveAsButton;
+  var _newButton, _openButton, _openRecentBtn, _saveButton, _saveAsButton;
   var _errorButton, _exitButton;
 
   var _editorFocusFunc;
@@ -83,6 +83,7 @@ function createEditorUICtrl(doc) {
   
   _newButton = $id("new");
   _openButton = $id("open");
+  _openRecentBtn = $id('openRecent');
   _saveButton = $id("save");
   _saveAsButton = $id("saveAs");
   
@@ -117,13 +118,61 @@ function createEditorUICtrl(doc) {
   uiCtrl.io = {};
   
   // @interface
-  uiCtrl.io.registerListeners = function(newCallback, openCallback, saveCallback, saveAsCallback) {
+  uiCtrl.io.registerListeners = function(newCallback, openCallback, openRecentCallback, saveCallback, saveAsCallback) {
     _newButton.addEventListener("click", newCallback);
     _openButton.addEventListener("click", openCallback);
+    _openRecentBtn.addEventListener("click", function(evt) {
+      var el = evt.srcElement;
+      if (el.isSameNode(_openRecentBtn)) {
+        var dropDownEl = _openRecentBtn.querySelector('ul');
+        if (dropDownEl) { // case a dropdown is there, so remove it.
+          dropDownEl.remove();
+        } else {
+          _openRecentBtn.blur(); // in case the btn gets focused with shortcut
+          openRecentCallback(evt);
+          evt.stopPropagation(); // no need to propagate the event to children's onclick
+        }
+      } else {
+        /// console.debug('#openRecent: click %o on child elements (no-op here): %o', evt, el);
+      }
+    });
     _saveButton.addEventListener("click", saveCallback);
     _saveAsButton.addEventListener("click", saveAsCallback);    
   }; // uiCtrl.io.registerListeners = function()
 
+
+  // @interface
+  // @param infoList see ioCtrl.getRecentOpenList
+  // @param doOpenRecentById callback method that does the actual opening file, 
+  //    e.g., ioCtrl.openRecentById
+  uiCtrl.io.createRecentListDropDwonUI = function(infoList, doOpenRecentById) {
+    var dropDownEl = _openRecentBtn.querySelector('ul');
+    if (dropDownEl) { // destory old one if any
+      dropDownEl.remove();
+    }
+    dropDownEl = doc.createElement('ul');
+    dropDownEl.className = 'CodeMirror-hints dropdown'; // TODO: remove CodeMirror-hints dependency
+    infoList.forEach(function(info) {
+      var li = doc.createElement('li');
+      li.dataset.id = info[1];
+      li.textContent = info[0].replace(/^(.*?)([^\\\/]+)$/, '$2');
+      li.title = info[0].replace(/\\\\/, '\\'); // replace \\ with easier to read \ 
+      dropDownEl.appendChild(li);
+    });
+    _openRecentBtn.appendChild(dropDownEl); 
+    
+    // ensure we get a handle of the <ul> attached to DOM
+    dropDownEl = _openRecentBtn.querySelector('ul');
+    
+    dropDownEl.onclick = function(evt) {
+      var el = evt.srcElement;
+      if (el.tagName == 'LI') {
+        var fileId = el.dataset.id;
+        dropDownEl.remove();
+        doOpenRecentById(fileId); 
+      } // else the unlikely event on clicking the <ul> without touching any <li>s, do nothing
+    }; // dropDownEl.onclick = function(..)
+  } // function createRecentListDropDwonUI(..)
 
   // @interface  
   uiCtrl.safeExitWindow = function() {

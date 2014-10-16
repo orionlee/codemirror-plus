@@ -312,6 +312,9 @@ var createIOCtrl = (function() {
     var res = {
       newFile: newFile, 
       chooseAndOpen: chooseAndOpen,
+      // openFileEntry is exposed as it is needed to support drag-and-drop.
+      // Otherwise, fileEntry is supposed to be an implementation details.
+      // see top-level code (editor.js) patchDnDOverOnWinIfNeeded() for details
       openFileEntry: onChosenFileToOpen, 
       chooseAndSave: chooseAndSave,
       save: save, 

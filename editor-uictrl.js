@@ -134,7 +134,6 @@ function createEditorUICtrl(window, doc) {
           destroyRecentListDropDownUI();
         } else {
           openRecentCallback(evt);
-          evt.stopPropagation(); // no need to propagate the event to children's onclick
         }
       } else {
         /// console.debug('#openRecent: click %o on child elements (no-op here): %o', evt, el);

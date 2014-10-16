@@ -145,8 +145,8 @@ function createEditorUICtrl(doc) {
   // createRecentListDropDwonUI
   function destroyRecentListDropDwonUI(dropDownEl) {
     dropDownEl.remove();
-    _openRecentBtn.blur(); // in case the btn gets focused with keyboard shortcut
-    _openRecentBtn.onkeypress = null; // no need to listen to it as the list gets destroyed.          
+    _openRecentBtn.onkeypress = null; // no need to listen to it as the list gets destroyed.  
+    _editorFocusFunc(); // in case the btn gets focused with keyboard shortcut
   } // function destroyRecentListDropDwonUI(..)
 
   // @interface

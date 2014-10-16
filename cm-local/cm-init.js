@@ -275,8 +275,11 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
   // modes have setup theirs, including code-folding,
   //   now I'm ready to create an aggregate one
   function codeFoldAll(cm, codeFoldCommand) {
+    if (typeof codeFoldCommand == 'string') {
+      codeFoldCommand = CodeMirror.commands[codeFoldCommand];
+    }
     if (!codeFoldCommand) { return; }
-  
+    
     for(var i = 0; i < cm.lineCount(); i++) { 
       if (cm.getLineHandle(i).height > 0) {
         cm.setCursor(CodeMirror.Pos(i, 0));
@@ -286,6 +289,8 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
   }
   bindCommand(cm, 'toggleCodeFoldAll', {keyName: "Shift-Ctrl-Q" }, 
     function(cm) {
+      // use extraKeys indirection so that the mode-specific folding will be selected
+      // at runtme.
       codeFoldAll(cm, cm.options.extraKeys['Ctrl-Q']);
   });
  

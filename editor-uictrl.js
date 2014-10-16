@@ -10,8 +10,12 @@
  *  (the codemirror editor object). 
  * 
  */
-function createEditorUICtrl(doc) {
+function createEditorUICtrl(window, doc) {
+  "use strict";
 
+  // imports from global to support "use strict";
+  var console = window.console;
+  
   var _titleElt, _modeElt;
   // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
   var _codeModeModifierDiv; 
@@ -230,7 +234,7 @@ function createEditorUICtrl(doc) {
       var idx = (function(num) {
         if (typeof num === 'number') {
           // here 0 means 10th file, i.e., idx 9
-          return (num == 0 ? (10 - 1) : (num - 1));
+          return (num === 0 ? (10 - 1) : (num - 1));
         } else {
           return undefined;
         }
@@ -252,7 +256,7 @@ function createEditorUICtrl(doc) {
         doOpenRecentSpecifiedAtLi(liEl);
       }
     }; // _openRecentBtn.onkeydown = function(..)
-  } // function createRecentListDropDownUI(..)
+  }; // function createRecentListDropDownUI(..)
 
   
   // @interface  

@@ -11,8 +11,9 @@ var _ioCtrl;
 function handleDocumentChange(filePath) {
   var mode = "";
   var modeName = "";
+  var fileName = "";
   if (filePath) {
-    var fileName = filePath.match(/[^\/\\]+$/)[0];
+    fileName = filePath.match(/[^\/\\]+$/)[0];
     _uiCtrl.title.set(fileName, filePath);
         
     if (fileName.match(/.js$/)) {
@@ -238,10 +239,11 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 window.onload = function() {
   /// initContextMenu(); disable snippets for now
   
-  _uiCtrl = createEditorUICtrl(document);
+  _uiCtrl = createEditorUICtrl(window, document);
 
    var errorCallback = _uiCtrl.error.showMsg;
-  _ioCtrl = createIOCtrl(readSuccessCallback, 
+  _ioCtrl = createIOCtrl(window, 
+                         readSuccessCallback, 
                          saveSuccessCallback, 
                          newSuccessCallback, 
                          errorCallback);

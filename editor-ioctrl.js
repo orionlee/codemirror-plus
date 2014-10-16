@@ -1,13 +1,26 @@
-var createIOCtrl = (function() {
+function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSuccessCallback, errorCallback) {
+  "use strict";
+  
+  // imports from global to support "use strict";
+  var FileError = window.FileError, FileReader = window.FileReader, Blob = window.Blob, 
+      console = window.console, chrome = window.chrome;
+  
+  
+  // copy rest of params to state-like variables here
+  var  _readSuccessCallback, _saveSuccessCallback, _newSuccessCallback, _errorCallback;
+  _readSuccessCallback = readSuccessCallback;
+  _saveSuccessCallback = saveSuccessCallback;  
+  _newSuccessCallback = newSuccessCallback; 
+  _errorCallback = errorCallback;
 
+  // the internal state: the file to do I/O with 
   var _fileEntry;
   var _hasWriteAccess;
   
-  var _recentFilesManager;
-  
-  // TODO: consider to be parametrized
-  var  _readSuccessCallback, _saveSuccessCallback, _newSuccessCallback, _errorCallback;
-  
+  // a set of functions encapsulating recent files feature,
+  // to be defined later
+  var _recentFilesManager; 
+    
   var fileIOErrorHandler = (function() {
     var codeToMsg = {};
     for (var codeName in FileError) { 
@@ -191,10 +204,10 @@ var createIOCtrl = (function() {
     };
 
       
-    var openRecentById = function(id, cb) {
-      // optional callback is useful only in a isolation test of _recentFilesMgr, without
+    var openRecentById = function(id, _cb) {
+      // optional _cb callback is useful only in a isolation test of _recentFilesMgr, without
       // the supporting ioCtrl methods
-      cb = cb || onChosenFileToOpen;
+      var cb = _cb || onChosenFileToOpen;
       getInfoList(function(infoList) {
         var recentFileInfo = ilGetById(infoList, id);
         if (!recentFileInfo) {          
@@ -301,34 +314,24 @@ var createIOCtrl = (function() {
     _newSuccessCallback();
   }
   
-  // the top level function to be exported
-  function createIOCtrl(readSuccessCallback, saveSuccessCallback, newSuccessCallback, errorCallback) {  
-    _readSuccessCallback = readSuccessCallback;
-    _saveSuccessCallback = saveSuccessCallback;  
-    _newSuccessCallback = newSuccessCallback; 
-    _errorCallback = errorCallback;
+  // interface users will use 
+  var ioCtrl = {
+    newFile: newFile, 
+    chooseAndOpen: chooseAndOpen,
+    // openFileEntry is exposed as it is needed to support drag-and-drop.
+    // Otherwise, fileEntry is supposed to be an implementation details.
+    // see top-level code (editor.js) patchDnDOverOnWinIfNeeded() for details
+    openFileEntry: onChosenFileToOpen, 
+    chooseAndSave: chooseAndSave,
+    save: save, 
+    openRecentById: openRecentById,
+    getRecentList: _recentFilesManager.getInfoList 
+    ///debug: function() {
+    ///  console.log('IOCtrl - hook to internal states');
+    ///  debugger;
+    ///}
+  };
   
-    // interface users will use 
-    var res = {
-      newFile: newFile, 
-      chooseAndOpen: chooseAndOpen,
-      // openFileEntry is exposed as it is needed to support drag-and-drop.
-      // Otherwise, fileEntry is supposed to be an implementation details.
-      // see top-level code (editor.js) patchDnDOverOnWinIfNeeded() for details
-      openFileEntry: onChosenFileToOpen, 
-      chooseAndSave: chooseAndSave,
-      save: save, 
-      openRecentById: openRecentById,
-      getRecentList: _recentFilesManager.getInfoList 
-      ///debug: function() {
-      ///  console.log('IOCtrl - hook to internal states');
-      ///  debugger;
-      ///}
-    };
+  return ioCtrl;
     
-    return res;
-  } // function createIOCtrl(..)
-  
-  return createIOCtrl;
-  
-})(); // createIOCtrl = (function())
+} // function createIOCtrl(..)

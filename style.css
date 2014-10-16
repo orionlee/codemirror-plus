@@ -82,20 +82,21 @@ button#openRecent:focus .dropdown {
 button#exit {
   position: absolute; 
   right: 6px; 
-  color: white; 
+  color: #bbb; 
   font-weight: bold; 
   font-family: 'Arial Black', Verdana, Geneva, sans-serif;
 }
 
 button#exit:hover {
+  color: white;
   background-color: rgb(225, 25, 25);
-  background: -webkit-radial-gradient(circle, rgb(200, 25, 25), rgb(255, 225, 225));
+  background: radial-gradient(circle, rgb(200, 25, 25), rgb(255, 225, 225));
 }
 
 #win { /* provide a frame around the editor, height/width needs to be set programmatically  */
   position: absolute;
-	top: 0px;
-	left: 0px;
+  top: 0px;
+  left: 0px;
   border: 5px solid rgba(0,0,255, 0.15);
   border-radius: 8px;
   width: 890px;

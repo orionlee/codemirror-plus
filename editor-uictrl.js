@@ -127,7 +127,7 @@ function createEditorUICtrl(doc) {
       if (el.isSameNode(_openRecentBtn)) {
         var dropDownEl = _openRecentBtn.querySelector('ul');
         if (dropDownEl) { // case a dropdown is there, so remove it.
-          destroyRecentListDropDwonUI(dropDownEl);
+          destroyRecentListDropDownUI();
         } else {
           openRecentCallback(evt);
           evt.stopPropagation(); // no need to propagate the event to children's onclick
@@ -142,18 +142,21 @@ function createEditorUICtrl(doc) {
 
   
   // helper to clean up the UI element's created by 
-  // createRecentListDropDwonUI
-  function destroyRecentListDropDwonUI(dropDownEl) {
-    dropDownEl.remove();
+  // createRecentListDropDownUI
+  function destroyRecentListDropDownUI() {
+    var dropDownEl = _openRecentBtn.querySelector('ul');
+    console.assert(dropDownEl, 'Recent File dropdown <ul> should still exist');
+    
+    if (dropDownEl) dropDownEl.remove();
     _openRecentBtn.onkeypress = null; // no need to listen to it as the list gets destroyed.  
     _editorFocusFunc(); // in case the btn gets focused with keyboard shortcut
-  } // function destroyRecentListDropDwonUI(..)
+  } // function destroyRecentListDropDownUI(..)
 
   // @interface
   // @param infoList see ioCtrl.getRecentOpenList
   // @param doOpenRecentById callback method that does the actual opening file, 
   //    e.g., ioCtrl.openRecentById
-  uiCtrl.io.createRecentListDropDwonUI = function(infoList, doOpenRecentById) {
+  uiCtrl.io.createRecentListDropDownUI = function(infoList, doOpenRecentById) {
     var dropDownEl = _openRecentBtn.querySelector('ul');
     if (dropDownEl) { // destory old one if any
       dropDownEl.remove();
@@ -178,9 +181,7 @@ function createEditorUICtrl(doc) {
       console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
       var fileId = el.dataset.id;
       // the destroy function will be invoked by doOpenRecent, regardless if open succeeds or not
-      doOpenRecentById(fileId, function() {
-        destroyRecentListDropDwonUI(dropDownEl);  
-      });      
+      doOpenRecentById(fileId, destroyRecentListDropDownUI);      
     } // function doOpenRecentSpecifiedAtLi(..)
     
     // setup select file to open by mouse click
@@ -227,7 +228,7 @@ function createEditorUICtrl(doc) {
         doOpenRecentSpecifiedAtLi(liEl);
       }
     }; // _openRecentBtn.onkeypress = function(..)
-  } // function createRecentListDropDwonUI(..)
+  } // function createRecentListDropDownUI(..)
 
   
   // @interface  

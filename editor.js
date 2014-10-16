@@ -163,7 +163,7 @@ function handleSaveAsButton() {
 function handleOpenRecentButton(ev) {
   _ioCtrl.getRecentList(function(infoList) {
     // call uiCtrl to populate recent button with the list        
-    _uiCtrl.io.createRecentListDropDwonUI(infoList, function(fileId, destroyUICallback) {
+    _uiCtrl.io.createRecentListDropDownUI(infoList, function(fileId, destroyUICallback) {
       proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
         _ioCtrl.openRecentById(fileId);      
       }, destroyUICallback);          

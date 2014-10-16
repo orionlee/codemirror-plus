@@ -281,12 +281,6 @@ window.onload = function() {
   
   initHelpUI(document, editor);
   
-  // drag-n-drop file support over app icon
-  if (window.launchData) {
-    var fileEntryToOpen = window.launchData.intent.data;
-    _ioCtrl.openFileEntry(fileEntryToOpen);
-  }
-
   // drag-n-drop support over the window itself
   patchDnDOverOnWinIfNeeded(editor); 
   

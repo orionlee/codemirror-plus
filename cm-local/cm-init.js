@@ -195,6 +195,44 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       bindCommand(cm, 'disableJsHint',  {}, cmds.disableJsHint); 
     }
 
+    /**
+     *  Patch javascript mode so that lines begin with 
+     *  1) function call (.) or,
+     *  2) concatentation (+) 
+     *  will be indented.
+     * 
+     *  Examples:
+     *  foo.func1(arg1)
+     *    .func2(arg2);
+     *  
+     *  foo = 'string1'  
+     *    + 'string2'
+     *    + 'string3';
+     * 
+     */ 
+    function patchJsIndent(cm) {
+      var jsMode = cm.getMode('javascript');
+      console.assert(!jsMode._indentOrig, 'javascript mode: indent() has been patched unexpectedly');
+      jsMode._indentOrig = jsMode.indent;
+      var indentUnit = cm.getOption('indentUnit');
+      
+      jsMode.indent = function(state, textAfter) { 
+        // BEGIN mimic original code's boundary initial case check
+        if (state.tokenize.name == 'jsTokenComment') return CodeMirror.Pass;
+        if (state.tokenize.name != 'jsTokenBase') return 0;
+        // END mimic original code's boundary initial case check
+        var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
+        if (firstChar === '.' || firstChar === '+') return lexical.indented + indentUnit;
+        return jsMode._indentOrig(state, textAfter); 
+      };
+      
+      // Patch electricChars so that upon typing dot(.) or plus(+)
+      // the line will be automatically indented.
+      console.assert(!jsMode._electricCharsOrig, 'javascript mode: electricChars has been patched unexpectedly');
+      jsMode._electricCharsOrig = jsMode.electricChars;
+      jsMode.electricChars +=  ".+";
+    } // function patchJsIndent(..)
+
     function initFold4Html(cm, isChain) {
       var conflictsOnKey = isChain ? 'chain' : 'replace';
       var codeFold4HtmlInner = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
@@ -217,11 +255,13 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       });
     }
   
+    
     var res = {
       javascript: function(cm) {
         initFold4Js(cm);
         initAutoComplete4Js(cm);
         initJsHint(cm); // the syntax checker
+        patchJsIndent(cm);
 
       }, // javascript : ...
 

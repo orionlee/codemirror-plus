@@ -84,11 +84,11 @@ span.cm-comment { /* default make comment italic, easier to identify */
 }
 
 .CodeMirror-selected {
-  background-color: rgba(70, 90, 130, 0.6);'  
+  background-color: rgba(70, 90, 130, 0.6) !important; 
 }
 
 .CodeMirror-focused .CodeMirror-selected {
-  background-color: rgba(121, 140, 180, 0.6);'  
+  background-color: rgba(121, 140, 180, 0.6) !important; 
 }
 
 /* make tab visible */
@@ -100,4 +100,8 @@ span.cm-comment { /* default make comment italic, easier to identify */
 
 .cm-s-blackboard .cm-tab, .cm-s-rubyblue .cm-tab { /* use white tab mark with dark background themes */
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAABGdBTUEAALGPC%2FxhBQAAAAlwSFlzAAAOwwAADsMBx2%2BoZAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAQklEQVRIS2MYBaNgZADmDx8%2B%2FAfSAiAOlD3kgBLU4YIoHgBxhiKGOn9IAbmh7AFwHoA5fCh6AAYYofQoGAXUAQwMAIf41bG1P2mvAAAAAElFTkSuQmC););
+}
+
+.cm-s-blackboard .CodeMirror-selected { /* used for selection and query-replace */
+  background-color: rgba(255, 0, 0, 0.8) !important;  
 }

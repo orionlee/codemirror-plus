@@ -164,10 +164,12 @@
 
   var replaceQueryDialog =
     'Replace: <input inpId="" type="text" style="width: 10em"/> <span style="color: #888">(Use /re/ syntax for regexp search.  Ctrl-space to recall search history.)</span>';
+  var replaceAllQueryDialog = replaceQueryDialog.replace(/^Replace/, 'Replace all');
   var replacementQueryDialog = 'With: <input inpId="" type="text" style="width: 10em"/>';
   var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
   function replace(cm, all) {
-    dialog(cm, replaceQueryDialog, "Replace:", function(query) {
+    // PATCH change wording of replace all to make it clearer to user
+    dialog(cm, (all ? replaceAllQueryDialog : replaceQueryDialog), "Replace:", function(query) {
       if (!query) return;
       getSearchHistory(cm).add(query);
       query = parseQuery(query);

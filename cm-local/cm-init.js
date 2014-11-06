@@ -56,8 +56,85 @@ function createCodeMirror(cmElt, uiCtrl) {
   initSelectFold(cm);
   initSelectToLine(cm);
   
+  extendSearchUI(cm, uiCtrl);
   return cm;
 } // function createCodeMirror
+
+function extendSearchUI(cm, uiCtrl) {
+  // build-in CodeMirror search does not provide any hooks to add features (such as UI)
+  // here we use a workaround by observing changes in CodeMirror 
+  // internal state cm._searchState, and invokes UI callback to update changes
+
+  if (!uiCtrl.setSearchStatus) {
+    console.debug('extendSearchUI(): uiCtrl does not implement setSearchStatus(). No extended UI will be used.');
+    return;
+  }
+  
+  // the observer to be used to trigger UI
+  function onSearchChange(changes) {
+    // built-in search only searches one at a time and does not provide count
+    // hence we are doing a separate search to get the count 
+    // a caveat is when the editor content changes, the count does not change.
+    // but it should be close enough match for it to happen.
+    //
+    // alternative rejected: 
+    //  use the count from overlay, i.e., cm.getWrapperElement().querySelectorAll('.cm-searching').length
+    // in addition to being hacky, the overlay is not complete, because 
+    //  overlay works on the stream (part of the text that is on display), rather than whole body
+    function countNumMatched(query) {
+      var qryREActual = (function() {
+        if (typeof(query) === 'string') {
+          if (query.toLowerCase() === query) {
+            // case insenstive search
+            return new RegExp(query, 'gi');          
+          } else {
+            return new RegExp(query, 'g');          
+          }
+        } else if (RegExp.prototype.isPrototypeOf(query)) { 
+          // query is already a regex, create a global version
+          return new RegExp(query.source, 
+                            'g' + (query.ignoreCase ? 'i' : '') + (query.multiline ? 'm' : '')
+                           );        
+        } else {
+          throw new TypeError('countNumMatched(query): query must be a string or RegExp: ', query);                   
+        }      
+      })(); // qryREActual = (function()
+      
+      var matches = cm.getValue().match(qryREActual);
+      matches = (matches ? matches.length : 0);
+      return matches;
+    } // function countNumMatched()
+    
+    
+    for(var i = 0; i < changes.length; i++) {
+      var ch = changes[i];
+      if (ch.name === 'query') {
+        if (ch.type === 'delete' || ch.object.query === null) {
+          uiCtrl.setSearchStatus(null, 0);
+        } else {
+          var query = ch.object.query;
+          var numMatched = countNumMatched(query);
+          uiCtrl.setSearchStatus(query, numMatched);          
+        }
+        return; // don't care any further changes
+      }
+    }  
+  } // function onSearchChange(..)
+  
+  function findWithExtendUI(cm) {
+    CodeMirror.commands.find(cm);
+    // search UI invoked, so cm._searchState should be there
+    // try to register the observer for changes
+    if (cm._searchState && !cm._searchState.observer) {
+      cm._searchState.observer = onSearchChange;
+      Object.observe(cm._searchState, onSearchChange);  
+    } 
+  } // function findWithExtendUI()
+  
+  cm.addKeyMap({
+    "Ctrl-F": findWithExtendUI
+  });  
+} // function extendSearchUI(..)
 
 
 function initGotoLine(cm) {
@@ -151,7 +228,7 @@ function initSelectToLine(cm) {
  *  This function should not modify the control.
  */
 function initCodeMirror4Mode(cm, mode, uiCtrl) {
-
+  
   var initFunc4Mode = (function() {
 
     function initFold4Js(cm, isChain)  {

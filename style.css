@@ -149,6 +149,28 @@ button#exit:hover {
   margin: 0px 3px;
 }
 
+#_codeModeModifier #colNumMode {
+  /* ensure enough width up to 3-digit, 
+     so that the UI to the right, such as #_searchStatus,
+     does not shift around when the column number changes.
+    */
+  min-width: 40px;
+  display: inline-block;
+}
+
+#_searchStatus {
+  font-size: smaller; 
+}
+#_searchStatus > #numMatched {
+  background-color: rgba(225,225,0,0.9);
+  padding: 1px 3px;
+  margin: 0px 3px;  
+}
+
+#_searchStatus > #numMatched.none {
+  background-color: rgba(225,0,0,0.9);  
+}
+
 .dropping { /* used by the patched dnd DnDController (rather than built-in dnd)*/ 
   background: #9999CC !important;
 }

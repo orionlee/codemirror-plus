@@ -12,7 +12,7 @@
 
     <script src="cm/addon/edit/matchbrackets.js"></script>
 
-    <script src="cm/addon/edit/closebrackets.js"></script>
+    <script src="cm-local/closebrackets-hack.js"></script>
 
     <script src="cm-local/cm-patchautoclosebracketsbycurlywithwewline.js"></script>
     <script src="cm-local/cm-patchautoclosebrackets-skip-commentline.js"></script>
@@ -95,6 +95,9 @@
     <label>Filename: </label><span id="title"></span>
     <label>Mode: </label><span id="mode"></span>
     <span id="_codeModeModifier"></span>
+    <span id="_searchStatus" style="display: none;">
+      <label>Search:</label><span id="numMatched">0</span>matched
+   </span>
   </div>
   
    <div id="error" style="z-index: 10; width: 90%; height: auto; position: fixed; left: 30px; top: 30px; 

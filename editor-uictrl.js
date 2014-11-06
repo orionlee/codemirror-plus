@@ -19,6 +19,7 @@ function createEditorUICtrl(window, doc) {
   var _titleElt, _modeElt;
   // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
   var _codeModeModifierDiv; 
+  var _searchStatusDiv;
   var _newButton, _openButton, _openRecentBtn, _saveButton, _saveAsButton;
   var _errorButton, _exitButton;
 
@@ -85,6 +86,7 @@ function createEditorUICtrl(window, doc) {
   _titleElt = $id("title");
   _modeElt = $id('mode');
   _codeModeModifierDiv = $id('_codeModeModifier');
+  _searchStatusDiv = $id('_searchStatus');
   
   _newButton = $id("new");
   _openButton = $id("open");
@@ -118,6 +120,23 @@ function createEditorUICtrl(window, doc) {
       _titleElt.classList.remove("fileDirty");    
     }    
   }; // setDirty = function(..)
+
+  // @interface
+  uiCtrl.setSearchStatus = function (query, numMatched) {
+    if (query) {
+      var nmUI = _searchStatusDiv.querySelector('#numMatched');
+      nmUI.innerHTML = numMatched;
+      if (numMatched > 0) {
+        nmUI.classList.remove('none');
+      } else {
+        nmUI.classList.add('none');
+      }
+
+      _searchStatusDiv.style.display = 'initial'; // show the UI
+    } else { // query cleared, clear the UI
+      _searchStatusDiv.style.display = 'none'; 
+    }
+  }; // uiCtrl.setSearchStatus = function(..)
   
   // @interface
   uiCtrl.io = {};

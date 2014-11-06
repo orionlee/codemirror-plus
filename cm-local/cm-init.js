@@ -141,7 +141,7 @@ function initGotoLine(cm) {
   function gotoLineInteractive() {
     cm.openDialog('<span>Go to Line: <input type="number" size="6" style="width: 6em;" /></span>', function(lineNumStr) { 
       try {
-        var lineNum = parseInt(lineNumStr) - 1;
+        var lineNum = parseInt(lineNumStr, 10) - 1;
         cm.setCursor(lineNum); 
       } catch (e) {
         cm.openDialog('<div style="background-color: yellow; width: 100%">&nbsp;' + 
@@ -157,12 +157,12 @@ function initGotoLine(cm) {
 
 function initColumNumberMode(cm, uiCtrl) {
   var toggleColumNumberMode = createToggleColumNumberMode(function(enabled, pos) {
-  	var modType = "colNumMode";
+    var modType = "colNumMode";
     if (enabled) {
-    	var text = 'Ch:' + (1 + pos.ch); // pos is 0-based while people prefer 1-based
-    	uiCtrl.codeModeModifier.update(modType, text);
+      var text = 'Ch:' + (1 + pos.ch); // pos is 0-based while people prefer 1-based
+      uiCtrl.codeModeModifier.update(modType, text);
     } else {
-    	uiCtrl.codeModeModifier.remove(modType);       
+      uiCtrl.codeModeModifier.remove(modType);       
     }
   });
   bindCommand(cm, 'toggleColumNumberMode', {}, toggleColumNumberMode);   

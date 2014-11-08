@@ -57,6 +57,7 @@ button#openRecent .dropdown {
   padding: 3px 4px;
   list-style: none;
   min-width: 150px;
+  max-width: 350px;
   text-align: left;
   background: none;
   background-color: #F0F0F0;
@@ -71,6 +72,10 @@ button#openRecent .dropdown:hover { /* to override button:hover */
 
 button#openRecent .dropdown li {
   padding: 3px;
+  max-height: 30px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 button#openRecent .dropdown li:hover {

@@ -224,7 +224,10 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
       }; // InfoList.create = function()
             
       InfoList.IDX_PATH = IL_IDX_PATH;
+      Object.defineProperty(InfoList, 'IDX_PATH', {writable: false});
+
       InfoList.IDX_ID = IL_IDX_ID;
+      Object.defineProperty(InfoList, 'IDX_ID', {writable: false});
       
       // internal helper to create an array out of
       // this, arguments, see below for use cases

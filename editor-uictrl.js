@@ -232,7 +232,7 @@ function createEditorUICtrl(window, doc) {
         }; // var res = function showInfo(..)
         
         res.setPinned = function setPinned(pinned_) {
-          pinned = pinned;
+          pinned = pinned_;
         }; // res.setPinned(pinned_) = function(..)
         
         return res;

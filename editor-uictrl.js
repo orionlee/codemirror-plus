@@ -175,33 +175,84 @@ function createEditorUICtrl(window, doc) {
   } // function destroyRecentListDropDownUI(..)
 
   // @interface
-  // @param infoList see ioCtrl.getRecentOpenList
+  // @param recentList see ioCtrl.getRecentOpenList
   // @param doOpenRecentById callback method that does the actual opening file, 
   //    e.g., ioCtrl.openRecentById
-  uiCtrl.io.createRecentListDropDownUI = function(infoList, doOpenRecentById) {
+  uiCtrl.io.createRecentListDropDownUI = function(recentList, doOpenRecentById, doPinUnpin) {
     var dropDownEl = _openRecentBtn.querySelector('ul');
     if (dropDownEl) { // destory old one if any
       dropDownEl.remove();
     }
     dropDownEl = doc.createElement('ul');
     dropDownEl.className = 'CodeMirror-hints dropdown'; // TODO: remove CodeMirror-hints dependency
-    infoList.forEach(function(info, i) {
-      var li = doc.createElement('li');
-      li.dataset.id = info[1];
-      var fileName = info[0].replace(/^(.*?)([^\\\/]+)$/, '$2');
-      var numHtml = (function() {
-        if (i < 9) {
-          return '<span class="accessKey">' + (i+1) + '</span>. ';  
-        } if (i == 9) {
-          return '1<span class="accessKey">' + 0 + '</span>. ';  
-        } else {
-          return '<span>' + (i+1) + '</span>. ';  
-        }       
-      })(); // numHtml = (function())
-      li.innerHTML = numHtml + fileName;
-      li.title = info[0].replace(/\\\\/, '\\'); // replace \\ with easier to read \ 
-      dropDownEl.appendChild(li);
-    });
+    
+    function paintDropDown(dropDownEl, recentList) {
+      dropDownEl.innerHTML = ''; // clear out any existing UI
+
+      var showInfo = (function() {
+        var MAX_NUM_SHOWN = 10;
+        
+        var curPos = 0, pinned; // state used by showInfo
+        var filesShown = []; // state used by showInfo
+        var res = function showInfo(info, i) {
+          if (!info) {
+            console.error('paintDropDown(): recentList item unexpectedly null. Skip the item. pinned: %s, i:%s', pinned, i);
+            return;
+          }
+          if (curPos >= MAX_NUM_SHOWN) {
+            return;
+          }
+          if (filesShown.indexOf(info[0]) >= 0) {
+            return; // has already been shown, skip 
+          } else {
+            filesShown.push(info[0]);
+          }
+          curPos++;
+          var li = doc.createElement('li');
+          li.classList.add('entry');
+          if (pinned) {
+            li.classList.add('pinned');
+          }
+          li.dataset.filePath = info[0];
+          li.dataset.id = info[1];
+          var fileName = info[0].replace(/^(.*?)([^\\\/]+)$/, '$2');
+          var numHtml = (function() {
+            if (curPos <= 9) {
+              return '<span class="accessKey">' + curPos + '</span>. ';  
+            } else if (curPos == 10) {
+              return '1<span class="accessKey">' + 0 + '</span>. ';  
+            } else {
+              return '<span>' + curPos + '</span>. ';  
+            }       
+          })(); // numHtml = (function())
+          var pinTitle = (pinned ? 'Unpin from this list' : 'Pin to this list');
+          li.innerHTML = numHtml + fileName + '<span class="pin" title="' + pinTitle + '"></span>';
+          li.title = info[0].replace(/\\\\/, '\\'); // replace \\ with easier to read \ 
+          dropDownEl.appendChild(li);
+        }; // var res = function showInfo(..)
+        
+        res.setPinned = function setPinned(pinned_) {
+          pinned = pinned;
+        }; // res.setPinned(pinned_) = function(..)
+        
+        return res;
+      })(); // showInfo = (function()
+      
+      if(recentList.pinned.length > 0) {
+        dropDownEl.insertAdjacentHTML('beforeend', '<li class="sep">Pinned<hr></li>'); 
+        showInfo.setPinned(true);
+        recentList.pinned.forEach(showInfo);
+      }
+      
+      if(recentList.recent.length > 0) {
+        dropDownEl.insertAdjacentHTML('beforeend', '<li class="sep">Recent<hr></li>');
+        showInfo.setPinned(false);
+        recentList.recent.forEach(showInfo);
+      }
+    } // function paintDropDown(..)
+    
+    paintDropDown(dropDownEl, recentList);
+
     _openRecentBtn.appendChild(dropDownEl); 
         
     // ensure we get a handle of the <ul> attached to DOM
@@ -216,12 +267,26 @@ function createEditorUICtrl(window, doc) {
       doOpenRecentById(fileId, destroyRecentListDropDownUI);      
     } // function doOpenRecentSpecifiedAtLi(..)
     
+    function doPinUnpinSpecifiedAtLi(toPin, el) {
+      console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
+      var fileId = el.dataset.id;
+      var filePath = el.dataset.filePath;
+      doPinUnpin(toPin, filePath, fileId, function(updatedRecentList) {
+        paintDropDown(dropDownEl, updatedRecentList);
+      }); 
+    } // function doPinUnpinSpecifiedAtLi(..)
+    
     // setup select file to open by mouse click
     dropDownEl.onclick = function(evt) {
-      var el = evt.srcElement;
+      var el = evt.target;
       if (el.tagName == 'LI') {
         doOpenRecentSpecifiedAtLi(el);
       } // else the unlikely event on clicking the <ul> without touching any <li>s, do nothing
+      
+      if (el.tagName == 'SPAN') {
+        var toPin = !el.parentElement.classList.contains('pinned');
+        doPinUnpinSpecifiedAtLi(toPin, el.parentElement);
+      }
     }; // dropDownEl.onclick = function(..)
     
     // setup select file to open by pressing 0-9
@@ -258,9 +323,11 @@ function createEditorUICtrl(window, doc) {
         }
       })(numPressed); // idx = (function())
       
+      /// console.debug('#openRecent.onkeydown: ', evt.keyIdentifier, keyCode, numPressed, idx);
+
       var liEl = (function(idx) {
         if (typeof idx === 'number') {
-          var liList = dropDownEl.querySelectorAll('li');
+          var liList = dropDownEl.querySelectorAll('li.entry');
           if (idx < liList.length) {
             return liList[idx];
           } // else number not within the range, no-op

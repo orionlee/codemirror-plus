@@ -162,13 +162,16 @@ function handleSaveAsButton() {
 }
 
 function handleOpenRecentButton(ev) {
-  _ioCtrl.getRecentList(function(infoList) {
+  _ioCtrl.getRecentList(function(recentList) {
     // call uiCtrl to populate recent button with the list        
-    _uiCtrl.io.createRecentListDropDownUI(infoList, function(fileId, destroyUICallback) {
+    _uiCtrl.io.createRecentListDropDownUI(recentList
+                                          , function(fileId, destroyUICallback) {
       proceedIfFileIsCleanOrOkToDropChanges(editor, function() {
         _ioCtrl.openRecentById(fileId);      
       }, destroyUICallback);          
-    });
+    }
+                                          , _ioCtrl.pinUnpinRecentListEntry
+                                         );
   });  
 } // function handleOpenRecentButton()
 

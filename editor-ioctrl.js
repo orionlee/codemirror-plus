@@ -133,7 +133,7 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     var KEY = 'recentFiles';
     
     // BEGIN helpers to manipulate in-memory infoList object
-    //
+    //  (a sub-structure of recentList)
     
     var IL_MAX_LENGTH = 10;
     var IL_IDX_PATH = 0;
@@ -141,6 +141,10 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     function ilGetById(infoList, id) {
       for(var i = 0; i < infoList.length; i++) {
         var info = infoList[i];
+        if (!info) {
+          console.error('ilGetById(): infoList[%s] unexpectedly null. infoList: %o', i, infoList);
+          continue;
+        }
         if (id == info[IL_IDX_ID]) {
           return info;
         }
@@ -158,24 +162,45 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
       return -1;      
     } // function ilGetOffsetByFilePath(..)
     
-    function ilAdd(infoList, filePath, fileId) {
-      // remove existing one (by matching filepath), if any;
-      var info = [filePath, fileId];
-      var curOffset = ilGetOffsetByFilePath(infoList, filePath);
-      if (curOffset >= 0) {
-        infoList.splice(curOffset, 1); 
-      }
+    function ilAdd(infoList, filePath, fileId, toAdd) {
+      // remove existing one (by matching filepath), if any;      
+      infoList = ilRemove(infoList, filePath);
       
       // add to the top of the list
-      infoList.unshift(info);
-      
+      var info = [filePath, fileId];
+      if (toAdd) { // pin list use case
+        infoList.push(info);  
+      } else { // recent list use case
+        infoList.unshift(info);  
+      }
+            
       // truncate to avoid the list gets too large
       if (infoList.length > IL_MAX_LENGTH) {
         infoList.length = IL_MAX_LENGTH;
       }
 
-       return infoList;      
+      return infoList;      
     } // function ilAdd(..)
+    
+    function ilRemove(infoList, filePath) {
+      var curOffset = ilGetOffsetByFilePath(infoList, filePath);
+      if (curOffset >= 0) {
+        infoList.splice(curOffset, 1); 
+      }
+      return infoList;      
+    } // function ilRemove(..)
+    
+    function ilUpdateIfAny(infoList, filePath, fileEntryId) {
+      for(var i = 0; i < infoList.length; i++) {
+        var info = infoList[i];
+        if (filePath == info[IL_IDX_PATH]) {
+          info[IL_IDX_ID] = fileEntryId;
+          return i;
+        }
+      }
+      return -1;
+    } // function ilUpdateIfAny(..)
+
     
     //
     // END helpers to manipulate in-memory infoList object
@@ -185,31 +210,54 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     //   chrome.storage.local.get('recentFiles', function(items) { console.debug(items.recentFiles); _dbg = items.recentFiles; })
     //   chrome.storage.local.get(null, function(items) { console.debug(items); _dbg = items; })
     //   chrome.storage.local.remove('recentFiles', function() {});
-    
+    //   chrome.storage.local.set({recentFiles: _dbg}, function(args) { console.debug(args); _dbg = args; })
+
     
     /**
-     * @return an Array of [filePath, fileId] pair, 
+     * @return a recentList object in the form of: 
+     * { pinned: <infoList>, recent: <infoList> }
+     * <infoList> is an Array of [filePath, fileId] pair, 
      *    fileId can be used to reopen with #openRecentById 
      */
-    var getInfoList = function(cb) {
+    var getRecentList = function(cb) {
       chrome.storage.local.get(KEY, function(items) {
         if (chrome.runtime.lastError) {
           _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
           return;
         }
         
-        var infoList = items[KEY] || [];        
-        cb(infoList);
+        var recentList = items[KEY] || {pinned: [], recent: []};        
+        cb(recentList);
       });
     };
 
+
+    var updateRecentList = function(updateFn, doneFn) {
+      getRecentList(function(recentList) {
+        recentList = updateFn(recentList);
+        var items = {};
+        items[KEY] = recentList;
+        chrome.storage.local.set(items, function() {
+          if (chrome.runtime.lastError) {
+            _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
+            return;
+          }
+          if (doneFn) {
+            doneFn(recentList);
+          }
+        });
+      });      
+    }; // function updateRecentList(..)
       
     var openRecentById = function(id, _cb) {
       // optional _cb callback is useful only in a isolation test of _recentFilesMgr, without
       // the supporting ioCtrl methods
       var cb = _cb || onChosenFileToOpen;
-      getInfoList(function(infoList) {
-        var recentFileInfo = ilGetById(infoList, id);
+      getRecentList(function(recentList) {
+        var recentFileInfo = ilGetById(recentList.pinned, id);
+        if (!recentFileInfo) {          
+          recentFileInfo = ilGetById(recentList.recent, id);
+        }
         if (!recentFileInfo) {          
           _errorCallback('Internal error: File with id ' + id + ' not found in recent file list.');
         }
@@ -228,26 +276,33 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
         });        
       });
     };  
-      
+    
     var addInfo = function(entry, filePath) {
       var fileEntryId = chrome.fileSystem.retainEntry(entry);
-      getInfoList(function(infoList) {
-        ilAdd(infoList, filePath, fileEntryId);
-        var items = {};
-        items[KEY] = infoList;
-        chrome.storage.local.set(items, function() {
-          if (chrome.runtime.lastError) {
-            _errorCallback(chrome.runtime.lastError.message, chrome.runtime.lastError);
-            return;
-          }
-        });
+      updateRecentList(function(recentList) {
+        ilAdd(recentList.recent, filePath, fileEntryId);
+        ilUpdateIfAny(recentList.pinned, filePath, fileEntryId); // use the latest fileEntryId if it's there        
+        return recentList;
       });
     };
     
+    var pinUnpin = function(toPin, filePath, fileId, cb) {
+      updateRecentList(function(recentList) {
+        if (toPin) {
+          var toEnd = true;
+          ilAdd(recentList.pinned, filePath, fileId, toEnd);
+        } else {
+          ilRemove(recentList.pinned, filePath);        
+        }
+        return recentList;
+      }, cb);
+    }; 
+    
     return {
-      getInfoList: getInfoList,
+      getRecentList: getRecentList,
       openRecentById: openRecentById,
-      addInfo: addInfo
+      addInfo: addInfo,
+      pinUnpin: pinUnpin
     };
   })(); // _recentFilesManager = (function()
   
@@ -325,7 +380,8 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     chooseAndSave: chooseAndSave,
     save: save, 
     openRecentById: openRecentById,
-    getRecentList: _recentFilesManager.getInfoList 
+    getRecentList: _recentFilesManager.getRecentList,
+    pinUnpinRecentListEntry: _recentFilesManager.pinUnpin
     ///debug: function() {
     ///  console.log('IOCtrl - hook to internal states');
     ///  debugger;

@@ -88,6 +88,64 @@ button#openRecent:focus .dropdown {
   border: 2px solid orange;
 }
 
+/* BEGIN open recent: pin/unpin */
+button#openRecent .dropdown li.pinned span.pin {
+  background: no-repeat left 5px top 2px url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAACXBIWXMAADdcAAA3XAHLx6S5AAAABmJLR0QA%2FwD%2FAP%2BgvaeTAAADSElEQVQYGW3BTWyTZQDA8f%2FzvO%2Fbdu22wko7BsMy9wEyISPgBpgsGQRuHjh404MhJCYkhoERLyQmxsumxHCZMcs8GBNvZmEmiggR%2FMAJkrE6t8XN2W0w13bt1q4f78fzOIghxPj7Cf7PttdB%2BiC3DrYtq3oORD2TnBSiUnFNqRGKxzSCp%2Fj3vUZ1y0Ga2w%2BQSS9LyzJVLrf2XjZbOF%2BxKzNC8EHV398N2bEjwrUadchaQfCUve9MYpom22s0PmEbjWHpjY7PfioDta%2F8ePdPBzdnIWUf2rsAQnD1DS04egm0pkpCLL6Lv%2F6YIhILy8zEdRVtao8ru%2Fxtz%2FETzamSz701OoZybdOwfEeAn7RS0iB%2BHAo53PU8eWmKls6j%2BOOH9ObnjtXUbQpfqY3E9ibnF5Tr2lIGarWnkdrzrgkhEtIwpEHjYfAyUNuGXkuTz8xvSd%2F4Kri7q2OwuXnn8eroTrfkSvFg%2Bq5cXZy8qUINZ7z1zFWltKMR2rSiLSgvLvQGQvXnDL%2F%2F3ZaTh9yDrdFqT1hqbDZlFPNZoZVbMe3cOZW8cc8XqJFIk0p4F6YzPMJbw0M6ncvzxZffvNy5ry347DPbvW2RILcmUjL9MOllkwmjmF0aENJ3j7omq0CdI3QR4bmIwxe%2BZoMslmy1Viydf6m74%2F1QKOT%2BtuSYs4srKj3zq1xdSDwoZ5IdupBNyXA9yqlQHd1B4YfLmDPJhyynsoprvcDWD%2B%2FEPntxd0vTSUvglNYyIp9ZkKoqpqzuV11tBmFlGulWcJLXeUT8cmeMhUyRUqlkKKfsRetq3vx8NNOfyG9xKsq00iurqpDPycJqtkujRw3DkCCUe%2BU0j5j1sTqamnbISN1mz1N03v7%2BZv%2FzjF%2F%2B5PbW4eqI%2F6LG2O%2FY5YSyyxNojefzKyENnrh%2FP4HWmuTCUnB6cvL3jwYGEkCADV3xVsH%2Bt8O8cNHHsY%2BhsYf%2FEvNzc4Y%2FEPBSy6lLk1OTvcMjIx2e1mOR7m7586lTKj8GiwmwyzyhNFROCx7TWtPf11c7NDg413v27BmtNQ0NDWEgBCKIVR3E8AcAH2ABBiD5lwCM9j172qSUreOJxJRlWZscx3EBD3ABB7ABB7ABG7ABB3D%2FAWrIj2pgTC%2BmAAAAInpUWHRTb2Z0d2FyZQAAeNorLy%2FXy8zLLk5OLEjVyy9KBwA22AZYEFPKXAAAAABJRU5ErkJggg%3D%3D');
+}
+
+button#openRecent .dropdown li span.pin {
+  background: no-repeat left 3px top 1px url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAABFElEQVR42mNkoBAwDmMDjGrOnJflZ7i5sdQkgiwD9KtO%2FS9M0WRIUOKVAnKfo8t7d104f%2Fnx55s4DdAuP%2Fn%2FcocZg3XHSQYWPhEUudeP3jBc6zDH7wKNkhP%2F%2FfL0GGJ%2FvWPQVpZGketac5uB01aO4emvfwyMKfVT%2FqNrfvviMcMV7gCG8DAVhle%2FPzEIyEuiyJ%2FffZ9BS5KH4c67H3AXqKEbopy59aaJsxbD2%2BdPGdgFRVHkntx6x6AuI8Bw7fk33F5QTN%2FyX1RTgeHR8SsMf5h4MOTNDWUYgIGI2wAFoAE8UpIMV%2BqN1bHJO5bt3XDp7qv7%2BAw4z8LN%2FuxOn2shkHsLhzJ5QilRHoh%2FMWBJBzAw8HkBADznW71Vptp%2BAAAAAElFTkSuQmCC');
+  width: 25px;
+  height: 21px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  padding-left: 0px;
+  border-left: 1px solid #339;
+  display: inline-block;
+  visibility: hidden;
+}
+
+button#openRecent .dropdown li:hover > span.pin {
+  background-color: #DDD; /* slightly darker than the dropdown background */
+  visibility: visible;
+}
+
+button#openRecent .dropdown li > span.pin:hover {
+  background-color: lightblue;
+}
+
+
+button#openRecent .dropdown li {
+  position: relative;
+}
+
+
+button#openRecent .dropdown li.sep {
+  color: darkblue;
+  font-size: 90%;    
+  padding-bottom: 0px;
+  padding-left: 0px;
+  cursor: default;
+}
+
+button#openRecent .dropdown li.sep:hover {
+  background-color: inherit;
+}
+
+button#openRecent .dropdown li.sep hr {
+  display: inline-block;
+  border: 1px inset;
+  width: 100%;
+  position: relative;
+  top: 3px;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+/* END open recent: pin/unpin */
+
+
 button#exit {
   position: absolute; 
   right: 6px; 

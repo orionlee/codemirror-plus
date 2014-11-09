@@ -1,6 +1,6 @@
 {
   "name": "CodeMirror",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "manifest_version": 2,
   "minimum_chrome_version": "36",
   "description": "A local code editor based on CodeMirror, configured to support HTML/CSS/Javascript development, though it can be used for other purposes.",
@@ -10,20 +10,8 @@
     }
   },
   
-  // try to access chrome.devtools.inspectedWindow.eval(stringExpr, cb) api
-  // but to no avail, it does not seem to work for chrome app 
-  // "devtools_page": "main.html", 
-  
-  // to run eval, it must be put in to sandbox
-  // but then it cannot access local files, etc.
-  // one could possibly create a separate sandbox
-  // instance and use messaging to send scripts
-  // to sandbox to run, but it'll be quite troublesome
-  // and the behavior is not  intiuitive
-  //   http://developer.chrome.com/trunk/apps/app_external.html#sandboxing
-  // Sample codes for communicating with sandbox as a hidden iframe
-  //   https://github.com/GoogleChrome/chrome-app-samples/tree/master/sandbox
-  ///"sandbox": {"pages": ["main.html"] }, 
+  // for implementing evalXXX commands
+  "sandbox": {"pages": ["cm-local/cm-eval-sandbox.html"] }, 
     
   "permissions": [
     {"fileSystem": ["write", "retainEntries"]},

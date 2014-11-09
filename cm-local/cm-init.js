@@ -38,11 +38,7 @@ function createCodeMirror(cmElt, uiCtrl) {
   // (This is done in a style similar to emacs)
   initExecCommand(cm);
   
-  /// Note: eval() only works in sandbox, disable for now
-  /// workaround: open devtool js console, then type:
-  ///   res = eval(editor.getSelection())
-  /// it achieves the same  result
-  /// initEval(cm); 
+  initEval(cm); 
   
   initGotoLine(cm);
 

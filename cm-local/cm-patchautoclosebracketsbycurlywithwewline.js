@@ -24,14 +24,15 @@
    *     foo = function(bar) {
    *     var foo = (function(bar) {
    *     (function(bar) {
+   * Pos cases (end comma, with newline)
+   *     callFun(bar, function() {
+   *     callFun(bar, function() {) <-- end bracket of callFun has been inserted
+   *     var res = callFun(bar, function() {
    * Pos cases (end comma, no newline):
    *     bar = {}; 
    *     var bar = {}; 
    *     window.bar = {}; 
    * Neg cases (no end comment, wth newline):
-   *     callFun(bar, function() {
-   *     callFun(bar, function() {) <-- end bracket of callFun has been inserted
-   *     var res = callFun(bar, function() {
    *     for (i = 0; i < foo; i++ ) {
    *     if (foo < bar) {
    *     if foo < bar {
@@ -49,8 +50,8 @@
    */  
   function genJsCloseCurlyPosAndComment(line) {
     var isCloseCurlyNewline = true; // default
+    var deleteAhead = false;
     var comment;
-    
     // form function foobar(maybeVar) {
     var reFuncNamed = /^\s*function\s+([^(\s]+)\s*\(([^)]*)\)/ ;
   
@@ -65,7 +66,13 @@
     // form  (function(maybeVar) { ... expected closing line: }();
     var reFuncAnonyApplyNoVar = /^\s*\(function\s*\(([^)]*)\)/ ;
 
-    // form  foo(arg1, function(maybeVar) { ... expected closing line: }();
+    // form foo(function(maybeVar) { ... expected closing line: });
+    // form foo(arg1, function(maybeVar) { ... expected closing line: });
+    // form var bar = foo(arg1, function(maybeVar) { ... expected closing line: });
+    //        ^^ I might consider to add a end comment of the form // var bar = ... 
+    var reFuncAnonyAsArg = /[^\s][(](\s*([^,]+,\s*)?function\s*\(([^)]*)\)\s*[)])$/ ;
+
+    // form  of any other case anonymous function 
     // the pattern is more generic than other patterns for function,
     // so it should be tested last 
     var reFuncAnonyOthers = /function\s*\(([^)]*)\)\s*[)]?$/ ;
@@ -75,7 +82,7 @@
     // intent to cover cases such as if (expr) {  ; for(expr) {, while(expr) {, do {
     // the expression is more generic so it should be tested at the end,
     // while the more specific ones are tested first
-    var reLoopAndCondExpr = /^\s*([}]\s*)?(if|else|switch|while|do).*[^{]$/; // about to type { at the end of line
+    var reLoopAndCondExpr = /^\s*([}]\s*)?(if|else|switch|while|do|for).*[^{]$/; // about to type { at the end of line
     
     var matched;
     if (matched = line.match(reFuncNamed)) {
@@ -86,6 +93,9 @@
       comment = ")(); // " + matched[1] + " = (function(" + (!matched[2] ? "" : "..") + ")";
     } else if (matched = line.match(reFuncAnonyApplyNoVar)) {
       comment = ")(); // (function(" + (!matched[1] ? "" : "..") + ")";
+    } else if (matched = line.match(reFuncAnonyAsArg)) {
+      comment = ");";
+      deleteAhead = true; // overall effect: replace the end ) with a );
     } else if (matched = line.match(reFuncAnonyOthers)) {
       comment = "";
     } else if (matched = line.match(reObjCreation)) {
@@ -101,7 +111,8 @@
     
     return {
       isCloseCurlyNewline: isCloseCurlyNewline, 
-      comment: comment 
+      comment: comment,
+      deleteAhead: deleteAhead
     };
   } // function genJsCloseCurlyPosAndComment(..)
 
@@ -127,6 +138,11 @@
       outStr += state.comment;
       ahead = CodeMirror.Pos(ahead.line, state.comment.length + 1 - 1); // needed to include } but zero-based
     } 
+    if (state.deleteAhead) { 
+      // for use case, see genJsCloseCurlyPosAndComment, case reFuncAnonyAsArg: 
+      // basically deleting, the ending ")", and replace it with ");" (which is part of the outStr)
+      cm.execCommand('delCharAfter');
+    }
     cm.replaceSelection(outStr, { head: ahead, anchor: anchor });
     if (state.isCloseCurlyNewline) {
       cm.setCursor(ahead);

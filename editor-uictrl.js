@@ -172,13 +172,36 @@ function createEditorUICtrl(window, doc) {
     if (dropDownEl) dropDownEl.remove();
     _openRecentBtn.onkeydown = null; // no need to listen to it as the list gets destroyed.  
     _editorFocusFunc(); // in case the btn gets focused with keyboard shortcut
+
+    document.removeEventListener('click', destroyRecentListDropDownUIOnClick);
   } // function destroyRecentListDropDownUI(..)
 
+  
+  function destroyRecentListDropDownUIOnClick(evt) {
+    function inSubtreeOf(el, ancestorExpected) {
+      if (!ancestorExpected) {
+        return false;
+      }
+      for (var cur = el; cur; cur = cur.parentElement) {
+        if (cur.isEqualNode(ancestorExpected)) {
+          return true;
+        }
+      }
+      return false;
+    } // function inSubtreeOf(..)
+    if ( evt.isContextMenuCommandRun || 
+         inSubtreeOf(evt.target, _openRecentBtn) || 
+         inSubtreeOf(evt.target, document.querySelector('.ctx-menu')) ) {
+      return; // click on the dropdown, or context-menu itself, no-op
+    }
+    destroyRecentListDropDownUI();
+  } // function destroyRecentListDropDownUIOnClick(..)
+  
   // @interface
   // @param recentList see ioCtrl.getRecentOpenList
   // @param doOpenRecentById callback method that does the actual opening file, 
   //    e.g., ioCtrl.openRecentById
-  uiCtrl.io.createRecentListDropDownUI = function(recentList, doOpenRecentById, doPinUnpin) {
+  uiCtrl.io.createRecentListDropDownUI = function(recentList, doOpenRecentById, doPinUnpin,  doRemoveFromRecent) {
     var dropDownEl = _openRecentBtn.querySelector('ul');
     if (dropDownEl) { // destory old one if any
       dropDownEl.remove();
@@ -278,8 +301,11 @@ function createEditorUICtrl(window, doc) {
     
     // setup select file to open by mouse click
     dropDownEl.onclick = function(evt) {
+      if (dropDownEl.classList.contains('ctx-menu-clicked')) {
+        return; // don't allow dropdown menu action while the context menu is still active
+      }
       var el = evt.target;
-      if (el.tagName == 'LI') {
+      if (el.classList.contains('entry')) {
         doOpenRecentSpecifiedAtLi(el);
       } // else the unlikely event on clicking the <ul> without touching any <li>s, do nothing
       
@@ -295,6 +321,10 @@ function createEditorUICtrl(window, doc) {
       // Must use keydown rather than keypress, to capture Esc key
       // Semantically, using keydown olso makes sense too.
       
+      if (dropDownEl.classList.contains('ctx-menu-clicked')) {
+        return; // don't allow dropdown menu action while the context menu is still active
+      }
+
       if (evt.keyIdentifier == "U+001B") { // hit Esc key to hide the dropdown
         destroyRecentListDropDownUI();
         evt.preventDefault();
@@ -341,9 +371,90 @@ function createEditorUICtrl(window, doc) {
         doOpenRecentSpecifiedAtLi(liEl);
       }
     }; // _openRecentBtn.onkeydown = function(..)
+    
+    document.addEventListener('click', destroyRecentListDropDownUIOnClick);
+    
+    function doRemoveFromRecentListSpecifiedAtLi(el) {
+      console.assert(el.tagName == 'LI', 'Element should be a <li>. Actual: ' + el.tagName);
+      var fileId = el.dataset.id;
+      var filePath = el.dataset.filePath;
+      var pinned = el.classList.contains('pinned');
+      
+      doRemoveFromRecent(pinned, filePath, fileId, function(updatedRecentList) {
+        paintDropDown(dropDownEl, updatedRecentList);
+      }); 
+    } // function doRemoveFromRecentListSpecifiedAtLi(..)
+
+    function doContextMenuCommand(command, targetEl) {
+      console.assert(command === 'remove', 'doContextMenuCommand() supports remove only. actual: %s', command);
+      doRemoveFromRecentListSpecifiedAtLi(targetEl);  
+    } // function doContextMenuCommand(..)
+    
+    dropDownEl.oncontextmenu = function(evt) {
+      // context menu has already been clicked, do not do it again until the existing one is done
+      if (dropDownEl.classList.contains('ctx-menu-clicked')) {
+        return;
+      }
+      if (evt.target.classList.contains('entry')) {        
+        evt.preventDefault(); // do not want system default context menu
+        createRecentListContextMenu(evt.target, evt.pageX, evt.pageY - 8, doContextMenuCommand);
+      }
+    }; // dropDownEl.oncontextmenu = function(..)
+
   }; // function createRecentListDropDownUI(..)
 
+
+  // BEGIN Recent List Context Menu  
+  //
+  var createRecentListContextMenu = function(entryEl, pageX, pageY, doContextMenuCommand) {
+    var ctxMenu = (function(pageX, pageY) {
+      var ctxMenu = document.createElement('ul');
+      ctxMenu.className = 'ctx-menu';
+      ctxMenu.style.left = pageX + 'px';
+      ctxMenu.style.top = pageY + 'px';
+      
+      var mItem = document.createElement('li');
+      mItem.className = 'ctx-menu-item';
+      mItem.textContent = 'Remove from this list';
+      mItem.dataset.command = 'remove';
+      ctxMenu.appendChild(mItem);
+      document.body.appendChild(ctxMenu);
+      return ctxMenu;
+    })(pageX, pageY); // ctxMenu = (function())
+            
+    ctxMenu.onclick = function(evt) {
+      if (evt.target.classList.contains('ctx-menu-item')) {
+        doContextMenuCommand(evt.target.dataset.command, entryEl);
+        evt.isContextMenuCommandRun = true; // used to signal to keep parent dropdown 
+        destroyRecentListContextMenu(null, true);
+      } // else do nothing
+    }; // ctxMenu.onclick = function(..)
+    
+    entryEl.classList.add('ctx-menu-clicked'); // so that the entry will remain highlighted in UI
+    entryEl.parentElement.classList.add('ctx-menu-clicked'); // indicator to allow parent menu to be disabled temporarily
+    ctxMenu.menuLogicalParent = entryEl;
+
+    document.addEventListener('click', destroyRecentListContextMenu);
+  }; // var createRecentListContextMenu = function(..)
   
+  var destroyRecentListContextMenu = function(evt, force) {
+    if (!force && evt.target.classList.contains('ctx-menu-item')) {
+      // ignore click on the context menu itself
+      return;
+    }
+    var ctxMenu = document.querySelector('.ctx-menu');
+    if (ctxMenu) {
+      ctxMenu.menuLogicalParent.classList.remove('ctx-menu-clicked'); // the li.entry item
+      ctxMenu.menuLogicalParent.parentElement.classList.remove('ctx-menu-clicked'); // the ul.dropdown item
+      ctxMenu.remove(); 
+    }
+    document.removeEventListener('click', destroyRecentListContextMenu);
+  }; // destroyRecentListContextMenu = function()
+ 
+  //
+  // END Recent List Context Menu  
+  
+
   // @interface  
   uiCtrl.safeExitWindow = function() {
     if (_exitCallback) {

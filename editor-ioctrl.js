@@ -137,7 +137,7 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     
     var InfoList = (function() {
       
-      var IL_MAX_LENGTH = 10;
+      var IL_MAX_LENGTH = 20; // much larger than actual display max to allow for deleting from the list
       var IL_IDX_PATH = 0;
       var IL_IDX_ID = 1;
       function ilGetById(infoList, id) {
@@ -370,11 +370,23 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
       }, cb);
     }; 
     
+    var removeInfo = function(pinned, filePath, fileId, cb) {
+      updateRecentList(function(recentList) {
+        if (pinned) {
+          recentList.pinned.remove(filePath);
+        } else {
+          recentList.recent.remove(filePath);        
+        }
+        return recentList;
+      }, cb);
+    }; 
+    
     return {
       getRecentList: getRecentList,
       openRecentById: openRecentById,
       addInfo: addInfo,
-      pinUnpin: pinUnpin
+      pinUnpin: pinUnpin,
+      removeInfo: removeInfo
     };
   })(); // _recentFilesManager = (function()
   
@@ -453,7 +465,8 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     save: save, 
     openRecentById: openRecentById,
     getRecentList: _recentFilesManager.getRecentList,
-    pinUnpinRecentListEntry: _recentFilesManager.pinUnpin
+    pinUnpinRecentListEntry: _recentFilesManager.pinUnpin, 
+    removeFromRecentList: _recentFilesManager.removeInfo
     ///debug: function() {
     ///  console.log('IOCtrl - hook to internal states');
     ///  debugger;

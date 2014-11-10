@@ -171,6 +171,7 @@ function handleOpenRecentButton(ev) {
       }, destroyUICallback);          
     }
                                           , _ioCtrl.pinUnpinRecentListEntry
+                                          , _ioCtrl.removeFromRecentList
                                          );
   });  
 } // function handleOpenRecentButton()

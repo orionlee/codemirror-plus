@@ -78,7 +78,11 @@ button#openRecent .dropdown li {
   white-space: nowrap;
 }
 
-button#openRecent .dropdown li:hover {
+button#openRecent .dropdown.ctx-menu-clicked {
+  cursor: default !important; /* revert cursor back to default when context-menu active */
+}
+
+button#openRecent .dropdown:not(.ctx-menu-clicked) li.entry:hover, button#openRecent .dropdown li.ctx-menu-clicked {
   background: #08f;
   color: white;
 }
@@ -106,12 +110,12 @@ button#openRecent .dropdown li span.pin {
   visibility: hidden;
 }
 
-button#openRecent .dropdown li:hover > span.pin {
+button#openRecent .dropdown:not(.ctx-menu-clicked) li:hover > span.pin {
   background-color: #DDD; /* slightly darker than the dropdown background */
   visibility: visible;
 }
 
-button#openRecent .dropdown li > span.pin:hover {
+button#openRecent .dropdown:not(.ctx-menu-clicked) li > span.pin:hover {
   background-color: lightblue;
 }
 
@@ -141,6 +145,32 @@ button#openRecent .dropdown li.sep hr {
   top: 3px;
   margin-left: 6px;
   margin-right: 6px;
+}
+
+ul.ctx-menu {
+  border: 1px solid gray;
+  box-shadow: 1px 1px 3px #333;
+  border-radius: 3px;
+  z-index: 11;
+  list-style: none;
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 90%;
+  background-color: white;
+  position: absolute; /* actual position to be set programmatically */
+}
+
+li.ctx-menu-item {
+  padding: 2px 4px 2px 12px;
+  border: 1px solid transparent;
+  margin: 1px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+li.ctx-menu-item:hover {
+  border-color: gray;
+  background-color: #eee;
 }
 
 /* END open recent: pin/unpin */

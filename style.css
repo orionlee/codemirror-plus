@@ -42,9 +42,9 @@ button:not([disabled]):hover {
 
 button#openRecent {
   position: relative;
-  top: -2px;
-  left: -8px; /* move it left to be immediately next to open btn */
-  margin-right: -8px;
+  top: 2px;
+  left: -5px; /* move it left to be immediately next to open btn */
+  margin-right: -6px;
   padding-left: 2px;
   padding-right: 4px;
   font-weight: bold;

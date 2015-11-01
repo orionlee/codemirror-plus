@@ -349,7 +349,24 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
       });
     };  
     
+    var toIgnoreForRecentList = null;
+    
+    /**
+     * @param fn the function used to filter recent list. If fn(filePath) returns true, 
+     * the file will NOT be added to the recent list
+     */ 
+    function setRecentListIgnoreFunc(fn) {
+      if (typeof fn !== 'function') {
+        throw new TypeError('setRecentListIgnoreFunc(fn): fn should be a function. Actual: ' + (typeof fn));
+      }
+      toIgnoreForRecentList = fn;
+    } // function setRecentListIgnoreFunc(..)
+    
     var addInfo = function(entry, filePath) {
+      if (toIgnoreForRecentList && toIgnoreForRecentList(filePath)) {
+        return;
+      }
+        
       var fileEntryId = chrome.fileSystem.retainEntry(entry);
       updateRecentList(function(recentList) {
         recentList.recent.add(filePath, fileEntryId);        
@@ -386,7 +403,8 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
       openRecentById: openRecentById,
       addInfo: addInfo,
       pinUnpin: pinUnpin,
-      removeInfo: removeInfo
+      removeInfo: removeInfo,
+      setRecentListIgnoreFunc: setRecentListIgnoreFunc
     };
   })(); // _recentFilesManager = (function()
   
@@ -466,7 +484,8 @@ function createIOCtrl(window, readSuccessCallback, saveSuccessCallback, newSucce
     openRecentById: openRecentById,
     getRecentList: _recentFilesManager.getRecentList,
     pinUnpinRecentListEntry: _recentFilesManager.pinUnpin, 
-    removeFromRecentList: _recentFilesManager.removeInfo
+    removeFromRecentList: _recentFilesManager.removeInfo,
+    setRecentListIgnoreFunc : _recentFilesManager.setRecentListIgnoreFunc
     ///debug: function() {
     ///  console.log('IOCtrl - hook to internal states');
     ///  debugger;

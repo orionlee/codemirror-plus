@@ -327,7 +327,16 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
           CodeMirror.showHint(cm, cssWithDabbrevFallbackHint);
       });
     }
+    
+    function initAutoComplete4Default(cm) {
+      bindCommand(cm, 'autocomplete4Default', 
+        {keyName: "Ctrl-Space", conflictsOnKey: 'replace'}, 
+        function(cm) {
+          CodeMirror.showHint(cm, CodeMirror.dabbrevExpandHint);
+      });      
+    } // function initAutoComplete4Default(..)
   
+
     
     var res = {
       javascript: function(cm) {
@@ -364,27 +373,38 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
         // no need to add codefolding for css, as it's the same as js
         initAutoComplete4Css(cm, chain);
         
-      }  // htmlmixed: ...
+      },  // htmlmixed: ...
+      
+      xml: function(cm) {
+        var chain = false;
+        initFold4Html(cm, chain);
+        cm.setOption("autoCloseTags", true);        
+        
+        initAutoComplete4Default(cm);
+      }, // xml: ...
+      
+      none: function (cm) { // the default catch-all mode init
+        initAutoComplete4Default(cm);
+      } // none: ...
     }; // var res;
     return res;
   })(); // var initFunc4Mode = 
-
+  
   //
   // main logic
   //  
   
-  var modeInitFunc = initFunc4Mode[mode];
-  if (modeInitFunc) { 
-    try {
-      modeInitFunc(cm); 
-    } catch(e) {
-      console.group('modeInitFunc:'+mode);
-      console.error('Error in initializing %s-specific features. Some features might not work.', mode);
-      console.error(e.stack);
-      console.groupEnd();
-    }
+  var modeInitFunc = initFunc4Mode[mode] || initFunc4Mode['none'];
+  try {
+    modeInitFunc(cm); 
+  } catch(e) {
+    console.group('modeInitFunc:'+mode);
+    console.error('Error in initializing %s-specific features. Some features might not work.', mode);
+    console.error(e.stack);
+    console.groupEnd();
   }
 
+  
   // modes have setup theirs, including code-folding,
   //   now I'm ready to create an aggregate one
   function codeFoldAll(cm, codeFoldCommand) {

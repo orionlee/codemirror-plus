@@ -121,7 +121,21 @@ function editorAppInit(window) {
       var chEnd = h1Line.indexOf('</h1>');
 
       cm.setSelection(CodeMirror.Pos(118, chStart), CodeMirror.Pos(118, chEnd));
-      setTimeout(document.execCommand.bind(document, 'copy'), 250); // chrome43+
+      
+      // replace special characters (if any) not suitable for filename in the copied title text
+      var reSpecialChars = /[:?*\\\/]/g;
+      var toUndo = false;
+      if (reSpecialChars.test(cm.getSelection())) {
+        cm.replaceSelection(cm.getSelection().replace(reSpecialChars, '_'));
+        toUndo = true;
+      }
+      
+      setTimeout(function() {
+        document.execCommand('copy'); // chrome 43+
+        if (toUndo) {
+          setTimeout(cm.undo.bind(cm), 50);
+        }
+      }, 250); 
 
     } // function selectFlagsH1Text(..)
 

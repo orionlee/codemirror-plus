@@ -48,11 +48,24 @@
   }
   
   // END PATCH add search history feature
-  
+
+  // PATCH make changes in SearchState.query supports callback
   function SearchState() {
-    this.posFrom = this.posTo = this.query = null;
+    this.posFrom = this.posTo = this._query = null;
     this.overlay = null;
+    this.onQueryChange = null;
   }
+  Object.defineProperty(SearchState.prototype, 'query', { 
+    get: function() { return this._query; }, 
+    set: function(val) { 
+      this._query = val;
+      if (this.onQueryChange) {
+        this.onQueryChange({query: val});
+      }
+    }
+  });
+  // END PATCH make changes in SearchState.query supports callback
+  
   function getSearchState(cm) {
     return cm._searchState || (cm._searchState = new SearchState());
   }

@@ -66,8 +66,8 @@ function extendSearchUI(cm, uiCtrl) {
     return;
   }
   
-  // the observer to be used to trigger UI
-  function onSearchChange(changes) {
+  // the observer/Eventlistener-like callback to be used to trigger UI
+  function onSearchChange(evt) {
     // built-in search only searches one at a time and does not provide count
     // hence we are doing a separate search to get the count 
     // a caveat is when the editor content changes, the count does not change.
@@ -101,29 +101,22 @@ function extendSearchUI(cm, uiCtrl) {
       return matches;
     } // function countNumMatched()
     
+    // Main logic
+    if (!evt.query) {
+      uiCtrl.setSearchStatus(null, 0);
+    } else {
+      var numMatched = countNumMatched(evt.query);
+      uiCtrl.setSearchStatus(evt.query, numMatched);          
+    }
     
-    for(var i = 0; i < changes.length; i++) {
-      var ch = changes[i];
-      if (ch.name === 'query') {
-        if (ch.type === 'delete' || ch.object.query === null) {
-          uiCtrl.setSearchStatus(null, 0);
-        } else {
-          var query = ch.object.query;
-          var numMatched = countNumMatched(query);
-          uiCtrl.setSearchStatus(query, numMatched);          
-        }
-        return; // don't care any further changes
-      }
-    }  
   } // function onSearchChange(..)
   
   function findWithExtendUI(cm) {
     CodeMirror.commands.find(cm);
     // search UI invoked, so cm._searchState should be there
     // try to register the observer for changes
-    if (cm._searchState && !cm._searchState.observer) {
-      cm._searchState.observer = onSearchChange;
-      Object.observe(cm._searchState, onSearchChange);  
+    if (cm._searchState && !cm._searchState.onQueryChange) {
+      cm._searchState.onQueryChange = onSearchChange;
     } 
   } // function findWithExtendUI()
   
@@ -291,8 +284,11 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       
       jsMode.indent = function(state, textAfter) { 
         // BEGIN mimic original code's boundary initial case check
-        if (state.tokenize.name == 'jsTokenComment') return CodeMirror.Pass;
-        if (state.tokenize.name != 'jsTokenBase') return 0;
+        // CodeMirror javascript mode v3 uses jsTokenXxx, while v5 uses tokenXxx
+        /// v3: if (state.tokenize.name == 'jsTokenComment') return CodeMirror.Pass;
+        /// v3: if (state.tokenize.name != 'jsTokenBase') return 0;
+        if (state.tokenize.name == 'tokenComment') return CodeMirror.Pass;
+        if (state.tokenize.name != 'tokenBase') return 0;
         // END mimic original code's boundary initial case check
         var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
         if (firstChar === '.' || firstChar === '+') return lexical.indented + indentUnit;

@@ -58,10 +58,10 @@
     // form  var bar = function(maybeVar) { .. expected closing line ;
     // or form  bar = function(maybeVar) { .. expected closing line ;
     // or form  window.bar = function(maybeVar) { .. expected closing line ;
-    var reFuncAnonyWithVar = /^\s*(?:var\s+)?([^=,\s]+)\s*=\s*function\s*\(([^)]*)\)/ ;
+    var reFuncAnonyWithVar = /^\s*(?:(?:var|let|const)\s+)?([^=,\s]+)\s*=\s*function\s*\(([^)]*)\)/ ;
 
     // form  var bar = (function(maybeVar) { ... expected closing line: }();
-    var reFuncAnonyApplyWithVar = /^\s*(?:var\s+)?([^=\s]+)\s*=\s*\(function\s*\(([^)]*)\)/ ;
+    var reFuncAnonyApplyWithVar = /^\s*(?:(?:var|let|const)\s+)?([^=\s]+)\s*=\s*\(function\s*\(([^)]*)\)/ ;
         
     // form  (function(maybeVar) { ... expected closing line: }();
     var reFuncAnonyApplyNoVar = /^\s*\(function\s*\(([^)]*)\)/ ;
@@ -77,7 +77,7 @@
     // so it should be tested last 
     var reFuncAnonyOthers = /function\s*\(([^)]*)\)\s*[)]?$/ ;
 
-    var reObjCreation = /^\s*(?:var\s+)?([^=,\s]+)\s*=\s*$/; // about to type { at the end of line
+    var reObjCreation = /^\s*(?:(?:var|let|const)\s+)?([^=,\s]+)\s*=\s*$/; // about to type { at the end of line
 
     // intent to cover cases such as if (expr) {  ; for(expr) {, while(expr) {, do {
     // the expression is more generic so it should be tested at the end,

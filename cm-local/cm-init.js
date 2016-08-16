@@ -28,6 +28,11 @@ function createCodeMirror(cmElt, uiCtrl) {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], 
     foldOptions: { minFoldSize: 1, scanUp: true }, 
   });
+
+  // in CMv5, mode is defaulted to javascript, we MUST NOT want to make such assumption here, 
+  // as some caller (such as standalone editor.js assumes the initial mode to be empty, 
+  // and runs initCodeMirror4Mode() only when the new file's mode is to be different
+  cm.setOption('mode', ''); 
   
   // main cm basics is done, now we do additional feature enhancement
 

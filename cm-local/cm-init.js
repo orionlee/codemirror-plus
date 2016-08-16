@@ -171,12 +171,63 @@ function initDabbrevExpandAutoComplete(cm)  {
 
 function initSelectFold(cm) {
   function selectFold(cm) {
-    // TODO: use a rangeFinder sensitive to current mode(e.g. tag for html, brace for css, etc.)
-    var foldRange = CodeMirror.fold.auto(cm, CodeMirror.Pos(cm.getCursor().line, 0));
+    // Use cm.findMatchingBracket(), rather than fold logic (CodeMirror.helpers.fold.auto)
+    // to implement fold selection.
+    // Pro:  can match bold forward and backward (fold logic only matches forward)
+    // Cons: does not support non-bracket fold selection, e.g., fold by tags
+    
+    function toFoldRange(bracketRange) {
+      if (!bracketRange ||  !bracketRange.match) {
+        return null;
+      } 
+      // else normal case of a matched bracket range
+      var foldRange;
+      if (bracketRange.forward) {
+        foldRange = { from: CodeMirror.Pos(bracketRange.from.line, 0), 
+                      to: CodeMirror.Pos(bracketRange.to.line) };
+      } else {
+        foldRange = { from: CodeMirror.Pos(bracketRange.to.line, 0), 
+                      to: CodeMirror.Pos(bracketRange.from.line) };        
+      }
+      return foldRange;
+    } // function toFoldRange(..)
+
+    // find matching bracket of cursor, and if cursor is not a bracket
+    // use the first bracket of the current line to find matching bracket
+    function findMatchingBracketOfCurLine(cm) {
+      var bracketRange = cm.findMatchingBracket(cm.getCursor());
+      if (!bracketRange ||  !bracketRange.match) {
+        // case no matching bracket at current cursor, probably current cursor not a bracket 
+        // try to use a bracket of curLine as the starting point
+        var bracketStartPos = (function() {
+          var line = cm.getCursor().line; 
+          var text = cm.getLine(line) || '';
+          // find a bracket, i.e., []{},  to start the match ( exclude ()  as they are not pertintent to fold)
+          var ch = text.search(/[{}\[\]]/); 
+          
+          var res = ch >= 0 ?  CodeMirror.Pos(line, ch) : null;
+          return res;
+        })(); // bracketStartPos = (function())
+        
+        if (bracketStartPos) {
+          bracketRange = cm.findMatchingBracket(bracketStartPos);
+        } else { // case no bracket at current line found, so no bracketRange
+          bracketRange = null; 
+        } 
+      } // if (!bracketRange ...
+      
+      return bracketRange;
+    } // function findMatchingBracketOfCurLine(..)
+    
+    //
+    // main logic
+    //
+    var bracketRange = findMatchingBracketOfCurLine(cm);
+    var foldRange = toFoldRange(bracketRange);
     if (foldRange) {
-      cm.setSelection(CodeMirror.Pos(foldRange.from.line, 0), CodeMirror.Pos(foldRange.to.line));    
+      cm.setSelection(foldRange.from, foldRange.to);    
     }
-  }  
+  } // function selectFold()  
   
   bindCommand(cm, 'selectFold', {keyName: "Ctrl-Alt-Q" }, selectFold);
   

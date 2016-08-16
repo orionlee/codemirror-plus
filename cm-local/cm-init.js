@@ -172,7 +172,7 @@ function initDabbrevExpandAutoComplete(cm)  {
 function initSelectFold(cm) {
   function selectFold(cm) {
     // TODO: use a rangeFinder sensitive to current mode(e.g. tag for html, brace for css, etc.)
-    var foldRange = CodeMirror.braceRangeFinder(cm, CodeMirror.Pos(cm.getCursor().line, 0));
+    var foldRange = CodeMirror.fold.auto(cm, CodeMirror.Pos(cm.getCursor().line, 0));
     if (foldRange) {
       cm.setSelection(CodeMirror.Pos(foldRange.from.line, 0), CodeMirror.Pos(foldRange.to.line));    
     }

@@ -25,7 +25,8 @@ function createCodeMirror(cmElt, uiCtrl) {
       "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }
     },
     foldGutter: true,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], 
+    foldOptions: { minFoldSize: 1, scanUp: true }, 
   });
   
   // main cm basics is done, now we do additional feature enhancement

@@ -21,10 +21,13 @@ function createCodeMirror(cmElt, uiCtrl) {
     highlightSelectionMatches: false, // possibly troublesome when I select large amount of text 
     extraKeys: { 
       "Enter": "newlineAndIndentContinueComment" ,
-      "Ctrl-I": "indentAuto"
-    }
+      "Ctrl-I": "indentAuto",
+      "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }
+    },
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
-
+  
   // main cm basics is done, now we do additional feature enhancement
 
   bindCommand(cm, 'autoFormatSelection', {keyName: "F12" }, 
@@ -220,17 +223,6 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
   
   var initFunc4Mode = (function() {
 
-    function initFold4Js(cm, isChain)  {
-      var conflictsOnKey = isChain ? 'chain' : 'replace';
-      var codeFold4JsInner = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
-      bindCommand(cm, 'codeFold4Js', 
-        {keyName: "Ctrl-Q", conflictsOnKey: conflictsOnKey, chainName: 'codeFoldMixedMode', eventName: "gutterClick"}, 
-	function(cm) { 
-          codeFold4JsInner(cm, cm.getCursor().line);
-      });
-    
-    }
-
     function initAutoComplete4Js(cm, isChain)  {
       var conflictsOnKey = isChain ? 'chain' : 'replace';
       // javascriptMixedModeHint can be used for both mixedmode and pure js mode
@@ -302,16 +294,6 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       jsMode.electricChars +=  ".+";
     } // function patchJsIndent(..)
 
-    function initFold4Html(cm, isChain) {
-      var conflictsOnKey = isChain ? 'chain' : 'replace';
-      var codeFold4HtmlInner = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
-      bindCommand(cm, 'codeFold4Html',  
-        {keyName: "Ctrl-Q", conflictsOnKey: conflictsOnKey, chainName: 'codeFoldMixedMode', eventName: "gutterClick" }, 
-        function(cm){ 
-          codeFold4HtmlInner(cm, cm.getCursor().line);
-      });
- 
-    }
 
     function initAutoComplete4Css(cm, isChain)  {
       var conflictsOnKey = isChain ? 'chain' : 'replace';
@@ -336,7 +318,6 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
     
     var res = {
       javascript: function(cm) {
-        initFold4Js(cm);
         initAutoComplete4Js(cm);
         initJsHint(cm); // the syntax checker
         patchJsIndent(cm);
@@ -344,13 +325,6 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       }, // javascript : ...
 
       css: function(cm) {
-        var codeFold4CssInner = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
-        bindCommand(cm, 'codeFold4Css',  
-          {keyName: "Ctrl-Q", conflictsOnKey: 'chain', chainName: 'codeFoldMixedMode', eventName: "gutterClick" }, 
-          function(cm){ 
-            codeFold4CssInner(cm, cm.getCursor().line);
-        });
-
         initAutoComplete4Css(cm);
   
       }, // css : ...
@@ -359,10 +333,8 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
         var chain = true;
         initAutoComplete4Js(cm, chain); 
 
-        initFold4Js(cm, chain);
         initJsHint(cm); // the syntax checker
 
-        initFold4Html(cm, chain);
         // MUST use setOption(), or the option's associated action won't take effect
         cm.setOption("autoCloseTags", true);
 
@@ -372,8 +344,6 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
       },  // htmlmixed: ...
       
       xml: function(cm) {
-        var chain = false;
-        initFold4Html(cm, chain);
         cm.setOption("autoCloseTags", true);        
         
         initAutoComplete4Default(cm);

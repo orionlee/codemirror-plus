@@ -13,16 +13,6 @@
 /* END match-highlighter addon */
 
 
-/* BEGIN code folding addon */
-.CodeMirror-foldmarker {
-  color: blue;
-  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
-  font-family: arial;
-  line-height: .3;
-  cursor: pointer;
-}
-/* END code folding addon */
-
 
 /* BEGIN cm-jshint.js */
 .lint-error { font-family: arial; font-size: 70%; background: #ffa; color: #a00; padding: 2px 5px 3px; }

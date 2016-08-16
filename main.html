@@ -20,7 +20,13 @@
     <script src="cm/addon/edit/continuecomment.js"></script>
 
     <script src="cm/addon/fold/foldcode.js"></script>
-    <script src="cm-local/foldcode-hack.js"></script>
+    <script src="cm/addon/fold/brace-fold.js"></script>
+    <script src="cm/addon/fold/xml-fold.js"></script>
+    <script src="cm/addon/fold/comment-fold.js"></script>
+    <link rel="stylesheet" href="cm/addon/fold/foldgutter.css" />
+    <script src="cm/addon/fold/foldgutter.js"></script>
+             
+<!-- TODO: re-support folding backward   <script src="cm-local/foldcode-hack.js"></script> -->
 
     <script src="cm/addon/dialog/dialog.js"></script>
     <link rel="stylesheet" href="cm/addon/dialog/dialog.css">
@@ -55,8 +61,6 @@
     <script src="cm-local/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
     <script src="cm-local/dialog-hack.js"></script>  <!-- dialog.js hack/improvement needed for execCommandInteractive's autocomplete feature -->
   
-    <!-- hack patch, MUST be loaded after original codes (above) are loaded -->
-    <script type="text/javascript" src="cm-local/codemirror-hack.js"></script>
     <script type="text/javascript" src="cm-local/functionchain.js"></script>
 
     <link rel="stylesheet" href="cm/theme/eclipse.css" />

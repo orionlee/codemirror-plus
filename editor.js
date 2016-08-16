@@ -100,12 +100,12 @@ function editorAppInit(window) {
       CodeMirror.commands.findNext(editor);
       var pos = editor._searchState.posFrom;
       console.debug('%s: %o', str, pos);
-      CodeMirror.commands.codeFold4Html(editor);
+      editor.foldCode(pos);
       
       CodeMirror.commands.clearSearch(editor);
       editor.setSelection(pos); // clear selection from search
       if (returnRange) {
-        return CodeMirror.tagRangeFinder(editor, pos);
+        return CodeMirror.helpers.fold.xml(editor, pos);
       } else {
         return;
       }

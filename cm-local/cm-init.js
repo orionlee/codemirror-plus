@@ -351,7 +351,10 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
         initJsHint(cm); // the syntax checker
 
         // MUST use setOption(), or the option's associated action won't take effect
-        cm.setOption("autoCloseTags", true);
+        // indentTags is dervied from source htmlIndent list, the elements often include only (or mostly) text are taken out, mainly h1,2,3..., p, etc.
+        cm.setOption("autoCloseTags", { whenClosing: true, 
+                                       whenOpening: true, 
+                                       indentTags: ["applet", "blockquote", "body", "div", "dl", "fieldset", "form", "frameset", "head", "html", "iframe", "layer", "legend", "object", "ol", "select", "table", "ul"] });
         
       },  // htmlmixed: ...
       

@@ -20,7 +20,6 @@ function createCodeMirror(cmElt, uiCtrl) {
     patchAutoCloseBracketsSkipCommentline: true, // MUST be defined after all closeBrackets option
     highlightSelectionMatches: false, // possibly troublesome when I select large amount of text 
     extraKeys: { 
-      "Enter": "newlineAndIndentContinueComment" ,
       "Ctrl-I": "indentAuto",
       "Ctrl-Q": "toggleFold",
       "Shift-Ctrl-Q": "foldAll", // toggleFoldAll is problematic both semantically and implementation

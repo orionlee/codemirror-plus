@@ -27,6 +27,7 @@ function createCodeMirror(cmElt, uiCtrl) {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], 
     foldOptions: { minFoldSize: 1, scanUp: true }, 
+    continueComments: true, 
   });
 
   // in CMv5, mode is defaulted to javascript, we MUST NOT want to make such assumption here, 
@@ -35,13 +36,6 @@ function createCodeMirror(cmElt, uiCtrl) {
   cm.setOption('mode', ''); 
   
   // main cm basics is done, now we do additional feature enhancement
-
-  bindCommand(cm, 'autoFormatSelection', {keyName: "F12" }, 
-    function(cm) {
-      var range = { from: cm.getCursor(true), to: cm.getCursor(false) };
-      cm.autoFormatRange(range.from, range.to);
-  });
-
 
   // useful in cases where some command is defined but not exposed in UI
   // (This is done in a style similar to emacs)

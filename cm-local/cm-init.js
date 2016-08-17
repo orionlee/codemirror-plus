@@ -22,8 +22,9 @@ function createCodeMirror(cmElt, uiCtrl) {
     extraKeys: { 
       "Enter": "newlineAndIndentContinueComment" ,
       "Ctrl-I": "indentAuto",
-      "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); },
-      "Ctrl-Space": 'autocomplete', 
+      "Ctrl-Q": "toggleFold",
+      "Shift-Ctrl-Q": "foldAll", // toggleFoldAll is problematic both semantically and implementation
+      "Ctrl-Space": "autocomplete", 
     },
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], 
@@ -31,6 +32,7 @@ function createCodeMirror(cmElt, uiCtrl) {
     continueComments: true, 
   });
 
+  
   // in CMv5, mode is defaulted to javascript, we MUST NOT want to make such assumption here, 
   // as some caller (such as standalone editor.js assumes the initial mode to be empty, 
   // and runs initCodeMirror4Mode() only when the new file's mode is to be different
@@ -377,28 +379,5 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
     console.error(e.stack);
     console.groupEnd();
   }
-
-  
-  // modes have setup theirs, including code-folding,
-  //   now I'm ready to create an aggregate one
-  function codeFoldAll(cm, codeFoldCommand) {
-    if (typeof codeFoldCommand == 'string') {
-      codeFoldCommand = CodeMirror.commands[codeFoldCommand];
-    }
-    if (!codeFoldCommand) { return; }
-    
-    for(var i = 0; i < cm.lineCount(); i++) { 
-      if (cm.getLineHandle(i).height > 0) {
-        cm.setCursor(CodeMirror.Pos(i, 0));
-        codeFoldCommand( cm );
-      } // else line is already hidden
-    }
-  }
-  bindCommand(cm, 'toggleCodeFoldAll', {keyName: "Shift-Ctrl-Q" }, 
-    function(cm) {
-      // use extraKeys indirection so that the mode-specific folding will be selected
-      // at runtme.
-      codeFoldAll(cm, cm.options.extraKeys['Ctrl-Q']);
-  });
  
 } // function initCodeMirror4Mode()

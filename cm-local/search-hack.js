@@ -126,7 +126,7 @@
         var inpId = "ctl_search_" + Date.now();
         text = 
           text.replace('inpId=""', 'id="' + inpId + '"'); // add generated id for the inputbox
-        cm.openDialog(text, f, { keepOpenOnBlur: true });
+        cm.openDialog(text, f, {closeOnBlur: false}); // closeOnBlur:false needed for autocomplete
         setupDialogAutoComplete(cm, inpId);   
       } else {
         cm.openDialog(text, f);        

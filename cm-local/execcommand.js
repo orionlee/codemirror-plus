@@ -21,7 +21,7 @@ function initExecCommand(cm) {
     // for debug 'onkeydown="console.debug(\'keydown: %i %s\', event.keyCode, event.keyIdentifier);"' 
     cm.openDialog('Enter command: <input type="text" style="width: 10em;" id= "' + dialogId + '" />' + 
                       '<span style="color: #999">(Press Help for list of commands)</span>', 
-                      doExecCommand, {keepOpenOnBlur: true });	// keepOpenOnBlur requires the patched dialog.js
+                  doExecCommand, {closeOnBlur: false}); // closeOnBlur:false needed for autocomplete
     // Use keydown event, as keypress event does not work in some cases
     document.getElementById(dialogId).onkeydown = autoCompleteExecCmd;
   } // function execCommandInteractive()

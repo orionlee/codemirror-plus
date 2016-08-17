@@ -58,13 +58,13 @@ function initEval(cm) {
                     '<button type="button">Ok</button><span style="color: red;"> Unexpected Error in evaluating the codes: ' 
         + err.name + ': ' + err.message + '</span>' 
         + '<pre id="errStack" style="font-family:monospace; font-size: smaller; font-weight: normal; margin-left: 12px;"></pre>'
-        + '</div>', null, {keepOpenOnBlur: true });
+        + '</div>', null, {});
       // err.stack contains tag-like string, so use textContent to html escape it 
       document.getElementById('errStack').textContent = 
         err.matchedSrc ? err.matchedSrc + '\n' + err.stack : err.stack;
       cm._evalLastResult = err; // for power users to debug       
     } else {
-      cm.openDialog('<button type="button">Ok</button> Result: <pre id="evalResult" style="font-family: monospace; margin-left: 12px;"></pre>', null, {keepOpenOnBlur: true }); 
+      cm.openDialog('<button type="button">Ok</button> Result: <pre id="evalResult" style="font-family: monospace; margin-left: 12px;"></pre>', null, {}); 
       // use textContent to html scape it
       var resEl = document.getElementById('evalResult');
       resEl.textContent = JSON.stringify(result); 
@@ -80,7 +80,7 @@ function initEval(cm) {
     var dialogId = "ctl_eval_" + Date.now();
     // for debug 'onkeydown="console.debug(\'keydown: %i %s\', event.keyCode, event.keyIdentifier);"' 
     cm.openDialog('Enter expresson: <input type="text" style="width: 30em;" id= "' + dialogId + '" />',  
-                  evalSrc, {keepOpenOnBlur: true }); // keepOpenOnBlur requires the patched dialog.js
+                  evalSrc, {}); 
     
     if (cm.getSelection()) {
       document.getElementById(dialogId).value  = cm.getSelection();  

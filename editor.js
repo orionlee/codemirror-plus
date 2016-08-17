@@ -16,7 +16,7 @@ function editorAppInit(window) {
       bindCommand = window.bindCommand, 
       initHelpUI = window.initHelpUI;
   
-  
+  !1
   var editor; // abstraction over entire editor
   
   // abstraction over (non-CodeMirror aka ediotr) UI  constructs and methods;
@@ -335,12 +335,59 @@ chrome.contextMenus.onClicked.addListener(function(info) {
     // Prevent OS exit window key (Alt-F4, etc.) from propagating to the OS,
     // so that they can be handled by the editor binding above
     function preventOSExitWindow(evt) { 
-      /// console.debug(evt); 
-      if ( (evt.ctrlKey && evt.keyIdentifier == "U+0057") || // Ctrl-W
-          (evt.ctrlKey && evt.keyIdentifier == "F4") || 
-          (evt.altKey && evt.keyIdentifier == "F4") ) { 
+      /// console.debug(evt);
+
+      function isKeyWPressed(event) {
+
+        // event.key is not suitable as it represents the char generated, not the key pressed,
+        // i.e., sensitive to shift, etc. for keyW, it may generate "W" or "w"
+        if (event.code && event.code != "") {
+          // Chrome?, FF32+, Opera?, (no IE nor Safari)
+          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Browser_compatibility
+          return event.code == 'KeyW'; 
+        } else if (event.keyIdentifier && event.keyIdentifier != "U+0000") {
+          // non-standard, but works for Safari 5.1+ and Chrome (26 - 52)
+          // only works for keydown (NOT keypress)
+          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyIdentifier#Browser_compatibility
+          return event.keyIdentifier == "U+0057";
+        } else if (event.which && event.which != 0) {
+          // legacy browsers
+          return event.which === 87;
+        } else {
+          console.warn('isSpaceKeyPressed() cannot determine if space is pressed. Likely to be a browser compatibility issue. Event: %o', event);
+          return false;
+        }
+        // Note: event.charCode is deprecated in favor of .key
+      } // function isKeyWPressed(..)
+ 
+      function isKeyF4Pressed(event) {
+
+        // event.key is not suitable as it represents the char generated, not the key pressed,
+        // i.e., sensitive to shift, etc. for keyW, it may generate "W" or "w"
+        if (event.code && event.code != "") {
+          // Chrome?, FF32+, Opera?, (no IE nor Safari)
+          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Browser_compatibility
+          return event.code == 'F4'; 
+        } else if (event.keyIdentifier && event.keyIdentifier != "U+0000") {
+          // non-standard, but works for Safari 5.1+ and Chrome (26 - 52)
+          // only works for keydown (NOT keypress)
+          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyIdentifier#Browser_compatibility
+          return event.keyIdentifier == "F4";
+        } else if (event.which && event.which != 0) {
+          // legacy browsers
+          return event.which === 115;
+        } else {
+          console.warn('isSpaceKeyPressed() cannot determine if space is pressed. Likely to be a browser compatibility issue. Event: %o', event);
+          return false;
+        }
+        // Note: event.charCode is deprecated in favor of .key
+      } // function isKeyF4Pressed(..)
+
+      if ( (evt.ctrlKey && isKeyWPressed(evt)) || // Ctrl-W
+          (evt.ctrlKey && isKeyF4Pressed(evt)) || 
+          (evt.altKey && isKeyF4Pressed(evt)) ) { 
         evt.preventDefault(); 
-      } 
+      }
     }  
     window.addEventListener('keydown', preventOSExitWindow);
     

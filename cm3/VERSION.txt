@@ -1,3 +1,0 @@
-version: 3.1
-
-based on a zip from github , commit 545aeb74f6800dcaf6acead1bfc14c4eef99c9eb

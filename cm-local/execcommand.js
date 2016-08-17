@@ -44,29 +44,8 @@ function initExecCommand(cm) {
   
   window.autoCompleteExecCmd  = function(event) {
     
-    function isSpaceKeyPressed(event) {
-      
-      if (event.key && event.key != "Unidentified") { 
-        // emerging standard: Chrome 51+, FF23+, IE9+, Opera 38+ but no Safari
-        // @ses https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key#Browser_compatibility
-        return event.key == " ";
-      } else if (event.keyIdentifier && event.keyIdentifier != "U+0000") {
-        // non-standard, but works for Safari 5.1+ and Chrome (26 - 52)
-        // only works for keydown (NOT keypress)
-        // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyIdentifier#Browser_compatibility
-        return event.keyIdentifier == "U+0020";
-      } else if (event.which && event.which != 0) {
-        // legacy browsers
-        return event.which === 32;
-      } else {
-        console.warn('isSpaceKeyPressed() cannot determine if space is pressed. Likely to be a browser compatibility issue. Event: %o', event);
-        return false;
-      }
-      // Note: event.charCode is deprecated in favor of .key
-    } // function isSpaceKeyPressed(..)
-    
     // if space or Ctrl-space (event.ctrlKey == true), so the logic reduced to just space
-    if (isSpaceKeyPressed(event)) { 
+    if (KeyboardEventUtl.codeEquals(event, "Space")) { 
       event.preventDefault();
       /// console.debug('Trying to to complete "%s"', event.target.value);
       var inpValue = event.target.value;

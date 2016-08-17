@@ -14,7 +14,8 @@ function createEditorUICtrl(window, doc) {
   "use strict";
 
   // imports from global to support "use strict";
-  var console = window.console;
+  var console = window.console,
+      KeyboardEventUtl = window.KeyboardEventUtl;
   
   var _titleElt, _modeElt;
   // used to show status of some CM commands, addon, e.g., if lint is on, col num mode is on, etc.
@@ -325,30 +326,8 @@ function createEditorUICtrl(window, doc) {
         return; // don't allow dropdown menu action while the context menu is still active
       }
 
-      function isKeyEscapePressed(event) {
-
-        // event.key is not suitable as it represents the char generated, not the key pressed,
-        // i.e., sensitive to shift, etc. for keyW, it may generate "W" or "w"
-        if (event.code && event.code != "") {
-          // Chrome?, FF32+, Opera?, (no IE nor Safari)
-          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Browser_compatibility
-          return event.code == 'Escape'; 
-        } else if (event.keyIdentifier && event.keyIdentifier != "U+0000") {
-          // non-standard, but works for Safari 5.1+ and Chrome (26 - 52)
-          // only works for keydown (NOT keypress)
-          // @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyIdentifier#Browser_compatibility
-          return event.keyIdentifier == "U+0018";
-        } else if (event.which && event.which != 0) {
-          // legacy browsers
-          return event.which === 27;
-        } else {
-          console.warn('isSpaceKeyPressed() cannot determine if space is pressed. Likely to be a browser compatibility issue. Event: %o', event);
-          return false;
-        }
-        // Note: event.charCode is deprecated in favor of .key
-      } // function isKeyEscapePressed(..)
       
-      if (isKeyEscapePressed(evt)) { // hit Esc key to hide the dropdown
+      if (KeyboardEventUtl.codeEquals(evt, "Escape")) { // hit Esc key to hide the dropdown
         destroyRecentListDropDownUI();
         evt.preventDefault();
         return;

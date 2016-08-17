@@ -1,0 +1,4 @@
+# ignore /cm/*, 
+#   for now /cm is a symbolic link points to a real CodeMirror local repo
+#   to be replaced by some proper package inclusion mechanism, maybe bower
+/cm/*

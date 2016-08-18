@@ -9,7 +9,7 @@
 
 // main entry point: for initial creation
 function createCodeMirror(cmElt, uiCtrl) {
-  
+
   var cm = CodeMirror(cmElt, {
     lineNumbers: true,
     tabSize: 2, 
@@ -28,7 +28,7 @@ function createCodeMirror(cmElt, uiCtrl) {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], 
     foldOptions: { minFoldSize: 1, scanUp: true }, 
-    continueComments: true, 
+    continueComments: true,
   });
 
   
@@ -60,7 +60,9 @@ function createCodeMirror(cmElt, uiCtrl) {
   initSelectToLine(cm);
   
   extendSearchUI(cm, uiCtrl);
-    
+
+  initToggleShowTrailingSpace(cm);
+
   return cm;
 } // function createCodeMirror
 
@@ -253,6 +255,18 @@ function initSelectToLine(cm) {
   bindCommand(cm, 'selectToLineInteractive', {keyName: "Ctrl-Alt-G" }, selectToLineInteractive);
   
 }
+
+function initToggleShowTrailingSpace(cm) {
+  function toggleShowTrailingSpace(cm) {
+    var oldVal = cm.getOption('showTrailingSpace');
+    var newVal = !oldVal;
+    cm.setOption('showTrailingSpace', newVal);
+    return newVal;
+  } // function toggleShowTrailingSpace(..)
+
+  bindCommand(cm, 'toggleShowTrailingSpace', {}, toggleShowTrailingSpace);   
+} // function initToggleShowTrailingSpace(..)
+
 
 //
 // Below are features that are mode-specific

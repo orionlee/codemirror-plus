@@ -17,7 +17,6 @@ function editorAppInit(window) {
       bindCommand = window.bindCommand, 
       initHelpUI = window.initHelpUI;
   
-  !1
   var editor; // abstraction over entire editor
   
   // abstraction over (non-CodeMirror aka ediotr) UI  constructs and methods;
@@ -29,43 +28,21 @@ function editorAppInit(window) {
  * to update UI, and possibly editor setup accordingly.
  */
   function handleDocumentChange(filePath) {
-    var mode = "";
-    var modeName = "";
-    var fileName = "";
+    var info = null;
+    var fileName;
     if (filePath) {
       fileName = filePath.match(/[^\/\\]+$/)[0];
       _uiCtrl.title.set(fileName, filePath);
-      
-      if (fileName.match(/[.]js$/)) {
-        mode = "javascript";
-        modeName = "JavaScript";    
-      } else if (fileName.match(/[.]json$/)) {
-        mode = {name: "javascript", json: true};
-        modeName = "JavaScript (JSON)";
-      } else if (fileName.match(/[.]html?$/)) {
-        mode = "htmlmixed";
-        modeName = "HTML";
-      } else if (fileName.match(/[.]css$/)) {
-        mode = "css";
-        modeName = "CSS";
-      } else if (fileName.match(/[.]xml$/)) {
-        mode = "xml";
-        modeName = "XML";
-      } else {
-        var suffixMatches = fileName.match(/[.](.+)$/);
-        if (suffixMatches) {
-          mode = suffixMatches[1].toLowerCase();
-          modeName = mode.toUpperCase();
-        } // else unknown mode. do nothing
-      }
+      info = CodeMirror.findModeByFileName(fileName);
     } else {
       _uiCtrl.title.set("[no document loaded]");
     }
     
-    if (mode && editor.getOption('mode') != mode) {
-      _uiCtrl.setMode(modeName);
-      CodeMirror.autoLoadMode(editor, mode); // use autoload mode here to handle non built-in mode. Cannot use autoload in all cases because it does not work for the built-in json mode //         editor.setOption('mode', mode);
-      initCodeMirror4Mode(editor, mode, _uiCtrl);
+    if (info && editor.getOption('mode') !== info.mime) {
+      _uiCtrl.setMode(info.name);
+      editor.setOption("mode", info.mime);
+      CodeMirror.autoLoadMode(editor, info.mode);
+      initCodeMirror4Mode(editor, info.mode, _uiCtrl);
     } // else mode not changed. no-op
     
     // manually fire the change event as document just loaded

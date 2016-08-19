@@ -52,8 +52,6 @@ function createCodeMirror(cmElt, uiCtrl) {
 
   initEval(cm);
 
-  initGotoLine(cm);
-
   initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 
@@ -143,24 +141,6 @@ function extendSearchUI(cm, uiCtrl) {
   });
 } // function extendSearchUI(..)
 
-
-function initGotoLine(cm) {
-  function gotoLineInteractive() {
-    cm.openDialog('<span>Go to Line: <input type="number" size="6" style="width: 6em;" /></span>', function(lineNumStr) {
-      try {
-        var lineNum = parseInt(lineNumStr, 10) - 1;
-        cm.setCursor(lineNum);
-      } catch (e) {
-        cm.openDialog('<div style="background-color: yellow; width: 100%">&nbsp;' +
-                          '<button type="button">Ok</button><span style="color: red;">' +
-                          '. Error: ' + e.message + '</span></div>');
-      }
-    });
-  }
-
-  bindCommand(cm, 'gotoLineInteractive', {keyName: "Alt-G" }, gotoLineInteractive);
-
-}
 
 function initColumNumberMode(cm, uiCtrl) {
   var toggleColumNumberMode = createToggleColumNumberMode(function(enabled, pos) {

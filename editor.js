@@ -180,7 +180,9 @@ function editorAppInit(window) {
       _ioCtrl.newFile();    
     } else {
       chrome.app.window.create('main.html', {
-        frame: 'none', width: window.outerWidth, height: window.outerHeight 
+        frame: 'none', width: window.outerWidth, height: window.outerHeight,
+        top: window.screenTop + window.screen.availHeight * 0.05,
+        left: window.screenLeft + window.screen.availWidth * 0.05
       });
     }
   }

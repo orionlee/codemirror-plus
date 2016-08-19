@@ -1,10 +1,9 @@
 chrome.app.runtime.onLaunched.addListener(function(launchData) {
-  // width 640 for font size 12
-  //       720 for font size 14
+  // make size and position proportional to the screen
   chrome.app.window.create('main.html', {
-    frame: 'none', width: 900, height: 600,
-    top: 40,
-    left: 80
+    frame: 'none', width: screen.availWidth * 0.5, height: screen.availHeight * 0.75,
+    top: screen.availHeight * 0.05,
+    left: screen.availWidth * 0.05
   },
   function(win) {
     win.contentWindow.launchData = launchData;

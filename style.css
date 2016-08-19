@@ -196,8 +196,8 @@ button#exit:hover {
   left: 0px;
   border: 5px solid rgba(0,0,255, 0.15);
   border-radius: 8px;
-  width: 890px;
-  height: 590px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
 }
 
 #editor {

@@ -69,11 +69,7 @@ function createCodeMirror(cmElt, uiCtrl) {
   extendSearchUI(cm, uiCtrl);
 
   initToggleShowTrailingSpace(CodeMirror);
-
-  initNewlineAndIndentPatchOnTrailingSpace(CodeMirror);
-  cm.setOption('newlineAndIndent', {removeTrailingSpace: true} );
-
-  initRemoveAllTrailingSpaces(CodeMirror);
+  cm.setOption('newlineAndIndent', {removeTrailingSpace: true} ); // depends on trailingspace-removal.js
 
   return cm;
 } // function createCodeMirror
@@ -278,68 +274,6 @@ function initToggleShowTrailingSpace(CodeMirror) {
 
   CodeMirror.commands.toggleShowTrailingSpace = toggleShowTrailingSpace;
 } // function initToggleShowTrailingSpace()
-
-
-// Patch built-in newlineAndIndent to optionally remove trailing spaces of the line
-// Enable it by setting the option:
-//   newlineAndIndent: { removeTrailingSpace: true}
-// So that only the users who care about it will need to do so.
-function initNewlineAndIndentPatchOnTrailingSpace(CodeMirror) {
-  if (CodeMirror.commands._newlineAndIndentOriginal) {
-    console.warn('initNewlineAndIndentPatchOnTrailingSpace(): patch has previously been applied. Skip it');
-    return;
-  }
-
-  function removeTrailingSpaceOfPrevLine(cm) {
-    var cursor = cm.getCursor();
-    var lNum = cursor.line - 1;
-    if (lNum >= 0) {
-      var lTxt = cm.getLine(lNum);
-      if (lTxt.endsWith(" ") || lTxt.endsWith("\t")) { // case has trailing space
-        cm.replaceRange(lTxt.replace(/[\s\t]+$/, ''), CodeMirror.Pos(lNum, 0), CodeMirror.Pos(lNum, lTxt.length)); // essentially doing the non-standard trimRight()
-      } // else no trailing spaces, just continue
-    } // else the current line is the first line, just continue
-
-  } // function removeTrailingSpaceOfPrevLine(..)
-
-  var newlineAndIndentOriginal = CodeMirror.commands.newlineAndIndent;
-  function newlineAndIndentWithTrailingSpaceOpt(cm) { // the new one decorating around the original
-    newlineAndIndentOriginal(cm);
-    // since I cannot change original code easily, in this implementation
-    // I fetch previous line and process it accordingly
-    var newlineAndIndentOpt = cm.getOption('newlineAndIndent');
-    if (newlineAndIndentOpt && newlineAndIndentOpt.removeTrailingSpace) {
-      removeTrailingSpaceOfPrevLine(cm);
-    }
-  } // function newlineAndIndentWithTrailingSpaceOpt()
-  CodeMirror.commands.newlineAndIndent = newlineAndIndentWithTrailingSpaceOpt;
-  CodeMirror.commands._newlineAndIndentOriginal = newlineAndIndentOriginal;
-} // function initNewlineAndIndentPatchOnTrailingSpace(..)
-
-function initRemoveAllTrailingSpaces(CodeMirror) {
-  function removeAllTrailingSpaces(cm) {
-    var lines = cm.getValue().split(/[\n\r]/);
-    var modified = false;
-    var newLines = lines.map(function(line) {
-      if (line.endsWith(" ") || line.endsWith("\t")) { // case has trailing space
-        modified = true;
-        return line.replace(/[\s\t]+$/, ''); // essentially doing the non-standard trimRight()
-      } else {
-        return line;
-      }
-    });
-    if (modified) {
-      var newText = newLines.join(cm.doc.lineSeparator());
-      cm.setValue(newText);
-    }
-    // else do nothing: avoid unnecessarily doing cm.setValue(), 
-    // which will change the state of the doc and mark it as dirty.
-
-  } // function removeAllTrailingSpaces(..)
-
-  CodeMirror.commands.removeAllTrailingSpaces = removeAllTrailingSpaces;
-
-} // function initRemoveAllTrailingSpaces(..)
 
 
 //

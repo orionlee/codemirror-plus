@@ -28,12 +28,37 @@ function editorAppInit(window) {
  * to update UI, and possibly editor setup accordingly.
  */
   function handleDocumentChange(filePath) {
+    function findModeByFileContent(cm) {
+      // implemented by inspecting shebang line, if it exists
+
+      // in shebang line, the last word is usually
+      // name of the programming language, its alias or extension
+      var extOrName = (function() {
+        var line1 = cm.getLine(0);
+        var matches = line1.match(/^#!.+?([^ /\\]+)\s*$/);
+        if (matches) {
+          return matches[1];
+        } else {
+          return "";
+        }
+      })(); // extOrName = (function())
+
+      var info = CodeMirror.findModeByExtension(extOrName) ||
+          CodeMirror.findModeByName(extOrName);
+      
+      return info;
+    } // function findModeByFileContent(..)
+    
     var info = null;
     var fileName;
     if (filePath) {
       fileName = filePath.match(/[^\/\\]+$/)[0];
       _uiCtrl.title.set(fileName, filePath);
       info = CodeMirror.findModeByFileName(fileName);
+      if (!info) {
+        // usually some scripts with no extension
+        info = findModeByFileContent(editor);
+      }
     } else {
       _uiCtrl.title.set("[no document loaded]");
     }

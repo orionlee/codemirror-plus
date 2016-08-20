@@ -209,12 +209,15 @@ function createEditorUICtrl(window, doc) {
     }
     dropDownEl = doc.createElement('ul');
     dropDownEl.className = 'CodeMirror-hints dropdown'; // TODO: remove CodeMirror-hints dependency
+
+    // give dropdown as much vertical space as possible without bleeding over the editor
+    dropDownEl.style.maxHeight = (document.querySelector('#editor').offsetHeight - 30) + 'px';
     
     function paintDropDown(dropDownEl, recentList) {
       dropDownEl.innerHTML = ''; // clear out any existing UI
 
       var showInfo = (function() {
-        var MAX_NUM_SHOWN = 10;
+        var MAX_NUM_SHOWN = 20;
         
         var curPos = 0, pinned; // state used by showInfo
         var filesShown = []; // state used by showInfo

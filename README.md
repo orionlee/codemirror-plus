@@ -18,8 +18,9 @@ It is being refactored so that it can be ported / reused in other environment.
 
 ## Getting Started for developers
 
-* Clone the repository to a local directory, e.g., c:\cmacs
-* In the directory, type npm install to get dependent libraries
+* Clone the repository to a local directory, e.g., c:\cmacs .
+* In the directory, type "npm install" to get dependent libraries.
 * In your Chrome Browser, go to chrome://extensions/ .
   * Click Developer mode if not yet done.
   * Click "Load unpacked extension...", and point to the above directory.
+* If you want to use your own version of dependent libraries such as CodeMirror, use [npm link](https://docs.npmjs.com/cli/link).

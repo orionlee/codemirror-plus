@@ -1,0 +1,23 @@
+{
+  "name": "cmacs",
+  "version": "0.4.0",
+  "description": "A chrome packaged app local code editor based on CodeMirror, inspired by eMACS; and is configured to support HTML/CSS/Javascript development. It supports numerous other programming languages.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Editor",
+    "Javascript",
+    "CodeMirror",
+    "Emacs",
+    "chrome",
+    "packaged app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "codemirror": "^5.17.0",
+    "jshint": "^2.9.3"
+  }
+}

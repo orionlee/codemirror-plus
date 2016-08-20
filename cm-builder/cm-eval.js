@@ -27,7 +27,7 @@ function initEval(cm) {
     ifEl = document.createElement('iframe');
     ifEl.style.display = 'none';
     ifEl.id = 'eval-src';
-    ifEl.src = 'cm-local/cm-eval-sandbox.html';
+    ifEl.src = 'cm-builder/cm-eval-sandbox.html';
     document.body.appendChild(ifEl);      
 
     return ifEl;    

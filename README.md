@@ -1,22 +1,25 @@
-# Local code editor based on CodeMirror
+# CMACS
 
-Pre-configured to be feature-rich for HTML/CSS/Javascript development, such as code-completion, code folding, brackets/tag completion, Javascript linting, etc.
+####   A Chrome app local code editor based on [CodeMirror](http://codemirror.net/), inspired by emACS.
 
-It does, however, suffer some limitation due to restriction of chrome packaged app (mostly on file system access), including:
+Pre-configured to be lightweight, feature-rich for HTML/CSS/Javascript development, such as code-completion, code folding, brackets/tag completion, Javascript linting, etc. It also supports numerous other programming languages.
 
-* unable to saving backup files
-* re-opening recent files
-* "save as" causing locking of the new files (untile entire chrome restarts)
+CMACS is inspired by Emacs, in that the interface is barebone. It also has a few Emacs-like features:
 
-## Original description
+* Entering (CodeMirror) commands by Alt-X, aka Emacs M-x .
+* Evaluate Javascript (in a sandbox) by Alt-E .
+* Completion with nearby words by Ctrl-/, aka Emacs dabbrev-expand .
+  * Note: it compliments the default language-specific autocomplete Ctrl-Space.
+* Key Bindings, however, are not Emacs-like. CodeMirror does come with a emacs key bindings package that somewhat approximate the bindings. See [Ymacs](http://www.ymacs.org/) if you are looking for a closer clone.
 
-As seen in [Mini Code Edit](https://github.com/GoogleChrome/chrome-app-samples/tree/master/mini-code-edit) sample app: 
+The code base is derived from [Mini Code Edit](https://github.com/GoogleChrome/chrome-app-samples/tree/master/samples/mini-code-edit) Google Chrome sample app.
 
-A non-trivial sample with basic features of a code editor, like syntax detection and syntax highlight. If also uses the extended FileSystem API that allows a user to select files from the disk so the app can read and write to that file.
+It is being refactored so that it can be ported / reused in other environment.
 
-## APIs
+## Getting Started for developers
 
-* [chrome.fileSystem](http://developer.chrome.com/trunk/apps/fileSystem.html)
-* [Runtime](http://developer.chrome.com/trunk/apps/app.runtime.html)
-* [Window](http://developer.chrome.com/trunk/apps/app.window.html)
-
+* Clone the repository to a local directory, e.g., c:\cmacs
+* In the directory, type npm install to get dependent libraries
+* In your Chrome Browser, go to chrome://extensions/ .
+  * Click Developer mode if not yet done.
+  * Click "Load unpacked extension...", and point to the above directory.

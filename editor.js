@@ -9,7 +9,7 @@ function editorAppInit(window) {
       DnDFileController = window.DnDFileController, 
       KeyboardEventUtl = window.KeyboardEventUtl;
   
-  // globals defined in other chrome-codemirror top-level script
+  // globals defined in other cmacs top-level script
   var createCodeMirror = window.createCodeMirror, 
       initCodeMirror4Mode = window.initCodeMirror4Mode, 
       createIOCtrl = window.createIOCtrl, 
@@ -324,7 +324,7 @@ chrome.contextMenus.onClicked.addListener(function(info) {
                                  handleSaveAsButton);
     
     editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
-    CodeMirror.modeURL = "cm/mode/%N/%N.js";  // one-time init for autoload mode feature
+    CodeMirror.modeURL = "node_modules/codemirror/mode/%N/%N.js";  // one-time init for autoload mode feature
     window.editor = editor; // the top level export, entry point to the created editor
     
     _uiCtrl.setEditorFocusFunction(editor.focus.bind(editor));

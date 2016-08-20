@@ -1,87 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="cm/lib/codemirror.css" />
-    <script src="cm/lib/codemirror.js"></script>
+    <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css" />
+    <script src="node_modules/codemirror/lib/codemirror.js"></script>
 
-    <script src="cm-local/keyboardevent-util.js"></script> <!-- used by various scripts so I define early-->
+    <script src="cm-builder/keyboardevent-util.js"></script> <!-- used by various scripts so I define early-->
 
-    <script src="cm/mode/javascript/javascript.js"></script>
+    <script src="node_modules/codemirror/mode/javascript/javascript.js"></script>
 
-    <script src="cm/addon/hint/show-hint.js"></script>
-    <link rel="stylesheet" href="cm/addon/hint/show-hint.css">
-    <script src="cm/addon/hint/javascript-hint.js"></script>
+    <script src="node_modules/codemirror/addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="node_modules/codemirror/addon/hint/show-hint.css">
+    <script src="node_modules/codemirror/addon/hint/javascript-hint.js"></script>
 
-    <script src="cm/addon/edit/matchbrackets.js"></script>
+    <script src="node_modules/codemirror/addon/edit/matchbrackets.js"></script>
 
 
-    <script src="cm/addon/edit/closebrackets.js"></script>
+    <script src="node_modules/codemirror/addon/edit/closebrackets.js"></script>
 
-    <script src="cm-local/cm-patchautoclosebracketsbycurlywithwewline.js"></script>
-    <script src="cm-local/cm-patchautoclosebrackets-skip-commentline.js"></script>
+    <script src="cm-builder/cm-patchautoclosebracketsbycurlywithwewline.js"></script>
+    <script src="cm-builder/cm-patchautoclosebrackets-skip-commentline.js"></script>
 
-    <script src="cm/addon/comment/continuecomment.js"></script>
+    <script src="node_modules/codemirror/addon/comment/continuecomment.js"></script>
 
-    <script src="cm/addon/fold/foldcode.js"></script>
-    <script src="cm/addon/fold/brace-fold.js"></script>
-    <script src="cm/addon/fold/xml-fold.js"></script>
-    <script src="cm/addon/fold/comment-fold.js"></script>
-    <link rel="stylesheet" href="cm/addon/fold/foldgutter.css" />
-    <script src="cm/addon/fold/foldgutter.js"></script>
+    <script src="node_modules/codemirror/addon/fold/foldcode.js"></script>
+    <script src="node_modules/codemirror/addon/fold/brace-fold.js"></script>
+    <script src="node_modules/codemirror/addon/fold/xml-fold.js"></script>
+    <script src="node_modules/codemirror/addon/fold/comment-fold.js"></script>
+    <link rel="stylesheet" href="node_modules/codemirror/addon/fold/foldgutter.css" />
+    <script src="node_modules/codemirror/addon/fold/foldgutter.js"></script>
              
-    <script src="cm/addon/dialog/dialog.js"></script>
-    <link rel="stylesheet" href="cm/addon/dialog/dialog.css">
-    <script src="cm/addon/search/searchcursor.js"></script>
-    <script src="cm-local/search-hack.js"></script> <!-- add search history support -->
+    <script src="node_modules/codemirror/addon/dialog/dialog.js"></script>
+    <link rel="stylesheet" href="node_modules/codemirror/addon/dialog/dialog.css">
+    <script src="node_modules/codemirror/addon/search/searchcursor.js"></script>
+    <script src="cm-builder/search-hack.js"></script> <!-- add search history support -->
 
-    <script src="cm/addon/search/match-highlighter.js"></script>
+    <script src="node_modules/codemirror/addon/search/match-highlighter.js"></script>
 
-    <script src="cm/addon/search/jump-to-line.js"></script>
+    <script src="node_modules/codemirror/addon/search/jump-to-line.js"></script>
 
-    <script src="cm/mode/css/css.js"></script>
+    <script src="node_modules/codemirror/mode/css/css.js"></script>
 
-    <script src="cm/addon/hint/css-hint.js"></script>
+    <script src="node_modules/codemirror/addon/hint/css-hint.js"></script>
 
-    <script src="cm/mode/xml/xml.js"></script>
-    <script src="cm/mode/htmlmixed/htmlmixed.js"></script>
+    <script src="node_modules/codemirror/mode/xml/xml.js"></script>
+    <script src="node_modules/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 
-    <script src="cm/addon/hint/xml-hint.js"></script>
-    <script src="cm/addon/hint/html-hint.js"></script>
+    <script src="node_modules/codemirror/addon/hint/xml-hint.js"></script>
+    <script src="node_modules/codemirror/addon/hint/html-hint.js"></script>
 
-    <script src="cm/addon/hint/anyword-hint.js"></script>
+    <script src="node_modules/codemirror/addon/hint/anyword-hint.js"></script>
 
-    <script src="cm/addon/mode/loadmode.js"></script>
-    <script src="cm/addon/mode/overlay.js"></script> <!-- needed by some mode such as markdown -->
-    <script src="cm/mode/meta.js"></script>
+    <script src="node_modules/codemirror/addon/mode/loadmode.js"></script>
+    <script src="node_modules/codemirror/addon/mode/overlay.js"></script> <!-- needed by some mode such as markdown -->
+    <script src="node_modules/codemirror/mode/meta.js"></script>
 
-    <script src="cm/addon/edit/closetag.js"></script>
+    <script src="node_modules/codemirror/addon/edit/closetag.js"></script>
 
-    <script src="jshint/jshint.js"></script>
-    <script src="cm-local/cm-jshint.js"></script>
+    <script src="node_modules/jshint/dist/jshint.js"></script>
+    <script src="cm-builder/cm-jshint.js"></script>
 
-    <script src="cm-local/colnummode.js"></script>
-    <script src="cm-local/execcommand.js"></script>
-    <script src="cm-local/cm-eval.js"></script>
+    <script src="cm-builder/colnummode.js"></script>
+    <script src="cm-builder/execcommand.js"></script>
+    <script src="cm-builder/cm-eval.js"></script>
     
-    <script src="cm-local/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
+    <script src="cm-builder/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
   
-    <script src="cm/addon/edit/trailingspace.js"></script>
-    <script src="cm-local/trailingspace-removal.js"></script>
+    <script src="node_modules/codemirror/addon/edit/trailingspace.js"></script>
+    <script src="cm-builder/trailingspace-removal.js"></script>
 
-    <script src="cm-local/font-size.js"></script>
+    <script src="cm-builder/font-size.js"></script>
 
-    <script type="text/javascript" src="cm-local/functionchain.js"></script>
+    <script type="text/javascript" src="cm-builder/functionchain.js"></script>
 
-    <link rel="stylesheet" href="cm/theme/eclipse.css" />
-    <link rel="stylesheet" href="cm/theme/blackboard.css" />
-    <link rel="stylesheet" href="cm/theme/rubyblue.css" />
+    <link rel="stylesheet" href="node_modules/codemirror/theme/eclipse.css" />
+    <link rel="stylesheet" href="node_modules/codemirror/theme/blackboard.css" />
+    <link rel="stylesheet" href="node_modules/codemirror/theme/rubyblue.css" />
 
-    <link rel="stylesheet" href="cm-local/cm-init.css"> <!-- for features in cm-init.js  -->
+    <link rel="stylesheet" href="cm-builder/cm-init.css"> <!-- for features in cm-init.js  -->
     <link rel="stylesheet" href="cm-customization.css"> <!-- optional customization, overriding CM defaults  -->
     <link rel="stylesheet" href="style.css"> <!-- added last to override any CM styles -->
   
-    <script src="cm-local/bindcommand.js"></script> <!-- needs functionchain -->
-    <script src="cm-local/cm-init.js"></script>
+    <script src="cm-builder/bindcommand.js"></script> <!-- needs functionchain -->
+    <script src="cm-builder/cm-init.js"></script>
     <script src="editor-ioctrl.js"></script>
     <script src="editor-uictrl.js"></script>
     <script src="editor-help.js"></script>

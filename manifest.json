@@ -1,9 +1,9 @@
 {
-  "name": "CodeMirror",
-  "version": "0.3.5",
+  "name": "CMACS",
+  "version": "0.4.0",
   "manifest_version": 2,
   "minimum_chrome_version": "36",
-  "description": "A local code editor based on CodeMirror, configured to support HTML/CSS/Javascript development, though it can be used for other purposes.",
+  "description": "A local code editor based on CodeMirror, inspired by eMACS; and is configured to support HTML/CSS/Javascript development. It supports numerous other programming languages.",
   "app": {
     "background": {
       "scripts": ["background.js"]
@@ -11,7 +11,7 @@
   },
   
   // for implementing evalXXX commands
-  "sandbox": {"pages": ["cm-local/cm-eval-sandbox.html"] }, 
+  "sandbox": {"pages": ["cm-builder/cm-eval-sandbox.html"] }, 
     
   "permissions": [
     {"fileSystem": ["write", "retainEntries"]},

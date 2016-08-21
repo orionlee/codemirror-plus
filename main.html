@@ -28,7 +28,7 @@
     <script src="node_modules/codemirror/addon/fold/comment-fold.js"></script>
     <link rel="stylesheet" href="node_modules/codemirror/addon/fold/foldgutter.css" />
     <script src="node_modules/codemirror/addon/fold/foldgutter.js"></script>
-             
+
     <script src="node_modules/codemirror/addon/dialog/dialog.js"></script>
     <link rel="stylesheet" href="node_modules/codemirror/addon/dialog/dialog.css">
     <script src="node_modules/codemirror/addon/search/searchcursor.js"></script>
@@ -62,13 +62,13 @@
     <script src="cm-builder/colnummode.js"></script>
     <script src="cm-builder/execcommand.js"></script>
     <script src="cm-builder/cm-eval.js"></script>
-    
-    <script src="cm-builder/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
-  
-    <script src="node_modules/codemirror/addon/edit/trailingspace.js"></script>
-    <script src="cm-builder/trailingspace-removal.js"></script>
 
-    <script src="cm-builder/font-size.js"></script>
+    <script src="cm-builder/show-hint-dialog.js"></script>  <!-- needed for execCommandInteractive's autocomplete feature -->
+
+    <script src="node_modules/codemirror/addon/edit/trailingspace.js"></script>
+    <script src="cm-builder/addon/edit/trailingspace-removal.js"></script>
+
+    <script src="cm-builder/addon/misc/font-size.js"></script>
 
     <script type="text/javascript" src="cm-builder/functionchain.js"></script>
 
@@ -79,7 +79,7 @@
     <link rel="stylesheet" href="cm-builder/cm-init.css"> <!-- for features in cm-init.js  -->
     <link rel="stylesheet" href="cm-customization.css"> <!-- optional customization, overriding CM defaults  -->
     <link rel="stylesheet" href="style.css"> <!-- added last to override any CM styles -->
-  
+
     <script src="cm-builder/bindcommand.js"></script> <!-- needs functionchain -->
     <script src="cm-builder/cm-init.js"></script>
     <script src="editor-ioctrl.js"></script>
@@ -92,8 +92,8 @@
 
 <body>
 <div id="win"> <!-- -->
-  
-  <div class="buttons"> 
+
+  <div class="buttons">
     <button title="New file in new window" id="new"> <img src="img/16x16/file_add.png"/><span class="accessKey">N</span>ew  </button>
     <button title="Open file..." id="open"><img src="img/16x16/file.png"/>  <span class="accessKey">O</span>pen </button>
     <button id="openRecent" accessKey="R" title="Press Alt-R, then 0 - 9 (0 means 10), to access list of recent files.">&dtrif;</button>
@@ -106,7 +106,7 @@
   <div id="editor"></div>
 
 
-  <div id="info" class="CodeMirror"> <!-- add CodeMirror class to have consistent fonts, etc. -->  
+  <div id="info" class="CodeMirror"> <!-- add CodeMirror class to have consistent fonts, etc. -->
     <label>Filename: </label><span id="title"></span>
     <label>Mode: </label><span id="mode"></span>
     <span id="_codeModeModifier"></span>
@@ -114,12 +114,12 @@
       <label>Search:</label><span id="numMatched">0</span>matched
    </span>
   </div>
-  
-   <div id="error" style="z-index: 10; width: 90%; height: auto; position: fixed; left: 30px; top: 30px; 
-              border: 1px solid #666666; border-radius: 12px; background-color: rgba(255, 255, 0, 0.95); padding: 6px; 
+
+   <div id="error" style="z-index: 10; width: 90%; height: auto; position: fixed; left: 30px; top: 30px;
+              border: 1px solid #666666; border-radius: 12px; background-color: rgba(255, 255, 0, 0.95); padding: 6px;
               box-shadow: 6px 8px 8px #999999; display: none;">
     <!-- a text based alert icon (exclamation -->
-    <div style="float: left; height: 100%; font-size: 36px; font-weight: bold; margin-right: 6px; 
+    <div style="float: left; height: 100%; font-size: 36px; font-weight: bold; margin-right: 6px;
 position: relative;top: -3px; color: white; background-color: red; border: 1px solid red; border-radius: 36px;  font-family: Verdana, sans-serif;">&nbsp;!!&nbsp;</div>
     <div id="errormsg"></div>
     <div>
@@ -128,8 +128,8 @@ position: relative;top: -3px; color: white; background-color: red; border: 1px s
   </div> <!-- id="error" -->
 
     <!-- Help pop-in; -->
-  <div id="_helpDiv" style="font-size: small; padding: 24px; z-index: 99; position: absolute; top: 50px; left: 30px; 
-border: 2px solid gray; border-radius: 10px; color: white; background-color: rgba(51, 51, 51, 0.95); 
+  <div id="_helpDiv" style="font-size: small; padding: 24px; z-index: 99; position: absolute; top: 50px; left: 30px;
+border: 2px solid gray; border-radius: 10px; color: white; background-color: rgba(51, 51, 51, 0.95);
 overflow-y: auto; height: 380px; width: 780px; display: none;" >
   <style type="text/css">
     #_helpDiv dt { color: gold; }
@@ -161,15 +161,15 @@ overflow-y: auto; height: 380px; width: 780px; display: none;" >
     </dt>
     <dd>Fold / Unfold a block</dd>
   </dl>
-  
+
   <a id="_ctl_keybindings" style="color: white;" href="javascript:void();">More key bindings >></a>
-  
+
   <div id="_keybindings"></div> <!-- to be filled-in programmatically if needed -->
-  
+
   <a id="_ctl_commands" style="color: white; margin-top: 12px; display: block;" href="javascript:void();">List commands >></a>
-  
+
   <div id="_commands"></div> <!-- to be filled-in programmatically if needed -->
-  
+
   </div> <!-- id="_helpDiv" -->
 
 </div> <!-- id="win" -->

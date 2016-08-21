@@ -1,22 +1,32 @@
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("codemirror/lib/codemirror"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["codemirror/lib/codemirror"], mod);
   else // Plain browser env
     mod(CodeMirror);
-})(function(CodeMirror) {
+})(function(
+   /**
+    * Add removeTrailingSpace facilties to CodeMirror.
+    * - an option remove traling space upon newline:
+    * - a command to remove all trailing spaces of the current file
+    *
+    * @exports CodeMirror
+    */
+   CodeMirror) {
 
-  // Define a new option for newlineAndIndent:
-  //   newlineAndIndent: { removeTrailingSpace: true}
-  // If removeTrailingSpace is set to true, then upon newline, 
-  // the trailing spaces of the previous line will be removed
-  // 
-  // It is done by patching built-in newlineAndIndent command
+  /**
+   * Define a new option for newlineAndIndent:
+   *   newlineAndIndent: { removeTrailingSpace: true}
+   * If removeTrailingSpace is set to true, then upon newline,
+   * the trailing spaces of the previous line will be removed
+   *
+   * Internally, it is done by patching built-in newlineAndIndent command
+   */
   function initNewlineAndIndentPatchOnTrailingSpace(CodeMirror) {
     if (CodeMirror.commands._newlineAndIndentOriginal) {
       if (console && console.warn) {
-        console.warn('initNewlineAndIndentPatchOnTrailingSpace(): patch has previously been applied. Skip it');        
+        console.warn('initNewlineAndIndentPatchOnTrailingSpace(): patch has previously been applied. Skip it');
       }
       return;
     }
@@ -48,9 +58,9 @@
   } // function initNewlineAndIndentPatchOnTrailingSpace(..)
 
 
-  //
-  // Define command removeAllTrailingSpaces(cm)
-  //
+  /**
+   * Define command removeAllTrailingSpaces(cm)
+   */
   function initRemoveAllTrailingSpaces(CodeMirror) {
     function removeAllTrailingSpaces(cm) {
       var lines = cm.getValue().split(/[\n\r]/);
@@ -67,7 +77,7 @@
         var newText = newLines.join(cm.doc.lineSeparator());
         cm.setValue(newText);
       }
-      // else do nothing: avoid unnecessarily doing cm.setValue(), 
+      // else do nothing: avoid unnecessarily doing cm.setValue(),
       // which will change the state of the doc and mark it as dirty.
 
     } // function removeAllTrailingSpaces(..)
@@ -80,8 +90,8 @@
 
   //
   // main logic
-  // 
+  //
   initNewlineAndIndentPatchOnTrailingSpace(CodeMirror);
   initRemoveAllTrailingSpaces(CodeMirror);
-  
+
 });

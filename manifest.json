@@ -11,7 +11,7 @@
   },
   
   // for implementing evalXXX commands
-  "sandbox": {"pages": ["cm-builder/cm-eval-sandbox.html"] }, 
+  "sandbox": {"pages": ["cm-builder/addon/eval/cm-eval-sandbox.html"] }, 
     
   "permissions": [
     {"fileSystem": ["write", "retainEntries"]},

@@ -46,8 +46,6 @@ function createCodeMirror(cmElt, uiCtrl) {
   // if supplied with CodeMirror,
   //   the function changes CodeMirror class only, typically adding new commands
 
-  initEval(cm);
-
   initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 

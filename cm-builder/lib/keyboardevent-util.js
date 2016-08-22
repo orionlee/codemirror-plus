@@ -1,8 +1,15 @@
-window.KeyboardEventUtl = (function(win) {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    module.exports = mod();
+  else if (typeof define == "function" && define.amd) // AMD
+    return define([], mod);
+  else // Plain browser env
+    (this || window).KeyboardEventUtl = mod(this || window);
+})(function(global) {
   "use strict";
 
   // import from globals
-  var TypeError = win.TypeError;
+  var TypeError = global.TypeError;
   
   
   /**
@@ -52,7 +59,9 @@ window.KeyboardEventUtl = (function(win) {
   } // function codeEquals(..)  
   
 
-  return {
+  var KeyboardEventUtl = {
     codeEquals: codeEquals, 
   };
-})(window); // window.KeyboardEventUtl = (function())
+
+  return KeyboardEventUtl;
+});

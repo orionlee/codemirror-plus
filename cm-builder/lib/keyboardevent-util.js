@@ -4,14 +4,10 @@
   else if (typeof define == "function" && define.amd) // AMD
     return define([], mod);
   else // Plain browser env
-    (this || window).KeyboardEventUtl = mod(this || window);
-})(function(global) {
+    (this || window).KeyboardEventUtl = mod();
+})(function() {
   "use strict";
-
-  // import from globals
-  var TypeError = global.TypeError;
-  
-  
+    
   /**
    * Determine if a certain key is pressed. Use case is for handling hot keys.
    * 

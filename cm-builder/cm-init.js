@@ -46,10 +46,6 @@ function createCodeMirror(cmElt, uiCtrl) {
   // if supplied with CodeMirror,
   //   the function changes CodeMirror class only, typically adding new commands
 
-  // useful in cases where some command is defined but not exposed in UI
-  // (This is done in a style similar to emacs)
-  initExecCommand(cm);
-
   initEval(cm);
 
   initColumNumberMode(cm, uiCtrl);

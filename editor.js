@@ -10,9 +10,7 @@ function editorAppInit(window) {
       KeyboardEventUtl = window.KeyboardEventUtl;
   
   // globals defined in other cmacs top-level script
-  var createCodeMirror = window.createCodeMirror, 
-      initCodeMirror4Mode = window.initCodeMirror4Mode, 
-      createIOCtrl = window.createIOCtrl, 
+  var createIOCtrl = window.createIOCtrl, 
       createEditorUICtrl = window.createEditorUICtrl, 
       bindCommand = window.bindCommand, 
       initHelpUI = window.initHelpUI;
@@ -67,7 +65,7 @@ function editorAppInit(window) {
       _uiCtrl.setMode(info.name);
       editor.setOption("mode", info.mime);
       CodeMirror.autoLoadMode(editor, info.mode);
-      initCodeMirror4Mode(editor, info.mode, _uiCtrl);
+      CodeMirror.builder.initMode(editor, info.mode, _uiCtrl);
     } // else mode not changed. no-op
     
     // manually fire the change event as document just loaded
@@ -323,7 +321,7 @@ chrome.contextMenus.onClicked.addListener(function(info) {
                                  handleSaveButton, 
                                  handleSaveAsButton);
     
-    editor = createCodeMirror(document.getElementById("editor"), _uiCtrl);
+    editor = CodeMirror.builder.create(document.getElementById("editor"), _uiCtrl);
     CodeMirror.modeURL = "node_modules/codemirror/mode/%N/%N.js";  // one-time init for autoload mode feature
     window.editor = editor; // the top level export, entry point to the created editor
     

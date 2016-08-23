@@ -1,13 +1,28 @@
-/**
- * This file encapsulates functions that creates and initalizes CodeMirror instances
- * with mode-appropriate feature.
- *
- * It is agnostic to the parent UI, hence there is no DOM access here
- * (no document, window, etc.) . The necessary parent UI access is provided via uiCtrl object.
- *
- */
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("codemirror/lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["codemirror/lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(
+   /**
+    * Add CodeMirror.builder, whichencapsulates functions that creates and
+    * initalizes CodeMirror instances with mode-appropriate feature.
+    * It provides 2 convenient functions:
+    * - create(cmElt, uiCtrl): to create the pre-configured CodeMirror instance
+    * - initMode(cm, mode, uiCtrl): additional mode-specific configuration
+    *
+    * On uiCtrl parameter: encapsulates the parent UI (outside of CodeMirror)
+    * that is needed, e.g., uiCtrl.setMode(modeName) allows the parent UI to show
+    * the current mode.
+    *
+    * @exports CodeMirror
+    */
+   CodeMirror) {
+   "use strict";
 
-// main entry point: for initial creation
+  // main entry point: for initial creation
 function createCodeMirror(cmElt, uiCtrl) {
 
   var cm = CodeMirror(cmElt, {
@@ -161,7 +176,7 @@ function initSetModeInterActive(CodeMirror, uiCtrl) {
     function doSetMode(modeName) {
       var info = CodeMirror.findModeByName(modeName);
       if (info) {
-        // copied from editor.js:handleDocumentChange() To be refactored
+        // Issue: logic copied from editor.js:handleDocumentChange() To be refactored
         uiCtrl.setMode(info.name);
         cm.setOption("mode", info.mime);
         CodeMirror.autoLoadMode(cm, info.mode);
@@ -404,7 +419,9 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
   // main logic
   //
 
+  /*jshint sub:true*/
   var modeInitFunc = initFunc4Mode[mode] || initFunc4Mode['none'];
+  /*jshint sub:false*/
   try {
     modeInitFunc(cm);
   } catch(e) {
@@ -415,3 +432,12 @@ function initCodeMirror4Mode(cm, mode, uiCtrl) {
   }
 
 } // function initCodeMirror4Mode()
+
+  // Set the exports
+  var builder = {
+    create: createCodeMirror,
+    initMode: initCodeMirror4Mode
+  };
+  CodeMirror.builder = builder;
+
+});

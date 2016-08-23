@@ -49,6 +49,8 @@ function createCodeMirror(cmElt, uiCtrl) {
   initColumNumberMode(cm, uiCtrl);
   cm.execCommand('toggleColumNumberMode'); // enable by default
 
+  initSetModeInterActive(CodeMirror, uiCtrl);
+
   // bind anyword-hint to Ctrl-/ for a non mode-specific autocomplete (fallback for user)
   //  It is in the spirit of emacs M-/ dabbrev-expand
   bindCommand(cm, 'autocompleteAnyword', {keyName: "Ctrl-/" }, function(cm) {
@@ -148,6 +150,40 @@ function initColumNumberMode(cm, uiCtrl) {
   });
   bindCommand(cm, 'toggleColumNumberMode', {}, toggleColumNumberMode);
 }
+
+// Issues to resolve if it is to be provided as a addon:
+// - how to make it not tied to cm-builder
+//   - how to deal with  uiCtrl
+//   - how to set initCodeMirror4Mode() without explicitly calling it
+// Note: as it is, uiCtrl passed here does not work well with multiple CM instances
+function initSetModeInterActive(CodeMirror, uiCtrl) {
+  function setModeInterActive(cm) {
+    function doSetMode(modeName) {
+      var info = CodeMirror.findModeByName(modeName);
+      if (info) {
+        // copied from editor.js:handleDocumentChange() To be refactored
+        uiCtrl.setMode(info.name);
+        cm.setOption("mode", info.mime);
+        CodeMirror.autoLoadMode(cm, info.mode);
+        initCodeMirror4Mode(cm, info.mode, uiCtrl);
+      } else {
+        cm.openDialog('<div style="background-color: yellow; width: 100%">&nbsp;' +
+                      '<button type="button">Ok</button><span style="color: red;">Mode ' +
+                      modeName + ' not found.</span></div>');
+      }
+    } // function doSetMode(..)
+
+    var dialogId = 'ctl_mode_' + Date.now();
+    cm.openDialog('Enter mode: <input type="text" style="width: 10em;" id= "' + dialogId + '" />',
+                  doSetMode);
+    // TODO: consider to supply showhint with list of names
+    //   CodeMirror.modeInfo.map(function(i) { return i.name; })
+  } // function setModeInterActive()
+
+  CodeMirror.commands.setModeInterActive = setModeInterActive;
+
+} // function initSetModeInterActive(..)
+
 
 function initSelectFold(cm) {
   function selectFold(cm) {

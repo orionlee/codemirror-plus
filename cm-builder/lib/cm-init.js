@@ -94,8 +94,7 @@
     // if supplied with CodeMirror,
     //   the function changes CodeMirror class only, typically adding new commands
 
-    initColumNumberMode(cm, uiCtrl);
-    cm.execCommand('toggleColumNumberMode'); // enable by default
+    initColumnNumberMode(cm, uiCtrl);
 
     initSetModeInterActive(CodeMirror, uiCtrl);
 
@@ -186,8 +185,8 @@
   } // function extendSearchUI(..)
 
 
-  function initColumNumberMode(cm, uiCtrl) {
-    var toggleColumNumberMode = createToggleColumNumberMode(function(enabled, pos) {
+  function initColumnNumberMode(cm, uiCtrl) {
+    function columnNumberModeCallback(enabled, pos) {
       var modType = "colNumMode";
       if (enabled) {
         var text = 'Ch:' + (1 + pos.ch); // pos is 0-based while people prefer 1-based
@@ -195,8 +194,9 @@
       } else {
         uiCtrl.codeModeModifier.remove(modType);
       }
-    });
-    bindCommand('toggleColumNumberMode', {}, toggleColumNumberMode);
+    } // function columnNumberModeCallback;
+
+    cm.setOption("columnNumberMode", {enabled: true, callback: columnNumberModeCallback});
   }
 
   // Issues to resolve if it is to be provided as a addon:

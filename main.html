@@ -55,11 +55,30 @@
 
     <script src="node_modules/codemirror/addon/edit/closetag.js"></script>
 
-    <script src="node_modules/jshint/dist/jshint.js"></script>
 
     <link rel="stylesheet" href="node_modules/codemirror/addon/lint/lint.css">
     <script src="node_modules/codemirror/addon/lint/lint.js"></script>
+
+    <script src="node_modules/jshint/dist/jshint.js"></script>
     <script src="node_modules/codemirror/addon/lint/javascript-lint.js"></script>
+
+    <script src="node_modules/jsonlint/lib/jsonlint.js"></script>
+    <script src="node_modules/codemirror/addon/lint/json-lint.js"></script>
+
+    <!-- csslint not very useful for the time being
+      1. the default rule set is quite restrive, e.g., warning upon properties
+         not in alphabetical order
+      2. the CM addon css-lint.js does not expose options to customize the underlying CSSLint
+      3. the distributed (as of v1.0.2) csslint.js breaks CodeMirror in browser mode, because
+         it pollutes the global namespaces with dummy export and module, making CodeMirror
+         mistakenly running in CommonJS mode
+      4. the NPM distribution (I tried to use it once) only works in node.js environment
+      <script src="third-party/csslint/csslint.js"></script> 
+      <script src="node_modules/codemirror/addon/lint/css-lint.js"></script>
+    -->
+
+    <script src="node_modules/htmlhint/lib/htmlhint.js"></script>
+    <script src="node_modules/codemirror/addon/lint/html-lint.js"></script>
 
     <script src="cm-builder/addon/misc/colnummode.js"></script>
     <script src="cm-builder/addon/execcommand/execcommand.js"></script>

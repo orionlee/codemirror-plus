@@ -111,6 +111,8 @@
     initToggleShowTrailingSpace(CodeMirror);
     cm.setOption('newlineAndIndent', {removeTrailingSpace: true} ); // depends on trailingspace-removal.js
 
+    initLint(cm, uiCtrl);
+
     return cm;
   } // function createCodeMirror
 
@@ -333,6 +335,73 @@
   } // function initToggleShowTrailingSpace()
 
 
+  function initLint(cm, uiCtrl) {
+
+    // the logic that updates uiCtrl
+    function showLintStatus(enabed, numIssues) {
+      var modType = 'Lint';
+      if (enabed) {
+        var msg = numIssues ? '[Lint:' + numIssues + ']' : '[Lint]' ;
+        uiCtrl.codeModeModifier.update(modType, msg);
+      } else {
+        uiCtrl.codeModeModifier.remove(modType);
+      }
+    } // function showLintStatus(..)
+
+    function onUpdateLinting(annotationsNotSorted, annotations, cm) {
+      if (!annotationsNotSorted) { // if set to null, indicate lint is off
+        showLintStatus(false);
+        return;
+      }
+
+      var numIssues = annotationsNotSorted.filter(function(ann) {
+        // underlying JSHINT will return warnings that are not related to the code
+        // but of JSHINT config itself (due to lint.js passing non JSHINT-relevant options over)
+        // , e.g., "Bad option: 'onUpdateLinting'."
+        //
+        return (ann.from.line >= 0);
+      }).length;
+      showLintStatus(true, numIssues);
+    } // function onUpdateLinting(..)
+
+    function disableLint(cm) {
+      cm.setOption('lint', false);
+      if (cm._onUpdateLinting) {
+        cm._onUpdateLinting(null); // Update UI to show Lint disabled altogher.
+      }
+    } // function disableLint(..)
+
+    function enableLint(cm) {
+      cm.setOption('lint', { onUpdateLinting: cm._onUpdateLinting,
+                            /// lintOnChange: false
+                            });
+
+    } // function enableLint(..)
+
+    function toggleLint(cm) {
+      if (cm.getOption('lint')) {
+        disableLint(cm);
+      } else {
+        enableLint(cm);
+      }
+    } // function toggleLint(..)
+
+    // add lint-markers to CM instance
+    var gutters = cm.getOption('gutters');
+    gutters.push("CodeMirror-lint-markers");
+    cm.setOption('gutters', gutters);
+
+    // Set the CM instance / UICtrl specific update
+    // to the instance itself
+    // This is done so that the commands (non-instance specific)
+    // can work on any CM instances, provied _onUpdateListing is set correctly.
+    cm._onUpdateLinting = onUpdateLinting;
+
+    // Note: the commands are
+    bindCommand('toggleLint',  {keyName: "F10" }, toggleLint);
+    bindCommand('enableLint',  {}, enableLint);
+    bindCommand('disableLint',  {}, disableLint);
+  } // function initLint(..)
   //
   // Below are features that are mode-specific
   //
@@ -349,24 +418,6 @@
   function initCodeMirror4Mode(cm, mode, uiCtrl) {
 
     var initFunc4Mode = (function() {
-
-      function initJsHint(cm)  {
-        // toggleJsHint is a command in the form of function(cm) {}
-        var cmds = createJsHintCommands(function(jsHintEnabled, numIssues) {
-          var modType = 'jsHint';
-          if (jsHintEnabled) {
-            var msg = numIssues ? '[JSHint:' + numIssues + ']' : '[JSHint]' ;
-            uiCtrl.codeModeModifier.update(modType, msg);
-          } else {
-            uiCtrl.codeModeModifier.remove(modType);
-          }
-        });
-
-        bindCommand('toggleJsHint',  {keyName: "F10" },
-          cmds.toggleJsHint);
-        bindCommand('enableJsHint',  {}, cmds.enableJsHint);
-        bindCommand('disableJsHint',  {}, cmds.disableJsHint);
-      }
 
       /**
        *  Patch javascript mode so that lines begin with
@@ -414,7 +465,6 @@
 
       var res = {
         javascript: function(cm) {
-          initJsHint(cm); // the syntax checker
           patchJsIndent(cm);
 
         }, // javascript : ...
@@ -425,8 +475,6 @@
 
         htmlmixed: function(cm) {
           var chain = true;
-
-          initJsHint(cm); // the syntax checker
 
           // MUST use setOption(), or the option's associated action won't take effect
           // indentTags is dervied from source htmlIndent list, the elements often include only (or mostly) text are taken out, mainly h1,2,3..., p, etc.

@@ -64,8 +64,7 @@
       lineWrapping: true,
       matchBrackets: true,
       autoCloseBrackets: true,
-      patchAutoCloseBracketsByCurlyWithNewline: true,  // MUST be defined after autoCloseBrackets
-      patchAutoCloseBracketsSkipCommentline: true, // MUST be defined after all closeBrackets option
+      patchAutoCloseBrackets4Javascript: true,  // MUST be defined after autoCloseBrackets
       highlightSelectionMatches: false, // possibly troublesome when I select large amount of text
       extraKeys: {
         "Ctrl-I": "indentAuto",

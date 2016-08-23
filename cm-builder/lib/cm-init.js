@@ -22,7 +22,40 @@
      CodeMirror) {
      "use strict";
 
-    // main entry point: for initial creation
+   /**
+   * Utility to bind a CodeMirror command function, of the form function(cm) ,
+   * to CodeMirror (class) with a given name, and optionally bind the command
+   * to given instance with given keys.
+   * @param opts keyName property, a string of an array of string of keys to be bounded to the command
+   */
+  function bindCommand(cmdName, opts, cmdFunc) {
+
+    function bindExtraKey(keyName) {
+      var keyMap = CodeMirror.keyMap["default"];
+
+      if (keyMap[keyName]) {
+        console.warn('bindCommand: key %s already bound to %s. Rebinding it with %s', keyName, keyMap[keyName], cmdName);
+      }
+
+      keyMap[keyName] = cmdName;
+    } // function bindExtraKey(..)
+
+    // Possible to support chaining on existing command
+    CodeMirror.commands[cmdName] = cmdFunc;
+
+    if (opts.keyName) {
+      if (opts.keyName instanceof Array) {
+        opts.keyName.forEach(function (k) {
+          bindExtraKey(k);
+        });
+      } else { // normal case, single key
+        bindExtraKey(opts.keyName);
+      }
+    }
+
+  } // function bindCommand()
+
+  // main entry point: for initial creation
   function createCodeMirror(cmElt, uiCtrl) {
 
     var cm = CodeMirror(cmElt, {
@@ -68,8 +101,8 @@
 
     // bind anyword-hint to Ctrl-/ for a non mode-specific autocomplete (fallback for user)
     //  It is in the spirit of emacs M-/ dabbrev-expand
-    bindCommand(cm, 'autocompleteAnyword', {keyName: "Ctrl-/" }, function(cm) {
-      editor.showHint({hint: CodeMirror.helpers.hint.anyword});
+    bindCommand('autocompleteAnyword', {keyName: "Ctrl-/" }, function(cm) {
+      cm.showHint({hint: CodeMirror.helpers.hint.anyword});
     });
 
     initSelectFold(cm);
@@ -163,7 +196,7 @@
         uiCtrl.codeModeModifier.remove(modType);
       }
     });
-    bindCommand(cm, 'toggleColumNumberMode', {}, toggleColumNumberMode);
+    bindCommand('toggleColumNumberMode', {}, toggleColumNumberMode);
   }
 
   // Issues to resolve if it is to be provided as a addon:
@@ -260,7 +293,7 @@
       }
     } // function selectFold()
 
-    bindCommand(cm, 'selectFold', {keyName: "Ctrl-Alt-Q" }, selectFold);
+    bindCommand('selectFold', {keyName: "Ctrl-Alt-Q" }, selectFold);
 
   }
 
@@ -285,7 +318,7 @@
       });
     }
 
-    bindCommand(cm, 'selectToLineInteractive', {keyName: "Ctrl-Alt-G" }, selectToLineInteractive);
+    bindCommand('selectToLineInteractive', {keyName: "Ctrl-Alt-G" }, selectToLineInteractive);
 
   }
 
@@ -330,10 +363,10 @@
           }
         });
 
-        bindCommand(cm, 'toggleJsHint',  {keyName: "F10" },
+        bindCommand('toggleJsHint',  {keyName: "F10" },
           cmds.toggleJsHint);
-        bindCommand(cm, 'enableJsHint',  {}, cmds.enableJsHint);
-        bindCommand(cm, 'disableJsHint',  {}, cmds.disableJsHint);
+        bindCommand('enableJsHint',  {}, cmds.enableJsHint);
+        bindCommand('disableJsHint',  {}, cmds.disableJsHint);
       }
 
       /**

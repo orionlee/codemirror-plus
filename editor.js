@@ -12,7 +12,6 @@ function editorAppInit(window) {
   // globals defined in other cmacs top-level script
   var createIOCtrl = window.createIOCtrl, 
       createEditorUICtrl = window.createEditorUICtrl, 
-      bindCommand = window.bindCommand, 
       initHelpUI = window.initHelpUI;
   
   var editor; // abstraction over entire editor
@@ -147,8 +146,9 @@ function editorAppInit(window) {
       
       // select div#id, as the typical use case is to remove them (to be replaced by copy-pasted one)
       editor.setSelection(CodeMirror.Pos(bookR.from.line, 0), CodeMirror.Pos(bookR.to.line+1, 0));
-      
-      bindCommand(editor, 'selectFlagsH1Text', {keyName: "Ctrl-H"}, selectFlagsH1Text);
+
+      CodeMirror.commands.selectFlagsH1Text = selectFlagsH1Text;
+      editor.options.extraKeys["Ctrl-H"] = 'selectFlagsH1Text';
       editor.openDialog('<button>Ok</button> Ctrl-H to select / copy &lt;H1> Text to paste as filename');
     }
     
@@ -332,8 +332,9 @@ chrome.contextMenus.onClicked.addListener(function(info) {
     
     // finally exwant to bind Ctrl-W, but Ctrl-W is also used in emacs for 
     // very different reasons. So aovid it to reduce chances of accidental exit
-    bindCommand(editor, 'safeExitWindow', {keyName: ["Alt-F4", "Ctrl-F4"] }, 
-                _uiCtrl.safeExitWindow);
+    editor.options.extraKeys["Alt-F4"] =
+      editor.options.extraKeys["Ctrl-F4"] =
+      _uiCtrl.safeExitWindow;
     
     // Prevent OS exit window key (Alt-F4, etc.) from propagating to the OS,
     // so that they can be handled by the editor binding above

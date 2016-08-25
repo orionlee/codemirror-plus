@@ -99,6 +99,11 @@ span.cm-comment { /* default make comment italic, easier to identify */
   background-repeat: repeat-x;
 }
 
+/* Make tooltip larger with more spacing so that it is easier to mouseover */
+.CodeMirror-lint-tooltip {
+  font-size: 100%;
+  padding: 0.5em 1.5ch;
+}
 
 /* make tab visible */
 .cm-tab {

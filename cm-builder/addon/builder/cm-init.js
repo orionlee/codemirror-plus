@@ -131,7 +131,7 @@
     }
 
     // the observer/Eventlistener-like callback to be used to trigger UI
-    function onSearchChange(query) {
+    function onSearchChange(cm, query) {
       // built-in search only searches one at a time and does not provide count
       // hence we are doing a separate search to get the count
       // a caveat is when the editor content changes, the count does not change.

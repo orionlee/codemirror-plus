@@ -64,7 +64,7 @@
     get: function() { return this._query; },
     set: function(val) {
       this._query = val;
-      CodeMirror.signal(this.cm, "search", val);
+      CodeMirror.signal(this.cm, "search", this.cm, val);
     }
   });
 
@@ -158,7 +158,7 @@
         CodeMirror.e_stop(event);
         if (!query) return;
         // the query text for persistent search finalized, fire event
-        CodeMirror.signal(cm, "searchEntered", query);
+        CodeMirror.signal(cm, "searchEntered", cm, query);
         if (query != state.queryText) {
           startSearch(cm, state, query);
           state.posFrom = state.posTo = cm.getCursor();
@@ -194,7 +194,7 @@
       dialog(cm, queryDialog, "Search for:", q, function(query) {
         if (query && !state.query) cm.operation(function() {
           // the query text for regulaer search entered, fire event
-          CodeMirror.signal(cm, "searchEntered", query);
+          CodeMirror.signal(cm, "searchEntered", cm, query);
           startSearch(cm, state, query);
           state.posFrom = state.posTo = cm.getCursor();
           findNext(cm, rev);
@@ -248,11 +248,11 @@
     dialog(cm, dialogText + replaceQueryDialog, dialogText, query, function(query) {
       if (!query) return;
       // the query text for search-replace entered. fire event
-      CodeMirror.signal(cm, "searchEntered", query)
+      CodeMirror.signal(cm, "searchEntered", cm, query)
       query = parseQuery(query);
       dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
         // the replace text for search-replace entered. fire event
-        CodeMirror.signal(cm, "replaceEntered", text)
+        CodeMirror.signal(cm, "replaceEntered", cm, text)
         text = parseString(text)
         if (all) {
           replaceAll(cm, query, text)

@@ -102,7 +102,7 @@
   // Setup the hooks to main search addon
   function extendSearchWithAutoComplete(cm) {
     
-    function addToSearchHistory(query) {
+    function addToSearchHistory(cm, query) {
       getSearchHistory(cm).add(query);
     } // function addToSearchHistory()
 

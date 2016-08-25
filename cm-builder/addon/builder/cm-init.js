@@ -107,7 +107,8 @@
     initSelectFold(cm);
     initSelectToLine(cm);
 
-    extendSearchUI(cm, uiCtrl);
+    extendSearchUI(cm, uiCtrl); // to show num. of matches
+    CodeMirror.extendSearchWithAutoComplete(cm);
 
     initToggleShowTrailingSpace(CodeMirror);
     cm.setOption('newlineAndIndent', {removeTrailingSpace: true} ); // depends on trailingspace-removal.js

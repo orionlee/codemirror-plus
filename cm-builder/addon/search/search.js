@@ -11,7 +11,7 @@
 
 //
 // Forked from: CodeMirror v5.18.1
-// 
+//
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"), require("./searchcursor"), require("../dialog/dialog"));
@@ -19,7 +19,20 @@
     define(["../../lib/codemirror", "./searchcursor", "../dialog/dialog"], mod);
   else // Plain browser env
     mod(CodeMirror);
-})(function(CodeMirror) {
+})(function(
+   /**
+    * Fork extension: emit events (on CodeMirror instance) to support additional customization
+    * - searchDialog: when search dialog (or replace dialog) is shown,
+    *   providing search/replace field DOM element.
+    * - searchEntered : when search text is entered, providing the text entered.
+    * - replaceEntered: when replace text is entered, providing the text entered.
+    * - search: when a new search is about to be performed (NOT search-replace).
+    *
+    * @see search-autocomplete.js how some of the events are used
+    *
+    * @exports CodeMirror
+    */
+   CodeMirror) {
   "use strict";
 
   function searchOverlay(query, caseInsensitive) {
@@ -47,9 +60,9 @@
     this.overlay = null;
     this.cm = cm;
   }
-  Object.defineProperty(SearchState.prototype, 'query', { 
-    get: function() { return this._query; }, 
-    set: function(val) { 
+  Object.defineProperty(SearchState.prototype, 'query', {
+    get: function() { return this._query; },
+    set: function(val) {
       this._query = val;
       CodeMirror.signal(this.cm, "search", val);
     }
@@ -73,14 +86,25 @@
       value: deflt,
       selectValueOnOpen: true,
       closeOnEnter: false,
+      closeOnBlur: false, // needed to support autocomplete extension
       onClose: function() { clearSearch(cm); },
       onKeyDown: onKeyDown
     });
+    var inpElt = cm.getWrapperElement().getElementsByClassName('CodeMirror-search-field')[0];
+    CodeMirror.signal(cm, "searchDialog", cm, inpElt);
   }
 
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
-    else f(prompt(shortText, deflt));
+    if (cm.openDialog) {
+      cm.openDialog(text, f, {value: deflt,
+                              selectValueOnOpen: true,
+                              closeOnBlur: false // needed to support autocomplete extension
+                             });
+      var inpElt = cm.getWrapperElement().getElementsByClassName('CodeMirror-search-field')[0];
+      CodeMirror.signal(cm, "searchDialog", cm, inpElt);
+    } else {
+      f(prompt(shortText, deflt));
+    }
   }
 
   function confirmDialog(cm, text, shortText, fs) {
@@ -133,6 +157,8 @@
       var searchNext = function(query, event) {
         CodeMirror.e_stop(event);
         if (!query) return;
+        // the query text for persistent search finalized, fire event
+        CodeMirror.signal(cm, "searchEntered", query);
         if (query != state.queryText) {
           startSearch(cm, state, query);
           state.posFrom = state.posTo = cm.getCursor();
@@ -167,6 +193,8 @@
     } else {
       dialog(cm, queryDialog, "Search for:", q, function(query) {
         if (query && !state.query) cm.operation(function() {
+          // the query text for regulaer search entered, fire event
+          CodeMirror.signal(cm, "searchEntered", query);
           startSearch(cm, state, query);
           state.posFrom = state.posTo = cm.getCursor();
           findNext(cm, rev);
@@ -219,8 +247,12 @@
     var dialogText = all ? "Replace all:" : "Replace:"
     dialog(cm, dialogText + replaceQueryDialog, dialogText, query, function(query) {
       if (!query) return;
+      // the query text for search-replace entered. fire event
+      CodeMirror.signal(cm, "searchEntered", query)
       query = parseQuery(query);
       dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
+        // the replace text for search-replace entered. fire event
+        CodeMirror.signal(cm, "replaceEntered", text)
         text = parseString(text)
         if (all) {
           replaceAll(cm, query, text)

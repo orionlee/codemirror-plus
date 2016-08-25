@@ -267,7 +267,6 @@
   }
 
   // Issues to resolve if it is to be provided as a addon:
-  // - how to make it not tied to cm-builder
   //   - how to deal with  uiCtrl
   //   - how to set initCodeMirror4Mode() without explicitly calling it
   // Note: as it is, uiCtrl passed here does not work well with multiple CM instances

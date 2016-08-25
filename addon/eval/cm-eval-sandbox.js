@@ -44,13 +44,13 @@
               firstStackLine = lines[i];
             }
             // match pattern of
-            //   at eval (eval at <anonymous> (chrome-extension://hneablcelipadealmebgomejjmllfphg/cm-builder/cm-eval-sandbox.html:23:43), <anonymous>:6:3)
+            //   at eval (eval at <anonymous> (chrome-extension://hneablcelipadealmebgomejjmllfphg/codemirror-plus/cm-eval-sandbox.html:23:43), <anonymous>:6:3)
             //  (developer only cares about the end)
             line = line.replace(/^(\s*at\s+[^\s]+).*(<anonymous>:.+)[)]?$/, '$1 $2');
             newStack += ('\n' + line);
           }
           // skip the last line,  in the pattern of 
-          //   at chrome-extension://hneablcelipadealmebgomejjmllfphg/cm-builder/cm-eval-sandbox.html:23:28"
+          //   at chrome-extension://hneablcelipadealmebgomejjmllfphg/codemirror-plus/cm-eval-sandbox.html:23:28"
           
           var matchedSrc;
           if (firstStackLine) {

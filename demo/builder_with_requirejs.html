@@ -1,0 +1,139 @@
+<!doctype html>
+
+<head>
+  <title>CodeMirror Plus: builder addon with RequireJS demo</title>
+  <meta charset="utf-8"/>
+
+  <link rel="stylesheet" href="../../node_modules/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="../../node_modules/codemirror/addon/hint/show-hint.css">
+  <link rel="stylesheet" href="../../node_modules/codemirror/addon/fold/foldgutter.css" />
+  <link rel="stylesheet" href="../../node_modules/codemirror/addon/dialog/dialog.css">
+  <link rel="stylesheet" href="../../node_modules/codemirror/addon/lint/lint.css">
+  <link rel="stylesheet" href="../addon/builder/cm-init.css">
+  
+  <link rel="stylesheet" href="../../node_modules/codemirror/theme/blackboard.css" />
+  <script src="http://requirejs.org/docs/release/2.2.0/comments/require.js"></script>
+  <style type="text/css">
+    .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
+  </style>
+</head>
+
+<body>
+  <article>
+    <h2>CodeMirror Plus: builder addon with RequireJS module loading demo</h2>
+
+    <p>This demo loads its dependencies
+    with <a href="http://requirejs.org/">Require.js</a>, rather than
+    explicitly.</p>
+
+    <p>The bulk of the dependencies is handled by <code>CodeMirror.builder</code> addon. However, it still requires:</p>
+    <ol>
+      <li>The namespaces of various libaries be setup via <code>require.config()</code> .</li>
+      <li>CSS stylesheets be explicitly linked.</li>
+    </ol>
+
+    <div id="code"></div>
+    <div id="status" style="background-color: lightgray; font-family: monospace; padding-left: 1ch; padding-bottom: 0.3em; margin-bottom: 1em;">
+      <span id="mode">[HTML]</span>&emsp;<span id="colNumMode"></span>
+      &emsp;<span id="Lint"></span>
+      &emsp;<span id="searchStatus" style="background-color: yellow; font-size: 90%;"></span>
+    </div>
+
+    <div id="tip" style="font-size: 90%;">
+      Tips: Use <code>Alt-X</code> to run CodeMirror commands, <code>Ctrl-Space</code> for auto complete, <code>Ctrl-F</code> for search, <code>F10</code> to toggle lint on/off.
+    </div>
+    <button id="markdown">Dynamically load Markdown mode</button>
+    &emsp;
+    <button id="themeCtl">Toggle Theme</button>
+
+    <script type="text/javascript">
+      // BEGIN bare-bone uiCtrl used by CodeMirror.builder.create()
+      // 
+      
+      function showColumnNumber(enabled, pos) {
+        var ctr = document.getElementById("colNumMode");
+        if (enabled) {
+          ctr.textContent = "Ch:" + (pos.ch + 1);
+        } else {
+          ctr.textContent = "";          
+        }
+      } // function showColumnNumber(..)
+
+      var uiCtrl = {
+        codeModeModifier: {
+          update: function(modType, text) {
+            document.getElementById(modType).textContent = text;
+          },
+          remove: function(modType) {
+            document.getElementById(modType).textContent = "";
+          }
+        }, 
+        setSearchStatus: function(query, numMatched) {
+          var ctr = document.getElementById("searchStatus");
+          if (query) {
+            ctr.textContent =  numMatched + ' matched';
+          } else {
+            ctr.textContent = '';
+          }
+        }
+      };
+      
+      //
+      // END bare-bone uiCtrl
+   
+      require.config({
+        packages: [{
+          name: "codemirror", // establish codemirror namespace for package resolution
+          location: "../../node_modules/codemirror",
+        }, {
+          name: "codemirror-plus", 
+          location: "../",
+        }, { // namespace for other 3rd-party packages
+          name: "jshint", 
+          location: "../../node_modules/jshint",          
+        }, {
+          name: "jsonlint", 
+          location: "../../node_modules/jsonlint",          
+        }, {
+          name: "htmlhint", 
+          location: "../../node_modules/htmlhint",
+          main: "lib/htmlhint", // addon/html-lint requires main definition
+        }, 
+                  ]});
+      require([ "codemirror/lib/codemirror",
+                "codemirror-plus/addon/builder/cm-init" ], function(CodeMirror) {
+        var editor = CodeMirror.builder.create(document.getElementById("code"), uiCtrl);
+
+        editor.setOption("mode", "text/html");
+        CodeMirror.builder.initMode(editor, editor.getMode().name, uiCtrl);
+          
+        editor.setValue(document.body.innerHTML);
+
+        // Misc. one-time config (across all CodeMirror instances)
+        CodeMirror.modeURL = "codemirror/mode/%N/%N";
+        CodeMirror.initEvalSandboxWithPath("../addon/eval");
+        
+        document.getElementById("markdown").addEventListener("click", function() {
+          CodeMirror.requireMode("markdown", function() {
+            editor.replaceRange("This is **Markdown**.\n\n", {line: 0, ch: 0});
+            editor.setOption("mode", "markdown");
+          });
+        });
+
+        document.getElementById("themeCtl").addEventListener("click", function() {
+          if ('blackboard' === editor.getOption('theme')) {
+            editor.setOption('theme', 'default');
+          } else {
+            editor.setOption('theme', 'blackboard');  
+          }          
+        });
+
+        // exports to global
+        // Not strictly needed by demo, 
+        // but for ease of tweaking by developers.
+        window.CodeMirror = CodeMirror;
+        window.editor = editor;
+      });
+    </script>
+  </article>
+</body>

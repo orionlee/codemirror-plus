@@ -71,6 +71,7 @@
         "Ctrl-Q": "toggleFold",
         "Shift-Ctrl-Q": "foldAll", // toggleFoldAll is problematic both semantically and implementation
         "Ctrl-Space": "autocomplete",
+        "Alt-F": "findPersistent", 
       },
       foldGutter: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
@@ -106,7 +107,7 @@
     initSelectFold(cm);
     initSelectToLine(cm);
 
-    extendSearchUI(cm, uiCtrl);
+    /// DO NOT CHECK-IN extendSearchUI(cm, uiCtrl);
 
     initToggleShowTrailingSpace(CodeMirror);
     cm.setOption('newlineAndIndent', {removeTrailingSpace: true} ); // depends on trailingspace-removal.js

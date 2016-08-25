@@ -143,11 +143,13 @@
       function countNumMatched(query) {
         var qryREActual = (function() {
           if (typeof(query) === 'string') {
-            if (query.toLowerCase() === query) {
+            // escape special characters used by RegExp 
+            var queryTxtForRE = query.replace(/([.[(+*?])/g, '\\$1');  
+            if (queryTxtForRE.toLowerCase() === queryTxtForRE) {
               // case insenstive search
-              return new RegExp(query, 'gi');
+              return new RegExp(queryTxtForRE, 'gi');
             } else {
-              return new RegExp(query, 'g');
+              return new RegExp(queryTxtForRE, 'g');
             }
           } else if (RegExp.prototype.isPrototypeOf(query)) {
             // query is already a regex, create a global version

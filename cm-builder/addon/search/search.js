@@ -9,6 +9,9 @@
 // replace by making sure the match is no longer selected when hitting
 // Ctrl-G.
 
+//
+// Forked from: CodeMirror v5.18.1
+// 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"), require("./searchcursor"), require("../dialog/dialog"));
@@ -39,13 +42,21 @@
     }};
   }
 
-  function SearchState() {
-    this.posFrom = this.posTo = this.lastQuery = this.query = null;
+  function SearchState(cm) {
+    this.posFrom = this.posTo = this.lastQuery = this._query = null;
     this.overlay = null;
+    this.cm = cm;
   }
+  Object.defineProperty(SearchState.prototype, 'query', { 
+    get: function() { return this._query; }, 
+    set: function(val) { 
+      this._query = val;
+      CodeMirror.signal(this.cm, "search", val);
+    }
+  });
 
   function getSearchState(cm) {
-    return cm.state.search || (cm.state.search = new SearchState());
+    return cm.state.search || (cm.state.search = new SearchState(cm));
   }
 
   function queryCaseInsensitive(query) {

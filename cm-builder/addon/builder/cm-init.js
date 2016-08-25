@@ -107,7 +107,7 @@
     initSelectFold(cm);
     initSelectToLine(cm);
 
-    /// DO NOT CHECK-IN extendSearchUI(cm, uiCtrl);
+    extendSearchUI(cm, uiCtrl);
 
     initToggleShowTrailingSpace(CodeMirror);
     cm.setOption('newlineAndIndent', {removeTrailingSpace: true} ); // depends on trailingspace-removal.js
@@ -117,10 +117,12 @@
     return cm;
   } // function createCodeMirror
 
+  /**
+   * Extend standard CodeMirror search addon to show number of matches in the 
+   * parent UI.  
+   * @param uiCtrl parent UI abstraction, it should have a function .setSearchStatus(query, numMatched) that can be used to update number of matches of search.
+   */
   function extendSearchUI(cm, uiCtrl) {
-    // build-in CodeMirror search does not provide any hooks to add features (such as UI)
-    // here we use a workaround by observing changes in CodeMirror
-    // internal state cm._searchState, and invokes UI callback to update changes
 
     if (!uiCtrl.setSearchStatus) {
       console.debug('extendSearchUI(): uiCtrl does not implement setSearchStatus(). No extended UI will be used.');
@@ -128,7 +130,7 @@
     }
 
     // the observer/Eventlistener-like callback to be used to trigger UI
-    function onSearchChange(evt) {
+    function onSearchChange(query) {
       // built-in search only searches one at a time and does not provide count
       // hence we are doing a separate search to get the count
       // a caveat is when the editor content changes, the count does not change.
@@ -163,27 +165,17 @@
       } // function countNumMatched()
 
       // Main logic
-      if (!evt.query) {
+      if (!query) {
         uiCtrl.setSearchStatus(null, 0);
       } else {
-        var numMatched = countNumMatched(evt.query);
-        uiCtrl.setSearchStatus(evt.query, numMatched);
+        var numMatched = countNumMatched(query);
+        uiCtrl.setSearchStatus(query, numMatched);
       }
 
     } // function onSearchChange(..)
 
-    function findWithExtendUI(cm) {
-      CodeMirror.commands.find(cm);
-      // search UI invoked, so cm._searchState should be there
-      // try to register the observer for changes
-      if (cm._searchState && !cm._searchState.onQueryChange) {
-        cm._searchState.onQueryChange = onSearchChange;
-      }
-    } // function findWithExtendUI()
-
-    cm.addKeyMap({
-      "Ctrl-F": findWithExtendUI
-    });
+    cm.on("search", onSearchChange);
+    
   } // function extendSearchUI(..)
 
 

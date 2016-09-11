@@ -43,11 +43,11 @@
 
               "codemirror/addon/lint/lint",
 
-              // Note: prefer to use 2.5.1 - 2.6.3. 
+              // Note: prefer to use 2.5.1 - 2.6.3.
               // Versions < v.2.5, or  v2.7.0+ (at least up to v2.9.3)
               // does not work with RequireJs / AMD
               // @see https://github.com/jshint/jshint/issues/2840
-              "jshint/dist/jshint", 
+              "jshint/dist/jshint",
               "codemirror/addon/lint/javascript-lint",
 
               "jsonlint/lib/jsonlint",
@@ -561,15 +561,44 @@
     })(); // var initFunc4Mode =
 
 
+    // Make links in markdown clickable
+    function openCmLinkOnNewWindow(cm, evt) {
+      function doOpen(elt) {
+        if (!elt.classList.contains('cm-url')) {
+          throw new TypeError('Element must be of css class cm-url. Actual: ' + elt.className);
+        }
+        var url = elt.textContent.replace(/^\(|\)$/g, ''); // form (http://abcdef)
+        var doc = elt.ownerDocument;
+        var a = doc.createElement('a');
+        a.id = 'tempLinkToOpen';
+        a.target = "_blank";
+        a.href = url;
+        doc.body.appendChild(a);
+        a.click();
+        a.remove();
+      } // function doOpen(..)
+
+      var cl = evt.target.classList;
+      if (cl.contains('cm-url')) {
+        doOpen(evt.target);
+      } else if (cl.contains('cm-link')) {
+        doOpen(evt.target.nextElementSibling); // should be a .cm-url
+      } // else N/A: do nothing
+    } // function openCmLinkOnNewWindow(..)
+
     function addPreviewLikeStyle4MarkdownModes(cm, mode) {
       var wrapperElt = cm.getWrapperElement();
       if ("markdown" === mode || "gfm" === mode) {
         wrapperElt.classList.add('cm-m-markdown');
+        // CodeMirror does not support click event.
+        //@see https://github.com/codemirror/CodeMirror/issues/3145
+        cm.on('mousedown', openCmLinkOnNewWindow);
       } else {  // in case previous file is .md . Need to remove the extra styling
-        wrapperElt.classList.remove('cm-m-markdown');        
+        wrapperElt.classList.remove('cm-m-markdown');
+        cm.off('mousedown', openCmLinkOnNewWindow);
       }
     } // function addPreviewLikeStyle4MarkdownModes(..)
-    
+
     //
     // main logic
     //

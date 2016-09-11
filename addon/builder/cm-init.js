@@ -560,6 +560,16 @@
       return res;
     })(); // var initFunc4Mode =
 
+
+    function addPreviewLikeStyle4MarkdownModes(cm, mode) {
+      var wrapperElt = cm.getWrapperElement();
+      if ("markdown" === mode || "gfm" === mode) {
+        wrapperElt.classList.add('cm-m-markdown');
+      } else {  // in case previous file is .md . Need to remove the extra styling
+        wrapperElt.classList.remove('cm-m-markdown');        
+      }
+    } // function addPreviewLikeStyle4MarkdownModes(..)
+    
     //
     // main logic
     //
@@ -569,6 +579,7 @@
     /*jshint sub:false*/
     try {
       modeInitFunc(cm);
+      addPreviewLikeStyle4MarkdownModes(cm, mode);
     } catch(e) {
       console.group('modeInitFunc:'+mode);
       console.error('Error in initializing %s-specific features. Some features might not work.', mode);

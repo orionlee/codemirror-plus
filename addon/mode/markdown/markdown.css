@@ -1,0 +1,47 @@
+/* TODO: how to add .cm-m-markdown CSS class */
+.CodeMirror.cm-m-markdown {
+  font-family: sans-serif;
+}
+
+.CodeMirror.cm-m-markdown .CodeMirror-lines {
+  /**
+   * sans-serif generally larger than monospace, 
+   * make them smaller so they appear similar in size as monospace
+   * set it at the inner .CodeMirror-lines element
+   * rather than top-level wrapper .CodeMirror, so that any overall
+   * font-size adjustment (done at .CodeMirror level) will remain effective
+   */
+  font-size: 90%; 
+}
+
+.cm-m-markdown .cm-header-1 { font-size: 150%; }
+.cm-m-markdown .cm-header-2 { font-size: 130%; }
+.cm-m-markdown .cm-header-3 { font-size: 115%; }
+.cm-m-markdown .cm-header-4 { font-size: 105%; }
+.cm-m-markdown .cm-header-5 { font-size: 105%; }
+.cm-m-markdown .cm-header-6 { font-size: 105%; }
+
+.cm-m-markdown .cm-comment, .cm-m-markdown .cm-quote {
+  font-family: Consolas, monospace;
+  /** 
+   * Compensate monospace tends to be smaller than sans-serif. 
+   * See rule .CodeMirror.cm-m-markdown .CodeMirror-lines
+   */ 
+  font-size: 110%;
+}
+
+.cm-m-markdown .cm-url { 
+  max-width: 20ch;
+  max-height: 1em;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  white-space: nowrap;  
+}
+
+.cm-m-markdown .cm-url:hover { 
+  display: inline;
+}
+
+.cm-m-markdown  {  }
+

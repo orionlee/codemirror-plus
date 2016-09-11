@@ -63,6 +63,7 @@
    */
   function initRemoveAllTrailingSpaces(CodeMirror) {
     function removeAllTrailingSpaces(cm) {
+      var curPos = cm.getCursor(); // save cursor position
       var lines = cm.getValue().split(/[\n\r]/);
       var modified = false;
       var newLines = lines.map(function(line) {
@@ -76,6 +77,7 @@
       if (modified) {
         var newText = newLines.join(cm.doc.lineSeparator());
         cm.setValue(newText);
+        cm.setCursor(curPos); // restore cursor poistion.
       }
       // else do nothing: avoid unnecessarily doing cm.setValue(),
       // which will change the state of the doc and mark it as dirty.

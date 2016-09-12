@@ -17,13 +17,19 @@
   },
   "author": "Sam Lee",
   "license": "MIT",
-  "dependencies": {
+  "peerDependencies": {
     "codemirror": "^5.17.0",
     "htmlhint": "^0.9.13",
     "jsonlint": "^1.6.2",
     "jshint": "2.5.1 - 2.6.3"
   },
+  "//" : "codemirror is the only required (peer) dependecies. The rest are optional, needed by specific addons.", 
   "//" : "jshint: pre-2.5.1 or post-2.6.3 breaks in RequireJS environment. Avoid Latest for now.",
-  "//" : "Dependencies need to be installed to run the demo.",
-  "//" : "If only individual addon is needed in your application, they may not be necessary."
+  "devDependencies": {
+    "codemirror": "^5.17.0",
+    "htmlhint": "^0.9.13",
+    "jsonlint": "^1.6.2",
+    "jshint": "2.5.1 - 2.6.3"
+  },
+  "//" : "devDependencies: what are needed to run the demo, not really needed for build. (There is no npm install --peers yet.)"
 }

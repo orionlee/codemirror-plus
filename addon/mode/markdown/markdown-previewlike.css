@@ -73,5 +73,5 @@
   /* .cm-comment corresponds to markdown code, force it to use normal
    * as some styling make .cm-comment italic
    */
-  font-style: normal !important;
+  font-style: normal;
 }

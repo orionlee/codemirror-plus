@@ -586,18 +586,46 @@
       } // else N/A: do nothing
     } // function openCmLinkOnNewWindow(..)
 
-    function addPreviewLikeStyle4MarkdownModes(cm, mode) {
+
+    var cursorMark = null; // state used by setCursorAtCSSClass()
+    /**
+     * Add cm-cursor-at CSS class to the token where the cursor is
+     * It is used to make some tokens to have preview-like styling
+     * where the cursor is not at it, but appears normal editable text
+     * when the cursor is at it.
+     * Tokens need such help include: url and hr in markdown mode,
+     */
+    function setCursorAtCSSClass(cm) {
+      if (cursorMark) cursorMark.clear(); // clear previous one
+      var pos = cm.getCursor();
+      var token = cm.getTokenAt(pos);
+      var Pos = CodeMirror.Pos;
+      cursorMark = cm.markText(Pos(pos.line, token.start), Pos(pos.line, token.end),
+                  {className: 'cm-cursor-at'});
+    } // function setCursorAtCSSClass(..)
+
+
+    function supportMarkdownModesPreviewLikeStyle(cm, mode) {
+      // Note:
+      // It requires caller to supply the mode name *explicitly*,
+      // rather than relying on cm.getDoc().getMode().name
+      // because in the case the mode is first (lazily and asychronously) loaded,
+      // the mode may not yet be loaded by this point of execution.
       var wrapperElt = cm.getWrapperElement();
       if ("markdown" === mode || "gfm" === mode) {
         wrapperElt.classList.add('cm-m-markdown');
         // CodeMirror does not support click event.
         //@see https://github.com/codemirror/CodeMirror/issues/3145
         cm.on('mousedown', openCmLinkOnNewWindow);
+        cursorMark = null; // clear any mark reference, in case there is some set in previous buffer
+        cm.on('cursorActivity', setCursorAtCSSClass);
+        setCursorAtCSSClass(cm);
       } else {  // in case previous file is .md . Need to remove the extra styling
         wrapperElt.classList.remove('cm-m-markdown');
         cm.off('mousedown', openCmLinkOnNewWindow);
+        cm.off('cursorActivity', setCursorAtCSSClass);
       }
-    } // function addPreviewLikeStyle4MarkdownModes(..)
+    } // function supportMarkdownModesPreviewLikeStyle(..)
 
     //
     // main logic
@@ -608,7 +636,7 @@
     /*jshint sub:false*/
     try {
       modeInitFunc(cm);
-      addPreviewLikeStyle4MarkdownModes(cm, mode);
+      supportMarkdownModesPreviewLikeStyle(cm, mode);
     } catch(e) {
       console.group('modeInitFunc:'+mode);
       console.error('Error in initializing %s-specific features. Some features might not work.', mode);

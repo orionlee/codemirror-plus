@@ -1,5 +1,7 @@
 /* Styles to make markdown mode LivePreview -like
- * It depends on .cm-m-markdown class is set to .CodeMirror element
+ * It depends (set programtically) on:
+ * - .cm-m-markdown class is set to .CodeMirror element
+ * - .cm-cursor-at class prssent for the token where the cursor is.
  */
 
 .CodeMirror.cm-m-markdown {
@@ -8,13 +10,13 @@
 
 .CodeMirror.cm-m-markdown .CodeMirror-lines {
   /**
-   * sans-serif generally larger than monospace, 
+   * sans-serif generally larger than monospace,
    * make them smaller so they appear similar in size as monospace
    * set it at the inner .CodeMirror-lines element
    * rather than top-level wrapper .CodeMirror, so that any overall
    * font-size adjustment (done at .CodeMirror level) will remain effective
    */
-  font-size: 90%; 
+  font-size: 90%;
 }
 
 .cm-m-markdown .cm-header-1 { font-size: 150%; }
@@ -26,30 +28,30 @@
 
 .cm-m-markdown .cm-comment, .cm-m-markdown .cm-quote {
   font-family: Consolas, monospace;
-  /** 
-   * Compensate monospace tends to be smaller than sans-serif. 
+  /**
+   * Compensate monospace tends to be smaller than sans-serif.
    * See rule .CodeMirror.cm-m-markdown .CodeMirror-lines
-   */ 
+   */
   font-size: 110%;
 }
 
 /* cm-url shorterned so it is less cluttered.
  * downside: it is hard to edit (one must mouseover the state)
  */
-.cm-m-markdown .cm-url { 
+.cm-m-markdown .cm-url {
   max-width: 20ch;
   max-height: 1em;
   display: inline-block;
   overflow: hidden;
-  text-overflow: ellipsis; 
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cm-m-markdown .cm-url:hover { 
+.cm-m-markdown .cm-url:hover, .cm-m-markdown .cm-url.cm-cursor-at {
   display: inline;
 }
 
-.cm-m-markdown .cm-url, .cm-m-markdown .cm-link { 
+.cm-m-markdown .cm-url, .cm-m-markdown .cm-link {
   cursor: pointer; /* appears to be clickable, which they are, backed by accompanying code */
 }
 
@@ -59,6 +61,17 @@
   height: 0px;
   border-style: inset;
   border-width: 1px;
-  color: transparent; /* make text --- diseappear */
+  overflow-y: hidden; /* make text --- diseappear */
 }
 
+.cm-m-markdown .cm-hr.cm-cursor-at {
+  display: inline;
+  border: none;
+}
+
+.cm-m-markdown .cm-comment {
+  /* .cm-comment corresponds to markdown code, force it to use normal
+   * as some styling make .cm-comment italic
+   */
+  font-style: normal !important;
+}

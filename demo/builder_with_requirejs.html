@@ -23,11 +23,19 @@
   <article>
     <h2>CodeMirror Plus: builder addon with RequireJS module loading demo</h2>
 
-    <p>This demo loads its dependencies
+    <p>This demo demonstrates many of the addons included in this package. For example:</p>
+    <ul>
+      <li>Use <code>Alt-X</code> to run CodeMirror <a href="http://codemirror.net/doc/manual.html#commands">commands</a></li>
+      <li>Use <code>Alt-E</code> to run (evaluate) javascript (in sandbox)</li>
+      <li><code>Ctrl-Space</code> for auto complete</li>
+      <li><code>Ctrl-F</code> for search</li>
+      <li><code>F10</code> to toggle lint on/off.</li>
+    </ul>
+    <p>It also loads its dependencies
     with <a href="http://requirejs.org/">Require.js</a>, rather than
     explicitly.</p>
 
-    <p>The bulk of the dependencies is handled by <code>CodeMirror.builder</code> addon. However, it still requires:</p>
+    <p>The bulk of the dependencies is handled by <code><a href="../addon/builder/cm-init.js">CodeMirror.builder</a></code> addon. However, it still requires:</p>
     <ol>
       <li>The namespaces of various libaries be setup via <code>require.config()</code> .</li>
       <li>CSS stylesheets be explicitly linked.</li>
@@ -41,7 +49,7 @@
     </div>
 
     <div id="tip" style="font-size: 90%;">
-      Tips: Use <code>Alt-X</code> to run CodeMirror commands, <code>Ctrl-Space</code> for auto complete, <code>Ctrl-F</code> for search, <code>F10</code> to toggle lint on/off.
+      Tips: 
     </div>
     <button id="markdown">Dynamically load Markdown mode</button>
     &emsp;
@@ -116,7 +124,7 @@
         
         document.getElementById("markdown").addEventListener("click", function() {
           CodeMirror.requireMode("markdown", function() {
-            editor.replaceRange("# Markdown\n- This is **Markdown**.\n- See [markdown](http://daringfireball.net/projects/markdown/)\n\n", {line: 0, ch: 0});
+            editor.replaceRange("# Markdown\n---\n- This is **Markdown**.\n- See [markdown](http://daringfireball.net/projects/markdown/)\n\n", {line: 0, ch: 0});
             editor.setOption("mode", "markdown");
             editor.supportMarkdownModesPreviewLikeStyle('markdown'); // for the optional Preview-like styling
           });

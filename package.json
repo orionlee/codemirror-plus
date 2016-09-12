@@ -1,0 +1,25 @@
+{
+  "name": "codemirror-plus",
+  "version": "0.4.0",
+  "description": "A collection of add-ons for CodeMirror that can be used individually. Furthermore, addon/builder helps to build feature-rich pre-packaged CodeMirror instance that use many of the addons here and from official distribution. See demo/builder_with_requirejs.html for an example.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Editor",
+    "Javascript",
+    "CodeMirror",
+    "addon"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "codemirror": "^5.17.0",
+    "htmlhint": "^0.9.13",
+    "jsonlint": "^1.6.2",
+    "jshint": "2.5.1 - 2.6.3"
+  },
+  "//" : "jshint: pre-2.5.1 or post-2.6.3 breaks in RequireJS environment. Avoid Latest for now.",
+  "//" : "Dependencies need to be installed to run the demo.",
+  "//" : "If only individual addon is needed in your application, they may not be necessary."
+}

@@ -4,14 +4,15 @@
   <title>CodeMirror Plus: builder addon with RequireJS demo</title>
   <meta charset="utf-8"/>
 
-  <link rel="stylesheet" href="../../node_modules/codemirror/lib/codemirror.css">
-  <link rel="stylesheet" href="../../node_modules/codemirror/addon/hint/show-hint.css">
-  <link rel="stylesheet" href="../../node_modules/codemirror/addon/fold/foldgutter.css" />
-  <link rel="stylesheet" href="../../node_modules/codemirror/addon/dialog/dialog.css">
-  <link rel="stylesheet" href="../../node_modules/codemirror/addon/lint/lint.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/hint/show-hint.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/fold/foldgutter.css" />
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/dialog/dialog.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/lint/lint.css">
   <link rel="stylesheet" href="../addon/builder/cm-init.css">
+  <link rel="stylesheet" href="../addon/mode/markdown/markdown-previewlike.css">
   
-  <link rel="stylesheet" href="../../node_modules/codemirror/theme/blackboard.css" />
+  <link rel="stylesheet" href="../node_modules/codemirror/theme/blackboard.css" />
   <script src="http://requirejs.org/docs/release/2.2.0/comments/require.js"></script>
   <style type="text/css">
     .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
@@ -84,19 +85,19 @@
       require.config({
         packages: [{
           name: "codemirror", // establish codemirror namespace for package resolution
-          location: "../../node_modules/codemirror",
+          location: "../node_modules/codemirror",
         }, {
           name: "codemirror-plus", 
           location: "../",
         }, { // namespace for other 3rd-party packages
           name: "jshint", 
-          location: "../../node_modules/jshint",          
+          location: "../node_modules/jshint",          
         }, {
           name: "jsonlint", 
-          location: "../../node_modules/jsonlint",          
+          location: "../node_modules/jsonlint",          
         }, {
           name: "htmlhint", 
-          location: "../../node_modules/htmlhint",
+          location: "../node_modules/htmlhint",
           main: "lib/htmlhint", // addon/html-lint requires main definition
         }, 
                   ]});
@@ -115,8 +116,9 @@
         
         document.getElementById("markdown").addEventListener("click", function() {
           CodeMirror.requireMode("markdown", function() {
-            editor.replaceRange("This is **Markdown**.\n\n", {line: 0, ch: 0});
+            editor.replaceRange("# Markdown\n- This is **Markdown**.\n- See [markdown](http://daringfireball.net/projects/markdown/)\n\n", {line: 0, ch: 0});
             editor.setOption("mode", "markdown");
+            editor.supportMarkdownModesPreviewLikeStyle('markdown'); // for the optional Preview-like styling
           });
         });
 

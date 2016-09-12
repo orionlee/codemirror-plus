@@ -16,6 +16,8 @@
   <script src="http://requirejs.org/docs/release/2.2.0/comments/require.js"></script>
   <style type="text/css">
     .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
+
+    code { background-color: #EEE; padding: 0 0.5ch; }
   </style>
 </head>
 
@@ -31,11 +33,10 @@
       <li><code>Ctrl-F</code> for search</li>
       <li><code>F10</code> to toggle lint on/off.</li>
     </ul>
-    <p>It also loads its dependencies
+    <p><span style="background-color: yellow;">Note:</span> The demo requires <code>codemirror</code> and a few other packages install. Run <code>npm install</code> at root diectory to install them.</p>
+    <p>Dependencies: The demo loads its dependencies
     with <a href="http://requirejs.org/">Require.js</a>, rather than
-    explicitly.</p>
-
-    <p>The bulk of the dependencies is handled by <code><a href="../addon/builder/cm-init.js">CodeMirror.builder</a></code> addon. However, it still requires:</p>
+    explicitly. While the bulk of the dependencies is handled by <code><a href="../addon/builder/cm-init.js">CodeMirror.builder</a></code> addon, it still requires:</p>
     <ol>
       <li>The namespaces of various libaries be setup via <code>require.config()</code> .</li>
       <li>CSS stylesheets be explicitly linked.</li>
